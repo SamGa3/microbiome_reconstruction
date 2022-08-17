@@ -14,8 +14,6 @@ tar -xvf data/RNAseq/bacteria/raw/score/SKCM_bacteria_species_score.tar.xz --dir
 
 # data folder
 mkdir -p data/pathseq_tools
-mkdir -p data/humann_tools/chocophlan
-mkdir -p data/humann_tools/uniref
 mkdir -p data/RNAseq/humann_output/random_subset_left
 mkdir -p data/RNAseq/humann_output/random_subset_right
 mkdir -p data/RNAseq/humann_output/example/ERR2756905_out
