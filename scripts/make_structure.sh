@@ -22,6 +22,9 @@ mkdir -p data/RNAseq/humann_output/example
 mkdir -p data/RNAseq/bacteria/ComBat_read_length/merged_unamb_score_norm
 mkdir -p data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD
+mkdir -p data/RNAseq/bacteria/raw/merged_ambig_norm/COAD
+mkdir -p data/RNAseq/bacteria/raw/merged_score_norm/COAD
+mkdir -p data/RNAseq/bacteria/raw/merged_unamb_norm/COAD
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/GBM
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/HNSC
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/LUAD
