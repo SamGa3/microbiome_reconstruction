@@ -1,0 +1,185 @@
+---
+title: "Cox Proportional-Hazards Model - Univariate analisys"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  surv_data: # vector of survival data file paths
+  survival_analysis: # array with time and status(in 0/1 or 1/2 for live/dead) column labels and acronym of the analysis to be done, in this order
+  taxa: # vector of all taxa values files paths
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  numeric_covariates: "all" # list of numeric covariates
+  timerange_cont: "" # list of arrays of two numbers for starting and end point of time for continuous properties
+  total_taxa: "../../data/all_bacteria_species.txt" # path where all taxa are listed
+  output: "" # path output
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(survival)
+	library(survminer)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Survival data
+			surv_data=read.csv(params$surv_data, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		# Taxa quantification
+			if(all(is.na(params$taxa))){
+				taxa_values=NA
+			} else if(length(params$taxa)>1){
+				taxa_values=join_taxa_table(taxa_paths=params$taxa)
+			} else {
+				taxa_values=read.csv(params$taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Timerange
+			timerange=lapply(params$timerange_cont, function(x){
+					if(x==""){
+						return(c(min(surv_data[,params$survival_analysis[1]], na.rm=TRUE), max(surv_data[,params$survival_analysis[1]], na.rm=TRUE)))
+					} else {
+						return(x)
+					}
+				}
+			)	
+			timerange_labels=sapply(timerange, function(x){
+					paste(x, collapse="_")
+				}
+			)
+		# Total taxa
+			all_taxa_tab=read.csv(params$total_taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)		
+			all_taxa=all_taxa_tab[,2]
+			names(all_taxa)=as.character(all_taxa_tab[,1])
+```
+
+```{r select_samples, include = FALSE}
+	# Match survival_data and taxa_values
+		surv_data=match_metadata(metadata=surv_data, taxa_values=taxa_values, colname_metadata="file_id")
+```
+
+```{r new_metadata_property, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				feat=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+				metadata=data.frame(metadata, feat)
+				colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+			}
+		}
+```
+
+```{r scale_to_0_1_range, echo = FALSE}
+	# Scale the numeric covariates to 0-1 range
+		if(all(params$numeric_covariates=="all")){
+			scaled_feat=create_new_property(metadata=taxa_values, old_feat=colnames(taxa_values), met="range_0to1")
+			colnames(scaled_feat)=paste("scaled_", colnames(taxa_values), sep='')
+			metadata=data.frame(surv_data, scaled_feat)
+			tot_cov=paste("scaled_", colnames(taxa_values), sep='')
+		} else {
+			scaled_feat=create_new_property(metadata=taxa_values, old_feat=gsub("X", "", params$numeric_covariates), met="range_0to1")
+			colnames(scaled_feat)=paste("scaled_", params$numeric_covariates, sep='')
+			metadata=data.frame(surv_data, scaled_feat)
+			tot_cov=paste("scaled_", params$numeric_covariates, sep='')
+		}
+	# Remove unknown status for patients
+		p=sapply(metadata[,params$survival_analysis[2]], function(x){
+				if(x!=0 & x!=1 & x!=2){
+					return(FALSE)
+				} else {
+					return(TRUE)
+				}
+			}
+		)
+		metadata=metadata[p,]
+		if(class(metadata[,params$survival_analysis[2]])!="logical"){
+			metadata[,params$survival_analysis[2]]=as.numeric(as.character(metadata[,params$survival_analysis[2]]))
+		}
+```
+
+```{r univariate_analysis, echo = FALSE}
+	# Univariate analysis
+		univ_results_tmp=lapply(tot_cov, function(x){
+				res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+										x, sep='')), data=metadata)
+				res_sum=summary(res_cox)
+				p.value=signif(res_sum$wald["pvalue"], digits=2)
+	      wald.test=signif(res_sum$wald["test"], digits=2)
+	      beta=signif(res_sum$coef[,1], digits=2) #coeficient beta
+	      HR=signif(res_sum$coef[,2], digits=2) #exp(beta)
+	      HR.confint.lower=signif(res_sum$conf.int[,"lower .95"], 2)
+	      HR.confint.upper=signif(res_sum$conf.int[,"upper .95"],2)
+	      p=which(names(all_taxa)==gsub("scaled_", "", gsub("X", "", x)))
+	      if(length(p)>0){
+	      	tax_name=all_taxa[[p]]
+	      } else {
+	      	tax_name=x
+	      }
+	      
+	      res=data.frame(tax_name, beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(beta)), rep(p.value, length(beta)))
+	      colnames(res)=c("taxa_name", "beta", "HR", "lower_95_CI", "upper_95_CI","wald.test", "p.value")
+	      rownames(res)=rownames(res_sum$conf.int)
+	      return(res)
+			}
+		)
+		univ_results=do.call(rbind, univ_results_tmp)
+		univ_results$beta=as.numeric(as.character(univ_results$beta))
+		univ_results$p.value=as.numeric(as.character(univ_results$p.value))
+		univ_results$wald.test=as.numeric(as.character(univ_results$wald.test))
+		q.value=p.adjust(univ_results[,"p.value"], method="fdr")
+		univ_results=data.frame(gsub("scaled_", "", rownames(univ_results)), univ_results, q.value)
+		colnames(univ_results)[1]="tax_id"
+```
+
+```{r write_tabs1, echo = FALSE}
+	write.table(univ_results, file=paste(params$output, "univ_cox.txt", sep=''), quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+```
+
+```{r univariate_timerange_analysis, echo = FALSE}
+	# Univariate analysis with timerange
+		univ_timerange_results_tmp=lapply(1:length(tot_cov), function(x){
+				if(all(params$numeric_covariates=="all")){
+					t1=timerange[[1]][1]
+					t2=timerange[[1]][2]
+				} else {
+					t1=timerange[[x]][1]
+					t2=timerange[[x]][2]
+				}
+				p=which(metadata[,params$survival_analysis[1]]>=t1 & metadata[,params$survival_analysis[1]]<=t2)
+				mat=metadata[p,]
+				res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+										tot_cov[[x]], sep='')), data=mat)
+				res_sum=summary(res_cox)
+				p.value=signif(res_sum$wald["pvalue"], digits=2)
+	      wald.test=signif(res_sum$wald["test"], digits=2)
+	      beta=signif(res_sum$coef[,1], digits=2) #coeficient beta
+	      HR=signif(res_sum$coef[,2], digits=2) #exp(beta)
+	      HR.confint.lower=signif(res_sum$conf.int[,"lower .95"], 2)
+	      HR.confint.upper=signif(res_sum$conf.int[,"upper .95"],2)
+	      p=which(names(all_taxa)==gsub("scaled_", "", gsub("X", "", tot_cov[[x]])))
+	      if(length(p)>0){
+	      	tax_name=all_taxa[[p]]
+	      } else {
+	      	tax_name=tot_cov[[x]]
+	      }
+	      
+	      res=data.frame(tax_name, beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(beta)), rep(p.value, length(beta)), rep(paste(t1, t2, sep="_"), length(beta)))
+	      colnames(res)=c("taxa_name", "beta", "HR", "lower_95_CI", "upper_95_CI","wald.test", "p.value", "timerange")
+	      rownames(res)=rownames(res_sum$conf.int)
+	      return(res)
+			}
+		)
+		univ_timerange_results=do.call(rbind, univ_timerange_results_tmp)
+		q.value=p.adjust(univ_timerange_results[,"p.value"], method="fdr")
+		univ_timerange_results=data.frame(gsub("scaled_", "", rownames(univ_timerange_results)), univ_timerange_results, q.value)
+		colnames(univ_timerange_results)[1]="tax_id"
+```
+
+```{r write_tabs2, echo = FALSE}
+	write.table(univ_timerange_results, file=paste(params$output, "univ_cox_timerange.txt", sep=''), quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+```

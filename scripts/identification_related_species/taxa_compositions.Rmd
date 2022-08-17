@@ -1,0 +1,406 @@
+---
+title: "Taxa composition - Independence test"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vector of all metadata files paths
+  join_by: # rows or columns, indicate the direction to join metadatas
+  taxa: # vector of all taxa values files paths
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  cat_properties: # vector of categorical properties 
+  cont_properties: # vector of continuous properties 
+  cat_correction: # vector of properties for cat property correction
+  cont_correction: # vector of properties for continuous properties correction
+  total_taxa: "../../data/all_bacteria_species.txt" # path where all taxa are listed
+  taxa_selection: "all" # vector of taxa (column name) to be selected
+  taxa_selection_approach: "join" # join, intersect, setdiff, indicate the way combination of different taxa to be selected
+  values_not_considered: # vector of values not to be considered in wilcoxon/kruskal tests for cat properties
+  palette: "" # name of one of my palette in general_function
+  table_path: ""
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(ggplot2)
+	library(stringr)
+	library(reshape2)
+	library(scales)
+	library(evaluate)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+	source("functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join_by, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Taxa quantification
+			if(length(params$taxa)>1){
+				taxa_values=join_taxa_table(taxa_paths=params$taxa)
+			} else {
+				taxa_values=read.csv(params$taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+	# Properties (must be column labels of full_metadata)
+		cat_properties=params$cat_properties
+		cont_properties=params$cont_properties
+		if(all(cat_properties=="")){
+			cat_properties=NA
+		}
+		if(all(cont_properties=="")){
+			cont_properties=NA
+		}
+	# Remove samples
+		values_not_considered=params$values_not_considered
+		if(length(values_not_considered)==""){
+			values_not_considered=NA
+		}
+		if(length(cat_properties)!=length(values_not_considered)){
+			stop("Problem in length cat properties and values_not_considered")
+		}
+		names(values_not_considered)=cat_properties
+	# Correction property
+		cat_correction=params$cat_correction
+		if(all(cat_correction=="")){
+			cat_correction=NA
+		} 
+		cont_correction=params$cont_correction
+		if(all(cont_correction=="")){
+			cont_correction=NA
+		}
+	# Set the palette
+		if(any(params$palette!="")){
+			palette_col=my_palettes[params$palette]
+		} else {
+			tot_feat=c(cat_properties, cont_properties)
+			tot_feat=tot_feat[!is.na(tot_feat)]
+			palette_col=as.list(rep("default", length(tot_feat)))
+		}	
+	# Total taxa
+		all_taxa_tab=read.csv(params$total_taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)		
+		all_taxa=all_taxa_tab[,2]
+		names(all_taxa)=as.character(all_taxa_tab[,1])
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_values
+		metadata=match_metadata(metadata=full_metadata, taxa_values=taxa_values, colname_metadata="file_id")
+```
+
+```{r new_metadata_property, include = FALSE}
+	if(all(params$new_property!="")){
+		for(i in 1:length(params$new_property)){
+			prop=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+			metadata=data.frame(metadata, prop)
+			colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+		}
+	}
+	if(any(!is.na(cont_properties))){
+		cont_bin_thr=property_binning_decision(metadata=metadata, columns_to_be_tested=cont_properties, perc_thr=30, perc_NA=30)
+		new_bin_tab=bin_properties(metadata=metadata, binning_decision=cont_bin_thr)
+		metadata=data.frame(metadata, new_bin_tab)
+		properties=c(cat_properties, colnames(new_bin_tab))
+		correction=c(cat_correction, cont_correction)
+		not_consider=c(values_not_considered, as.list(rep("unknown", length(cont_correction))))
+		names(not_consider)=properties
+	} else {
+		properties=cat_properties
+		correction=cat_correction
+		not_consider=values_not_considered
+		names(not_consider)=properties
+	}
+```
+
+```{r taxa_sel, include = FALSE}
+	# Select a subset of taxa
+		if(all(params$taxa_selection!="all")){
+			subset_taxa_list=lapply(params$taxa_selection, function(x){
+					subset_taxa_tab=read.csv(x, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)		
+					subset_taxa=subset_taxa_tab[,2]
+					names(subset_taxa)=as.character(subset_taxa_tab[,1])
+					return(subset_taxa)
+				}
+			)
+			subset_taxa=names(subset_taxa_list[[1]])
+			if(length(subset_taxa_list)>1){
+				for(i in 1:length(params$taxa_selection_approach)){
+					if(params$taxa_selection_approach[[i]]=="join"){
+						tmp=unique(c(subset_taxa, names(subset_taxa_list[[i+1]])))
+						subset_taxa=tmp
+					} else if(params$taxa_selection_approach[[i]]=="intersect"){
+						tmp=intersect(subset_taxa, names(subset_taxa_list[[i+1]]))
+						subset_taxa=tmp
+					} else if(params$taxa_selection_approach[[i]]=="setdiff"){
+						tmp=setdiff(subset_taxa, names(subset_taxa_list[[i+1]]))
+						subset_taxa=tmp
+					} 
+				}
+			}
+			# remove bacteria missing in the table
+			subset_taxa=intersect(subset_taxa, colnames(taxa_values))
+			
+			# select taxa 
+			taxa_values=taxa_values[,subset_taxa]
+			all_taxa=all_taxa[intersect(names(all_taxa), subset_taxa)]
+		}
+```
+
+```{r indep_test, include = FALSE}
+	# Initialize 
+		list_of_tables=list()
+	# Independence test, two sided
+		indep_tab=lapply(1:length(properties), function(x){
+				indep_test(taxa_values=taxa_values, metadata=metadata, property=properties[[x]], 
+							to_be_removed=not_consider[[x]], correction=correction[[x]])
+			}
+		)
+		names(indep_tab)=properties
+		# Add results to results list
+			list_of_tables[[length(list_of_tables)+1]]=indep_tab
+			names(list_of_tables)[length(list_of_tables)]="indep"
+	# Independence test, greater
+		indep_greater_tab=lapply(1:length(properties), function(x){
+				indep_test(taxa_values=taxa_values, metadata=metadata, property=properties[[x]], 
+							to_be_removed=not_consider[[x]], correction=correction[[x]], alternative="greater")
+			}
+		)
+		names(indep_greater_tab)=properties
+		# Add results to results list
+			list_of_tables[[length(list_of_tables)+1]]=indep_greater_tab
+			names(list_of_tables)[length(list_of_tables)]="indep_greater"
+```
+
+```{r make_microbes_tab, include = FALSE}
+	# Make tab with microbes informations
+		final_microbes=data.frame(names(all_taxa), all_taxa)
+		colnames(final_microbes)=c("tax_id", "name")
+	# Extract and save tabs
+		for(i in 1:length(properties)){
+			prop=properties[[i]]
+			tmp=lapply(list_of_tables, function(x){
+					tab=x[[prop]]
+					if(is.null(tab)){
+						return(NA)
+					}
+					if(nrow(tab)!=ncol(taxa_values)){
+						missing_bugs=setdiff(colnames(taxa_values), rownames(tab))
+						tab2=matrix(rep(NA, length(missing_bugs)*ncol(tab)), ncol=ncol(tab))
+						colnames(tab2)=colnames(tab)
+						rownames(tab2)=missing_bugs
+						tab=rbind(tab, tab2)
+					}
+					return(tab)
+				}
+			)
+			pos=sapply(tmp, function(x){!all(is.na(x))})
+			tmp=tmp[pos]
+			tab=do.call(cbind, tmp)
+			# If all_taxa do not contain all taxa detected
+			extra_microb=setdiff(rownames(tab), final_microbes[,1])
+			if(length(extra_microb)!=0){
+				new_microb=as.data.frame(matrix(rep("", ncol(final_microbes)*length(extra_microb)), ncol=ncol(final_microbes)))
+				colnames(new_microb)=colnames(final_microbes)
+				new_microb[,"tax_id"]=extra_microb
+				final_microbes=rbind(final_microbes, new_microb)
+				rownames(final_microbes)=final_microbes[,"tax_id"]
+			}
+			final_tab=data.frame(final_microbes[rownames(tab),], tab)
+			# write table
+				if(!is.na(correction[[i]])){
+					final_path=paste(params$table_path, "_", prop, "_corrby_", correction[[i]], "_indep.txt", sep='')
+				} else {
+					final_path=paste(params$table_path, "_", prop, "_indep.txt", sep='')
+				}
+				write.table(final_tab, file=final_path, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+```
+
+```{r list_of_significant_taxa, include = FALSE}
+	# Make list of significant microbes (p values)
+		sign_microbes_p=lapply(1:length(properties), function(i){
+				feat=properties[[i]]
+					tab=indep_tab[[feat]]
+					pos_p=grep("_p", colnames(tab))[1]
+					if(!is.na(pos_p)){
+						pos_microbes=which(tab[,pos_p]<0.05)
+						sign_microbes_p=rownames(tab)[pos_microbes]
+					} else {
+						sign_microbes_p=NA
+					}			
+				return(sign_microbes_p)
+			}
+		)
+		names(sign_microbes_p)=properties
+	# Make list of significant microbes (q values)
+		sign_microbes_q=lapply(1:length(properties), function(i){
+				feat=properties[[i]]
+				tab=indep_tab[[feat]]
+				pos_q=grep("_q", colnames(tab))[1]
+				if(!is.na(pos_q)){
+					pos_microbes=which(tab[,pos_q]<0.1)
+					sign_microbes_q=rownames(tab)[pos_microbes]
+				} else {
+					sign_microbes_q=NA
+				}			
+				return(sign_microbes_q)
+			}
+		)
+		names(sign_microbes_q)=properties
+```
+
+```{r bar_plots, include = FALSE}
+	bar_mean_plots_indep=lapply(1:length(sign_microbes_q), function(i){
+			taxa=sign_microbes_q[[i]]
+			names(taxa)=all_taxa[taxa]
+			taxa=taxa[sort(names(taxa))]
+			new_nam_taxa=sapply(names(taxa), function(nam){
+					if(strsplit(nam, "_")[[1]][2]=="sp."){
+						p_underscore=which(strsplit(nam, "")[[1]]=="_")
+						new_name=paste(str_sub(nam, 1, p_underscore[[1]]-1), str_sub(nam, p_underscore[[1]]+1, nchar(nam)), sep='\n')
+						new_name=paste(str_sub(new_name, 1, p_underscore[[2]]-1), str_sub(new_name, p_underscore[[2]]+1, nchar(new_name)), sep='\n')
+						new_name=gsub("_", " ", new_name)
+					} else {
+						new_name=gsub("_", "\n", nam)
+					}
+				}
+			)
+			names(taxa)=new_nam_taxa
+		
+			if(length(taxa)!=0){
+				if(any(any(names(sign_microbes_q)[i]==properties) & !is.na(properties))){
+					# Make table of selected taxa
+						taxa_selected_tab=data.frame(taxa_values[,taxa], metadata[,names(sign_microbes_q)[i]])
+						if(ncol(taxa_selected_tab)==2){ # If only one taxa detected, the table must be built in a different way
+							colnames(taxa_selected_tab)=c(paste("X", taxa, sep=""), names(sign_microbes_q)[i])
+						} else {
+							colnames(taxa_selected_tab)[ncol(taxa_selected_tab)]=names(sign_microbes_q)[i]
+						}
+						# remove samples not to be considered
+						p=sapply(taxa_selected_tab[,names(sign_microbes_q)[i]], function(x){
+								any(x==not_consider[[names(sign_microbes_q)[i]]])
+							}
+						)
+						taxa_selected_tab=taxa_selected_tab[!p,]
+						# convert to factor
+						taxa_selected_tab[,names(sign_microbes_q)[i]]=as.factor(taxa_selected_tab[,names(sign_microbes_q)[i]])
+						
+					# Make table of means
+						mean_tab=aggregate(taxa_selected_tab[,1:(ncol(taxa_selected_tab)-1)], list(taxa_selected_tab[,names(sign_microbes_q)[i]]), mean)
+					
+					# Barplot
+						plotting_table=melt(taxa_selected_tab)
+						nam_taxa=sapply(plotting_table[,"variable"], function(x){
+								nam=all_taxa[[gsub("X", "", x)]]
+								if(strsplit(nam, "_")[[1]][2]=="sp."){
+									p_underscore=which(strsplit(nam, "")[[1]]=="_")
+									new_name=paste(str_sub(nam, 1, p_underscore[[1]]-1), str_sub(nam, p_underscore[[1]]+1, nchar(nam)), sep='\n')
+									new_name=paste(str_sub(new_name, 1, p_underscore[[2]]-1), str_sub(new_name, p_underscore[[2]]+1, nchar(new_name)), sep='\n')
+									new_name=gsub("_", " ", new_name)
+								} else {
+									new_name=gsub("_", "\n", nam)
+								}
+							}
+						)
+						plotting_table[,"variable"]=nam_taxa
+						colnames(plotting_table)[3]="Mean_scores"
+						# add standard error
+							tmp_tab=aggregate(formula(paste("Mean_scores ~ ", colnames(plotting_table)[1], " + variable", sep='')), data=plotting_table, FUN=mean, na.rm=TRUE)	
+							se=apply(tmp_tab, 1, function(x){
+									mat=plotting_table[plotting_table[,1]==x[1] & plotting_table[,2]==x[2],]
+									se=sd(mat[,3])/sqrt(length(mat[,3]))
+									return(se)
+								}
+							)
+							se_tab=data.frame(tmp_tab[,1:2], se)
+							se_tab=data.frame(se_tab, tmp_tab[,3], tmp_tab[,3]-se_tab[,3], tmp_tab[,3]+se_tab[,3])
+							colnames(se_tab)=c(colnames(se_tab)[1:2], "se", "mean", "min", "max")
+							tmp_tab=apply(plotting_table, 1, function(x){
+									p=which(se_tab[,1]==x[1] & se_tab[,2]==x[2])
+									return(se_tab[p,c("se", "mean", "min", "max")])
+								}
+							)
+							tmp_tab=do.call(rbind, tmp_tab)
+							plotting_table=data.frame(plotting_table, tmp_tab)
+					# split into pictures of 4 plots
+						groups_of_taxa=split(taxa, ceiling(seq_along(taxa)/6))
+						splitted_plots=lapply(groups_of_taxa, function(y){
+								# taxa table selection
+									pos=sapply(plotting_table[,"variable"], function(nam){
+											if(any(nam==names(y))){
+												return(TRUE)
+											} else {
+												return(FALSE)
+											}
+										}
+									)
+									plotting_table_selection=plotting_table[pos,]
+								# barplot	
+									b_p=ggplot(plotting_table_selection, aes_string(x=names(sign_microbes_q)[i], y="Mean_scores", fill=names(sign_microbes_q)[i]))+
+												geom_bar(position="dodge", stat="summary", fun="mean")+
+												facet_wrap(.~variable, ncol=3)+
+												scale_y_continuous(limits=c(0,max(plotting_table[,"max"])), oob = rescale_none)+ 
+												theme_light()+
+												theme(legend.position="none", strip.text.x=element_text(face="italic"), axis.text.x=element_text(angle=45, hjust=1), axis.title.x=element_blank())+
+												geom_errorbar(aes(ymin=plotting_table_selection[,"min"], ymax=plotting_table_selection[,"max"]), position = position_dodge(), width=0.5,  show.legend = FALSE) 
+									if(all(palette_col[[i]]!="default")){ 
+										b_p=b_p+scale_fill_manual(values=palette_col[[i]])
+									}	
+								# return
+									return(b_p)
+							}
+						)																					
+					# return
+						return(splitted_plots)
+				} else {
+					# return
+						return(NA)
+				}
+			} else {
+				return(NA)
+			}
+		}
+	)
+	names(bar_mean_plots_indep)=names(sign_microbes_q)
+```
+
+Num of taxa {data-orientation=rows}
+===================================== 
+
+```{r, results='asis', fig.show = 'asis', out.width="50%"}
+	out = NULL
+	for(i in 1:length(properties)){
+		cat("\n", sep="")
+		cat(paste(properties[[i]], ": signif. p=", length(sign_microbes_p[[properties[[i]]]]), ", signif. q=", length(sign_microbes_q[[properties[[i]]]]), sep=''))
+		cat("\n", sep="")
+	}
+```
+
+Barplot mean {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="45%"}
+	out = NULL
+	for(i in 1:length(properties)){
+		cat("\n", sep="")
+		cat("### ", properties[[i]], "\n", sep="")
+		evaluate(print(bar_mean_plots_indep[[properties[[i]]]]))
+		cat("\n", sep="")
+	}
+```
