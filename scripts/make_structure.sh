@@ -39,7 +39,7 @@ mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/example
 mkdir -p results/comparison
 mkdir -p results/filters
 mkdir -p results/identification_related_species/tables
-mkdir -p results/ml
+mkdir -p results/ml/images
 mkdir -p results/pathway_analysis/bootstrapped_samples
 mkdir -p results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images
 mkdir -p results/property_association/bacteria_species/raw/merged_unamb_score_norm/COAD
