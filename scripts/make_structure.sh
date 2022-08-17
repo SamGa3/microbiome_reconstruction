@@ -21,6 +21,16 @@ mkdir -p data/RNAseq/humann_output/random_subset_right
 mkdir -p data/RNAseq/humann_output/example
 mkdir -p data/RNAseq/ComBat_read_length/merged_unamb_score_norm
 mkdir -p data/RNAseq/ComBat_plate_id/merged_unamb_score_norm
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/COAD
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/GBM
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/HNSC
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/LUAD
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/LUSC
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/OV
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/READ
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/SKCM
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/IEO
+mkdir -p data/RNAseq/bacteria/merged_unamb_score_norm/example
 
 # result folder
 mkdir -p results/comparison
