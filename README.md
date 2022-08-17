@@ -22,6 +22,7 @@ git clone https://github.com/SamGa3/microbiome_reconstruction.git
 and then you must create the folder structure:
 ```bash
 cd /microbiome_reconstruction
+chmod u+wrx scripts/make_structure.sh
 ./scripts/make_structure.sh
 ```
 
