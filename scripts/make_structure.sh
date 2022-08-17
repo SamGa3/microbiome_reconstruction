@@ -18,7 +18,9 @@ mkdir -p data/humann_tools/chocophlan
 mkdir -p data/humann_tools/uniref
 mkdir -p data/RNAseq/humann_output/random_subset_left
 mkdir -p data/RNAseq/humann_output/random_subset_right
-mkdir -p data/RNAseq/humann_output/example
+mkdir -p data/RNAseq/humann_output/example/ERR2756905_out
+mkdir -p data/RNAseq/humann_output/example/ERR2756906_out
+mkdir -p data/RNAseq/humann_output/example/ERR2756907_out
 mkdir -p data/RNAseq/bacteria/ComBat_read_length/merged_unamb_score_norm
 mkdir -p data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD
