@@ -19,12 +19,17 @@ The first step is to clone this reporitory:
 ```bash
 git clone https://github.com/SamGa3/microbiome_reconstruction.git
 ```
+and then you must create the folder structure:
+```bash
+cd /microbiome_reconstruction
+./scripts/make_structure.sh
+```
 
 ### Manual installation
 
 To download the gatk Pathseq version (more details in the README.md file inside the downloaded folder):
 ```bash
-cd microbiome_reconstruction
+cd /microbiome_reconstruction
 wget https://github.com/broadinstitute/gatk/releases/download/4.0.10.1/gatk-4.0.10.1.zip
 ```
 The required R packages are listed in the requirements.R file. To download all the required R packages:
@@ -60,7 +65,7 @@ All the metadata files and the tables produced by the workflow use a "file_id" c
 
 All the scripts below must be run from the microbiome_reconstruction folder and are written with relative paths, so you don't need to modify the paths. Please make sure you are running the codes from microbiome_reconstruction folder.
 
-#### If you have choosen Docker
+#### If you have chosen Docker
 
 After pulling the docker container as explained above, you must activate it with the interactive way:
 ```bash
