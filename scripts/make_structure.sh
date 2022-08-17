@@ -3,12 +3,12 @@
 cd /microbiome_reconstruction
 
 # Untar score tables
-tar –xvzf data/RNAseq/bacteria/raw/score/COAD_bacteria_species_score.tar.xz
-tar –xvzf data/RNAseq/bacteria/raw/score/OV_bacteria_species_score.tar.xz
-tar –xvzf data/RNAseq/bacteria/raw/score/LUAD_bacteria_species_score.tar.xz
-tar –xvzf data/RNAseq/bacteria/raw/score/HNSC_bacteria_species_score.tar.xz
-tar –xvzf data/RNAseq/bacteria/raw/score/LUSC_bacteria_species_score.tar.xz
-tar –xvzf data/RNAseq/bacteria/raw/score/SKCM_bacteria_species_score.tar.xz
+tar -xvzf data/RNAseq/bacteria/raw/score/COAD_bacteria_species_score.tar.xz
+tar -xvzf data/RNAseq/bacteria/raw/score/OV_bacteria_species_score.tar.xz
+tar -xvzf data/RNAseq/bacteria/raw/score/LUAD_bacteria_species_score.tar.xz
+tar -xvzf data/RNAseq/bacteria/raw/score/HNSC_bacteria_species_score.tar.xz
+tar -xvzf data/RNAseq/bacteria/raw/score/LUSC_bacteria_species_score.tar.xz
+tar -xvzf data/RNAseq/bacteria/raw/score/SKCM_bacteria_species_score.tar.xz
 
 ### Create microbiome_reconstruction structure of folders
 
