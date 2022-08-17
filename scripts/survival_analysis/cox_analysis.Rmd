@@ -1,0 +1,478 @@
+---
+title: "Cox Proportional-Hazards Model"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vector of all metadata files paths
+  match_lab: "" # labels to be used to match metadata files
+  surv_data: # vector of survival data file paths
+  survival_analysis: # array with time and status(in 0/1 or 1/2 for live/dead) column labels and acronym of the analysis to be done, in this order
+  taxa: # vector of all taxa values files paths
+  join: # rows or columns, indicate the direction to join metadatas
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  numeric_covariates: "" # list of numeric covariates
+  categorical_covariates: "" # list of categorical covariates
+  values_not_considered: # vector of values not to be considered for cat feat
+  timerange_cat: "" # list of arrays of two numbers for starting and end point of time for categorical properties
+  timerange_cont: "" # list of arrays of two numbers for starting and end point of time for continuous properties
+  labels_to_be_used: "" # list of names to be used instead of property names
+  picture_format: "svg" # list of vectors with the dimensionality reduction approach (type) and the probability (stat)
+  picture_path: "" # path with common name of files to save pictures
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(evaluate)
+	library(survival)
+	library(survminer)
+	library(gridExtra)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+```	
+
+```{r data, include = FALSE}
+	#Upload of
+		# Metadata
+			if(all(params$match_lab=="")){
+				match1="file_id"
+				match2="file_id"
+			} else {
+				match1=params$match_lab[1]
+				match2=params$match_lab[2]
+			}
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join, matching1=match1, matching2=match2)
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Survival data
+			surv_data=read.csv(params$surv_data, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		# Taxa quantification
+			if(all(is.na(params$taxa))){
+				taxa_values=NA
+			} else if(length(params$taxa)>1){
+				taxa_values=join_taxa_table(taxa_paths=params$taxa)
+			} else {
+				taxa_values=read.csv(params$taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Timerange
+			timerange_cat=lapply(params$timerange_cat, function(x){
+					if(all(x=="")){
+						return(c(min(surv_data[,params$survival_analysis[1]], na.rm=TRUE), max(surv_data[,params$survival_analysis[1]], na.rm=TRUE)))
+					} else {
+						return(x)
+					}
+				}
+			)		
+			timerange_cont=lapply(params$timerange_cont, function(x){
+					if(all(x=="")){
+						return(c(min(surv_data[,params$survival_analysis[1]], na.rm=TRUE), max(surv_data[,params$survival_analysis[1]], na.rm=TRUE)))
+					} else {
+						return(x)
+					}
+				}
+			)	
+			if(all(params$categorical_covariates!="") & all(params$numeric_covariates!="")){
+				timerange=list(timerange_cat, timerange_cont)
+			} else if(all(params$categorical_covariates!="") & !all(params$numeric_covariates!="")){
+				timerange=list(timerange_cat)
+			} else if(!all(params$categorical_covariates!="") & all(params$numeric_covariates!="")){
+				timerange=list(timerange_cont)
+			} 
+			timerange=unlist(timerange, recursive=FALSE)
+			timerange_labels=sapply(timerange, function(x){
+					paste(x, collapse="_")
+				}
+			)
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_values
+		if(any(!is.na(taxa_values))){
+			metadata=match_metadata(metadata=full_metadata, taxa_values=taxa_values, colname_metadata="file_id")
+		}	else {
+			metadata=full_metadata
+		}
+```
+
+```{r new_metadata_property, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				feat=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+				metadata=data.frame(metadata, feat)
+				colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+			}
+		}
+```
+
+```{r scale_to_0_1_range, echo = FALSE}
+	# Scale the numeric covariates to 0-1 range
+		if(all(params$numeric_covariates!="")){
+			scaled_feat=create_new_property(metadata=metadata, old_feat=params$numeric_covariates, met="range_0to1")
+			colnames(scaled_feat)=paste("scaled_", params$numeric_covariates, sep='')
+			metadata=data.frame(metadata, scaled_feat)
+		}
+```
+
+```{r join_metadata_to_surv_data, echo = FALSE}
+	# Join metadata and survival data
+		if(all(params$numeric_covariates!="") & all(params$categorical_covariates!="")){
+			tot_cov=c(params$categorical_covariates, paste("scaled_", params$numeric_covariates, sep=''))
+		} else if(all(params$numeric_covariates=="")){
+			tot_cov=c(params$categorical_covariates)
+		} else if(all(params$categorical_covariates=="")){
+			tot_cov=c(paste("scaled_", params$numeric_covariates, sep=''))
+		}
+		
+		tmp_metadata=join_metadata(metadata_paths=list(metadata, surv_data), metadata_is_list=TRUE, join_by="columns", 
+																matching1="file_id", matching2="file_id")
+		new_metadata=tmp_metadata[,c(tot_cov, params$survival_analysis[1:2])]
+		if(!all(is.na(new_metadata[,params$survival_analysis[2]]) | new_metadata[,params$survival_analysis[2]]==0 | new_metadata[,params$survival_analysis[2]]==1 | 
+						new_metadata[,params$survival_analysis[2]]==2 | new_metadata[,params$survival_analysis[2]]=="unknown")){
+			stop("Patient status not described as 0/1 or 1/2 for alive/dead")
+		}
+		new_metadata[,params$survival_analysis[1]]=as.numeric(as.character(new_metadata[,params$survival_analysis[1]]))
+		new_metadata[,params$survival_analysis[2]]=as.numeric(as.character(new_metadata[,params$survival_analysis[2]]))
+```
+
+```{r univariate_analysis, echo = FALSE}
+	# Univariate analysis
+		univ_results=lapply(tot_cov, function(x){
+				# Sample correction
+					if(any(params$categorical_covariates==x)){
+						p_cat=which(params$categorical_covariates==x)
+						v_not_to_be_considered=params$values_not_considered[[p_cat]]
+						p=sapply(new_metadata[,x], function(y){
+								if(any(as.character(y)==v_not_to_be_considered)){
+									return(FALSE)
+								} else {
+									return(TRUE)
+								}
+							}
+						)
+						mat=new_metadata[p,]
+						mat[,x]=as.character(mat[,x])
+					} else {
+						mat=new_metadata
+					}
+				# univariate test
+					res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+													x, sep='')), data=mat)
+					res_sum=summary(res_cox)
+					p.value=signif(res_sum$wald["pvalue"], digits=2)
+		      wald.test=signif(res_sum$wald["test"], digits=2)
+		      beta=signif(res_sum$coef[,1], digits=2) #coeficient beta
+		      HR=signif(res_sum$coef[,2], digits=2) #exp(beta)
+		      HR.confint.lower=signif(res_sum$conf.int[,"lower .95"], 2)
+		      HR.confint.upper=signif(res_sum$conf.int[,"upper .95"],2)
+		      res=data.frame(beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(beta)), rep(p.value, length(beta)))
+		      colnames(res)=c("beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value")
+		      rownames(res)=rownames(res_sum$conf.int)
+		      return(res)
+			}
+		)
+		univ_results=do.call(rbind, univ_results)
+		univ_results$beta=as.numeric(as.character(univ_results$beta))
+		univ_results$p.value=as.numeric(as.character(univ_results$p.value))
+		univ_results$wald.test=as.numeric(as.character(univ_results$wald.test))
+		if(all(params$labels_to_be_used!="")){
+			univ_results=data.frame(params$labels_to_be_used, univ_results)
+			colnames(univ_results)=c("Properties", "beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value") 
+		}
+	# Univariate forest plot
+		univ_forest_plot=lapply(tot_cov, function(x){
+				if(any(params$categorical_covariates==x)){
+					p_cat=which(params$categorical_covariates==x)
+					v_not_to_be_considered=params$values_not_considered[[p_cat]]
+					p=sapply(new_metadata[,x], function(y){
+							if(any(as.character(y)==v_not_to_be_considered)){
+								return(FALSE)
+							} else {
+								return(TRUE)
+							}
+						}
+					)
+					mat=new_metadata[p,]
+					mat[,x]=as.character(mat[,x])
+				} else {
+					mat=new_metadata
+				}
+				res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", x, sep='')), data=mat)
+				res=ggforest(res_cox, data=mat)
+	      return(res)
+			}
+		)
+		names(univ_forest_plot)=tot_cov
+```
+
+```{r univariate_timerange_analysis, echo = FALSE}
+	# Univariate analysis with timerange
+		univ_timerange_results_tmp=lapply(1:length(tot_cov), function(x){
+				# Sample correction
+					if(any(params$categorical_covariates==tot_cov[[x]])){
+						p_cat=which(params$categorical_covariates==tot_cov[[x]])
+						p=new_metadata[,tot_cov[[x]]]==params$values_not_considered[p_cat]
+						v_not_to_be_considered=params$values_not_considered[[p_cat]]
+						p=sapply(new_metadata[,x], function(y){
+								if(any(as.character(y)==v_not_to_be_considered)){
+									return(FALSE)
+								} else {
+									return(TRUE)
+								}
+							}
+						)
+						mat=new_metadata[p,]
+						p2=which(mat[,params$survival_analysis[1]]>=timerange[[x]][1] & mat[,params$survival_analysis[1]]<=timerange[[x]][2])
+						mat=mat[p2,]
+						mat[,tot_cov[[x]]]=as.character(mat[,tot_cov[[x]]])
+					} else {
+						mat=new_metadata
+						p=which(mat[,params$survival_analysis[1]]>=timerange[[x]][1] & mat[,params$survival_analysis[1]]<=timerange[[x]][2])
+						mat=mat[p,]
+					}
+				# univariate test
+					res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+											tot_cov[[x]], sep='')), data=mat)
+					res_sum=summary(res_cox)
+					p.value=signif(res_sum$wald["pvalue"], digits=2)
+		      wald.test=signif(res_sum$wald["test"], digits=2)
+		      beta=signif(res_sum$coef[,1], digits=2) #coeficient beta
+		      HR=signif(res_sum$coef[,2], digits=2) #exp(beta)
+		      HR.confint.lower=signif(res_sum$conf.int[,"lower .95"], 2)
+		      HR.confint.upper=signif(res_sum$conf.int[,"upper .95"],2)
+		      res=data.frame(beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(beta)), rep(p.value, length(beta)), rep(paste(timerange_labels[x], collapse="_"), length(beta)))
+		      colnames(res)=c("beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value", "timerange")
+		      rownames(res)=rownames(res_sum$conf.int)
+		      return(res)
+			}
+		)
+		univ_timerange_results=do.call(rbind, univ_timerange_results_tmp)
+		if(all(params$labels_to_be_used!="")){
+			univ_timerange_results=data.frame(params$labels_to_be_used, univ_timerange_results)
+			colnames(univ_timerange_results)=c("properties", "beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value") 
+		}
+	# Univariate forest plot with timerange
+		univ_timerange_forest_plot=lapply(1:length(tot_cov), function(x){
+				if(any(params$categorical_covariates==tot_cov[[x]])){
+					p_cat=which(params$categorical_covariates==tot_cov[[x]])
+					p=sapply(new_metadata[,tot_cov[[x]]], function(y){
+							if(any(y==params$values_not_considered[p_cat])){
+								return(FALSE)
+							} else {
+								return(TRUE)
+							}
+						}
+					)
+					mat=new_metadata[p,]
+					mat[,x]=as.character(mat[,x])
+				} else {
+					mat=new_metadata
+				}
+				# remove data out of the time range
+				p=which(mat[,params$survival_analysis[1]]>=timerange[[x]][1] & mat[,params$survival_analysis[1]]<=timerange[[x]][2])
+				mat=mat[p,]
+					
+				res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", tot_cov[[x]], sep='')), data=mat)
+				res=ggforest(res_cox, data=mat)
+	      return(res)
+			}
+		)
+		names(univ_timerange_forest_plot)=tot_cov
+```
+
+```{r multivariate_analysis, echo = FALSE}
+	# remove unwanted entries from categorical properties
+		mat=new_metadata
+		for(i in tot_cov){
+			if(any(params$categorical_covariates==i)){
+				p_cat=which(params$categorical_covariates==i)
+				v_not_to_be_considered=params$values_not_considered[[p_cat]]
+				p=sapply(mat[,i], function(y){
+						if(any(as.character(y)==v_not_to_be_considered)){
+							return(FALSE)
+						} else {
+							return(TRUE)
+						}
+					}
+				)
+				mat=mat[p,]
+				mat[,i]=as.character(mat[,i])
+			} else {
+				mat=mat
+			}
+		}
+	# multivariate analysis
+		multiv_res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+													paste(tot_cov, collapse=" + "), sep='')), data=mat)
+		multiv_res_sum=summary(multiv_res_cox)
+		p.value=signif(multiv_res_sum$wald["pvalue"], digits=2)
+		wald.test=signif(multiv_res_sum$wald["test"], digits=2)
+	  beta=signif(multiv_res_sum$coefficients[,"coef"], digits=2) #coeficient beta
+	  HR=signif(multiv_res_sum$coefficients[,"exp(coef)"], digits=2) #exp(beta)
+	  HR.confint.lower=signif(multiv_res_sum$conf.int[,"lower .95"], 2)
+	  HR.confint.upper=signif(multiv_res_sum$conf.int[,"upper .95"],2)
+	  if(all(params$labels_to_be_used!="")){
+	  	multiv_results=data.frame(params$labels_to_be_used, beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(HR)), rep(p.value, length(HR)))
+	 	 	colnames(multiv_results)=c("properties", "beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value")
+	  } else {
+	  	multiv_results=data.frame(beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(HR)), rep(p.value, length(HR)))
+	  	colnames(multiv_results)=c("beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value")
+	  }
+	# multivariate forest plot
+		multiv_forest_plot=ggforest(multiv_res_cox, data=mat)
+```
+
+```{r multivariate_timerange_analysis, echo = FALSE}
+	# remove unwanted entries from categorical properties
+		mat=new_metadata
+		for(i in tot_cov){
+			if(any(params$categorical_covariates==i)){
+				p_cat=which(params$categorical_covariates==i)
+				v_not_to_be_considered=params$values_not_considered[[p_cat]]
+				p=sapply(mat[,i], function(y){
+						if(any(as.character(y)==v_not_to_be_considered)){
+							return(FALSE)
+						} else {
+							return(TRUE)
+						}
+					}
+				)
+				mat=mat[p,]
+				mat[,i]=as.character(mat[,i])
+			} else {
+				mat=mat
+			}
+		}
+		# remove data out of the time range
+		mat2=mat
+		time_tot=c(max(sapply(timerange, function(x){x[1]})), min(sapply(timerange, function(x){x[2]})))
+		p=which(mat2[,params$survival_analysis[1]]>=time_tot[1] & mat2[,params$survival_analysis[1]]<=time_tot[2])
+		mat2=mat2[p,]
+	# multivariate analysis
+		multiv_timerange_res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+													paste(tot_cov, collapse=" + "), sep='')), data=mat2)
+		multiv_timerange_res_sum=summary(multiv_timerange_res_cox)
+		p.value=signif(multiv_timerange_res_sum$wald["pvalue"], digits=2)
+		wald.test=signif(multiv_timerange_res_sum$wald["test"], digits=2)
+	  beta=signif(multiv_timerange_res_sum$coefficients[,"coef"], digits=2) #coeficient beta
+	  HR=signif(multiv_timerange_res_sum$coefficients[,"exp(coef)"], digits=2) #exp(beta)
+	  HR.confint.lower=signif(multiv_timerange_res_sum$conf.int[,"lower .95"], 2)
+	  HR.confint.upper=signif(multiv_timerange_res_sum$conf.int[,"upper .95"],2)
+	  timerange_res=sapply(rownames(multiv_timerange_res_sum$coefficients), function(x){
+	  		p=sapply(tot_cov, function(y){
+	  				res=grep(y, x)
+	  				if(length(res)>0){
+	  					return(res)
+	  				} else {
+	  					return(NA)
+	  				}
+	  			}
+	  		)
+	  		p=p[!is.na(p)]
+	  		return(timerange_labels[p])
+	  	}
+	  )
+	  if(all(params$labels_to_be_used!="")){
+	  	multiv_timerange_results=data.frame(params$labels_to_be_used, beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(HR)), rep(p.value, length(HR)), timerange_res)
+	 	 	colnames(multiv_timerange_results)=c("properties", "beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value", "timerange") 
+	  } else {
+	  	multiv_timerange_results=data.frame(beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(HR)), rep(p.value, length(HR)), timerange_res)
+			colnames(multiv_timerange_results)=c("beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value", "timerange")
+	  }
+	# remove data out of the time range
+		mat2=mat
+		time_tot=c(max(sapply(timerange, function(x){x[1]})), min(sapply(timerange, function(x){x[2]})))
+		p=which(mat2[,params$survival_analysis[1]]>=time_tot[1] & mat2[,params$survival_analysis[1]]<=time_tot[2])
+		mat2=mat2[p,]
+	# multivariate forest plot with tiemrange
+		multiv_timerange_res_cox=coxph(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+													paste(tot_cov, collapse=" + "), sep='')), data=mat2)
+		multiv_timerange_forest_plot=ggforest(multiv_timerange_res_cox, data=mat2)
+```
+
+
+Univariate analysis {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+### tables
+
+```{r plot_tab_univariate, results='asis', fig.show = 'asis', out.width="25%"}
+	cat(knitr::knit_print(DT::datatable(univ_results, options=list(paging = FALSE))))
+```
+
+### forest plot
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="33%"}
+	out = NULL
+	if(any(!is.na(univ_forest_plot))){
+		do.call(grid.arrange, c(univ_forest_plot, ncol = 1))
+		for(i in 1:length(univ_forest_plot)){
+			evaluate(print(univ_forest_plot[[i]]))
+		}
+	}
+```
+
+### tables, timerange
+
+```{r plot_tab_timerange_univariate, results='asis', fig.show = 'asis', out.width="25%"}
+	cat(knitr::knit_print(DT::datatable(univ_timerange_results, options=list(paging = FALSE))))
+```
+
+### forest plot, timerange
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="33%"}
+	out = NULL
+	if(any(!is.na(univ_timerange_forest_plot))){
+		for(i in 1:length(univ_timerange_forest_plot)){
+			evaluate(print(univ_timerange_forest_plot[[i]]))
+		}
+	}
+```
+
+Multivariate analysis {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+### tables
+
+```{r plot_tab_multivariate, results='asis', fig.show = 'asis', out.width="25%"}
+	cat(knitr::knit_print(DT::datatable(multiv_results, options=list(paging = FALSE))))
+```
+
+### forest plot
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+	multiv_forest_plot
+```
+
+### tables, timerange
+
+```{r plot_tab_timerange_multivariate, results='asis', fig.show = 'asis', out.width="25%"}
+	cat(knitr::knit_print(DT::datatable(multiv_timerange_results, options=list(paging = FALSE))))
+```
+
+### forest plot, timerange
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+	multiv_timerange_forest_plot
+```
