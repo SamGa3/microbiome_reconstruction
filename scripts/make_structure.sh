@@ -2,6 +2,9 @@
 
 cd /microbiome_reconstruction
 
+# change mod
+chmod u+wrx scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
+
 # Untar score tables
 tar -xvf data/RNAseq/bacteria/raw/score/COAD_bacteria_species_score.tar.xz --directory data/RNAseq/bacteria/raw/score
 tar -xvf data/RNAseq/bacteria/raw/score/OV_bacteria_species_score.tar.xz --directory data/RNAseq/bacteria/raw/score
