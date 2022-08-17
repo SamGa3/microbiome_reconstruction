@@ -1,0 +1,181 @@
+---
+title: "Unamb score maker"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  merged: "../../data/others/merged.dmp" # path to the file with list of tax id to be merged (from Pathseq)
+  ambig: "" # path to the ambig table
+  unamb: # path to the unamb table
+  score: # path to the score table
+  ambig_tab: "" # output path
+  unamb_tab: "" # output path
+  score_tab: "" # output path
+  unamb_score_tab: "" # output path
+  ambig_norm_tab: "" # output path
+  unamb_norm_tab: "" # output path
+  score_norm_tab: "" # output path
+  unamb_score_norm_tab: "" # output path
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+	source("functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# merged_dmp
+			merged_dmp=read.csv(params$merged, sep="\t", header=FALSE, check.names=FALSE, stringsAsFactors=FALSE)
+			merged_dmp=merged_dmp[,c(1,3)]
+		# unamb
+			unamb_tab=read.csv(params$unamb, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)			
+		# score
+			score_tab=read.csv(params$score, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		# ambig
+		if(params$ambig!=""){
+				ambig_tab=read.csv(params$ambig, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)			
+		}
+```
+
+```{r merge_tables, include = FALSE}
+	# Merge of microbes
+		# unamb
+			merged_unamb_tab=merge_taxa_in_tab(tab=unamb_tab, merging_tax=merged_dmp)
+		# score
+			merged_score_tab=merge_taxa_in_tab(tab=score_tab, merging_tax=merged_dmp)
+		# ambig
+			if(params$ambig!=""){
+				merged_ambig_tab=merge_taxa_in_tab(tab=ambig_tab, merging_tax=merged_dmp)		
+			}
+```
+
+```{r make_unamb_score, include = FALSE}
+	# Match metadata and bacteria_values
+		# unamb + scores
+			# Same order of columns and rows
+				matching_tabs=match_tables(tab1=merged_unamb_tab, tab2=merged_score_tab)
+				merged_unamb_tab=matching_tabs[[1]]
+				merged_score_tab=matching_tabs[[2]]
+			# Remove scores of species without any unamb reads
+				merged_unamb_score_tab=merged_score_tab
+				merged_unamb_score_tab[merged_unamb_tab==0]=0
+		# ambig
+			if(params$ambig!=""){
+				matching_tabs2=match_tables(tab1=merged_unamb_tab, tab2=merged_ambig_tab)
+				merged_ambig_tab=matching_tabs2[[2]]	
+			}
+```
+
+```{r normalize_tab, include = FALSE}
+	# Normalize so that the sum of the scores per sample is equal to 100
+		# unamb_score_norm
+			merged_unamb_score_norm_tab=merged_unamb_score_tab
+			merged_unamb_score_norm_tab=merged_unamb_score_tab/rowSums(merged_unamb_score_tab)
+			# Substitute NA with zero (when row sum is zero = no unamb score for that sample)
+			merged_unamb_score_norm_tab[is.na(merged_unamb_score_norm_tab)]=0
+			# Make percentages
+			merged_unamb_score_norm_tab=merged_unamb_score_norm_tab*100
+		# unamb_norm
+			if(params$unamb_norm_tab!=""){
+				merged_unamb_norm_tab=merged_unamb_tab
+				merged_unamb_norm_tab=merged_unamb_tab/rowSums(merged_unamb_tab)
+				# Substitute NA with zero (when row sum is zero = no unamb for that sample)
+				merged_unamb_norm_tab[is.na(merged_unamb_norm_tab)]=0
+				# Make percentages
+				merged_unamb_norm_tab=merged_unamb_norm_tab*100
+			}
+		# score_norm
+			if(params$score_norm_tab!=""){
+				merged_score_norm_tab=merged_score_tab
+				merged_score_norm_tab=merged_score_tab/rowSums(merged_score_tab)
+				# Substitute NA with zero (when row sum is zero = no score for that sample)
+				merged_score_norm_tab[is.na(merged_score_norm_tab)]=0
+				# Make percentages
+				merged_score_norm_tab=merged_score_norm_tab*100
+			}
+		# ambig_norm
+			if(params$ambig_norm_tab!=""){
+				merged_ambig_norm_tab=merged_ambig_tab
+				merged_ambig_norm_tab=merged_ambig_tab/rowSums(merged_ambig_tab)
+				# Substitute NA with zero (when row sum is zero = no ambig for that sample)
+				merged_ambig_norm_tab[is.na(merged_ambig_norm_tab)]=0
+				# Make percentages
+				merged_ambig_norm_tab=merged_ambig_norm_tab*100
+			}
+```
+
+```{r all_zeros_samples, include = FALSE}
+	# Remove samples without any unamb_score
+		pos=apply(merged_unamb_score_norm_tab, 1, function(x){
+				all(x==0)
+			}
+		)
+		merged_unamb_score_norm_tab=merged_unamb_score_norm_tab[!pos,]
+		if(ncol(merged_unamb_score_tab)==1){
+			merged_unamb_score_norm_tab=as.matrix(merged_unamb_score_norm_tab)
+			colnames(merged_unamb_score_norm_tab)=colnames(merged_unamb_score_tab)
+			rownames(merged_unamb_score_norm_tab)=rownames(merged_unamb_score_tab)
+		}
+		if(nrow(merged_unamb_score_tab)==1){
+			merged_unamb_score_norm_tab=t(as.matrix(merged_unamb_score_norm_tab))
+			colnames(merged_unamb_score_norm_tab)=colnames(merged_unamb_score_tab)
+			rownames(merged_unamb_score_norm_tab)=rownames(merged_unamb_score_tab)
+		}
+```
+
+```{r remove_all_zeros_taxa, include = FALSE}
+	# Remove undetected microbes
+		pos=apply(merged_unamb_score_norm_tab, 2, function(x){
+				all(x==0)
+			}
+		)
+		merged_unamb_score_norm_tab=merged_unamb_score_norm_tab[,!pos]
+		if(ncol(merged_unamb_score_tab)==1){
+			merged_unamb_score_norm_tab=as.matrix(merged_unamb_score_norm_tab)
+			colnames(merged_unamb_score_norm_tab)=colnames(merged_unamb_score_tab)
+			rownames(merged_unamb_score_norm_tab)=rownames(merged_unamb_score_tab)
+		}
+		if(nrow(merged_unamb_score_tab)==1){
+			merged_unamb_score_norm_tab=t(as.matrix(merged_unamb_score_norm_tab))
+			colnames(merged_unamb_score_norm_tab)=colnames(merged_unamb_score_tab)
+			rownames(merged_unamb_score_norm_tab)=rownames(merged_unamb_score_tab)
+		}
+```
+
+```{r write_out, echo = FALSE}
+	# unamb_score_norm
+		write.table(merged_unamb_score_norm_tab, file=params$unamb_score_norm_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+	# unamb_norm
+		if(params$unamb_norm_tab!=""){
+			write.table(merged_unamb_norm_tab, file=params$unamb_norm_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
+	# score_norm
+		if(params$score_norm_tab!=""){
+			write.table(merged_score_norm_tab, file=params$score_norm_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
+	# ambig_score_norm
+		if(params$ambig_norm_tab!=""){
+			write.table(merged_ambig_norm_tab, file=params$ambig_norm_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}	
+	# unamb
+		if(params$unamb_tab!=""){
+			write.table(merged_unamb_tab, file=params$unamb_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
+	# score
+		if(params$score_tab!=""){
+			write.table(merged_score_tab, file=params$score_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
+	# ambig
+		if(params$ambig_tab!=""){
+			write.table(merged_ambig_tab, file=params$ambig_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
+	# unamb_score
+		if(params$unamb_score_tab!=""){
+			write.table(merged_unamb_score_tab, file=params$unamb_score_tab, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
+```

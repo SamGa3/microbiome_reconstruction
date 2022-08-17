@@ -1,0 +1,244 @@
+---
+title: "HUMAnN pathways abundance randomization test"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  pathways1: # path to the pathway abundances on all the samples
+  pathways2: # path to the pathway abundances on all the samples
+  random_pathways1: # paths to the pathway abundances of random samples
+  base_name1: # base name of random sample subsets 1
+  random_pathways2: # paths to the pathway abundances of random samples
+  base_name2: # base name of random sample subsets 1
+  int_path: "" # list of specific pathways to be analysed
+  output: "" # path to the 
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(ggplot2)
+  library(evaluate)
+	library(ggpubr)
+```
+
+```{r functions, include = FALSE}
+
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# abundance pathways 
+			path1=read.csv(params$pathways1, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			path2=read.csv(params$pathways2, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		# random abundance pathways
+			paths1=list.files(params$random_pathways1)
+			random_path1=lapply(paths1, function(x){
+					if(length(grep("pathabundance_unstratified_cpm", x))==1){
+						tmp=read.csv(paste(params$random_pathways1, x, sep=''), sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+						return(tmp)
+					} else {
+						return(NA)
+					}	
+				}
+			)
+			random_path1=random_path1[!is.na(random_path1)]			
+			paths2=list.files(params$random_pathways2)
+			random_path2=lapply(paths2, function(x){
+					if(length(grep("pathabundance_unstratified_cpm", x))==1){
+						tmp=read.csv(paste(params$random_pathways2, x, sep=''), sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+						return(tmp)
+					} else {
+						return(NA)
+					}	
+				}
+			)
+			random_path2=random_path2[!is.na(random_path2)]
+```
+
+```{r sign_path, include = FALSE}
+	# Detect significant pathways from complete analysis
+		# remove low abundance pathways
+			thr1=quantile(path1[,2])[2]
+			subset_path1=path1[path1[,2]>thr1,]
+			thr2=quantile(path2[,2])[2]
+			subset_path2=path2[path2[,2]>thr2,]
+		# remove unmapped
+			subset_path1=subset_path1[!(subset_path1[,1]=="UNMAPPED" | subset_path1[,1]=="UNINTEGRATED"),]
+			subset_path2=subset_path2[!(subset_path2[,1]=="UNMAPPED" | subset_path2[,1]=="UNINTEGRATED"),]
+		# Significant pathways
+			sign_path1_tmp=sapply(subset_path1[,1], function(x){
+					val1=subset_path1[subset_path1[,1]==x,2]
+					val2=subset_path2[subset_path2[,1]==x,2]
+					if(length(val2)==0){
+						return(FALSE)
+					} else if(val1/val2>=(1+1/3)){
+						return(TRUE)
+					} else {
+						return(FALSE)
+					}
+				}
+			)
+			sign_path1=names(sign_path1_tmp[sign_path1_tmp])
+			sign_path2_tmp=sapply(subset_path2[,1], function(x){
+					val1=subset_path2[subset_path2[,1]==x,2]
+					val2=subset_path1[subset_path1[,1]==x,2]
+					if(length(val2)==0){
+						return(FALSE)
+					} else if(val1/val2>=(1+1/3)){
+						return(TRUE)
+					} else {
+						return(FALSE)
+					}
+				}
+			)
+			sign_path2=names(sign_path2_tmp[sign_path2_tmp])		
+```
+
+```{r path_test, include = FALSE}
+	# Test distirbution of significant pathways in random samples
+		sign_path=c(sign_path1, sign_path2)
+		wilc_random_p=sapply(sign_path, function(x){
+				val1=sapply(random_path1, function(y){
+						p=which(y[,"# Pathway"]==x)
+						if(length(p)>0){
+							return(y[p,2])
+						} else {
+							return(0)
+						}
+					}
+				)
+				val2=sapply(random_path2, function(y){
+						p=which(y[,"# Pathway"]==x)
+						if(length(p)>0){
+							return(y[p,2])
+						} else {
+							return(0)
+						}
+					}
+				)
+				wilc=wilcox.test(x=val1, y=val2)$p.value
+				return(wilc)
+			}
+		)
+		wilc_random_q=p.adjust(wilc_random_p, method="fdr")
+		great_wilc_random_p=sapply(sign_path, function(x){
+				val1=sapply(random_path1, function(y){
+						p=which(y[,"# Pathway"]==x)
+						if(length(p)>0){
+							return(y[p,2])
+						} else {
+							return(0)
+						}
+					}
+				)
+				val2=sapply(random_path2, function(y){
+						p=which(y[,"# Pathway"]==x)
+						if(length(p)>0){
+							return(y[p,2])
+						} else {
+							return(0)
+						}
+					}
+				)
+				wilc=wilcox.test(x=val1, y=val2, alternative="greater")$p.value
+				return(wilc)
+			}
+		)
+		great_wilc_random_q=p.adjust(great_wilc_random_p, method="fdr")
+```
+
+```{r save, include = FALSE}
+	# Write out 
+		res_tab=data.frame(sign_path, wilc_random_p, wilc_random_q, great_wilc_random_p, great_wilc_random_q)
+		rownames(res_tab)=NULL
+		colnames(res_tab)=c("pathway", "wilc_p", "wilc_q", 
+										paste(names(params$pathways1)[1], "_greater_", names(params$pathways2)[1], "_p", sep=''), 
+										paste(names(params$pathways1)[1], "_greater_", names(params$pathways2)[1], "_q", sep=''))
+		if(params$output!=""){
+			write.table(res_tab, file=params$output, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+```
+
+```{r boxplots, include = FALSE}
+	# Boxplots
+		if(length(sign_path)!=0){
+			box_plot=lapply(sign_path, function(x){
+					p1=which(path1[,"# Pathway"]==x)
+					if(length(p1)!=0){
+						val1=path1[p1,2]
+					} else {
+						val1=0
+					}
+					random_val1=sapply(random_path1, function(y){
+							p=which(y[,"# Pathway"]==x)
+							if(length(p)>0){
+								return(y[p,2])
+							} else {
+								return(0)
+							}
+						}
+					)
+					p2=which(path2[,"# Pathway"]==x)
+					if(length(p2)!=0){
+						val2=path2[p2,2]
+					} else {
+						val2=0
+					}
+					random_val2=sapply(random_path2, function(y){
+							p=which(y[,"# Pathway"]==x)
+							if(length(p)>0){
+								return(y[p,2])
+							} else {
+								return(0)
+							}
+						}
+					)
+					plotting_table=data.frame(group=c(rep(names(params$pathways1), length(random_val1)), rep(names(params$pathways2), length(random_val2))), path_abundance=c(random_val1, random_val2))
+					
+					p1=which(path1[,"# Pathway"]==x)
+					tab1=path1[p1,]
+					colnames(tab1)=c("group", "path_abundance")
+					tab1[1,1]=names(params$pathways1)
+					
+					p2=which(path2[,"# Pathway"]==x)
+					tab2=path2[p2,]
+					colnames(tab2)=c("group", "path_abundance")
+					tab2[1,1]=names(params$pathways2)
+					
+					p=ggplot(plotting_table, aes_string(x="group", y="path_abundance", color="group"))+
+								geom_boxplot(notch=TRUE, outlier.size=-1)+
+								geom_jitter(position=position_jitter(0.2), size=2)+
+								geom_point(data=tab1, color="orange", aes(x=group, y=path_abundance), shape=17, size=2)+
+								geom_point(data=tab2, color="orange", aes(x=group, y=path_abundance), shape=17, size=2)+
+								theme_light()+
+								ggtitle(x)+
+								theme(legend.position="none", axis.text.x=element_text(angle=45, hjust=1), axis.title.x=element_blank())+
+								stat_compare_means(method="wilcox.test", label.y.npc="top")
+					return(p)
+				}
+			)
+		} else {
+			box_plot=NA
+		}
+```
+
+
+Boxplots {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+	out = NULL
+	for(i in 1:length(box_plot)){
+		evaluate(print(box_plot[[i]]))
+	}
+```

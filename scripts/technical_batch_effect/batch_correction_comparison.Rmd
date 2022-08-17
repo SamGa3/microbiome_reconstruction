@@ -1,0 +1,239 @@
+---
+title: "Batch correction comparison"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  tissues:  # vector of the cancer types to be analysed
+  metadata: # list of vectors of metadata tables paths, one vector per cancer type
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  taxa_raw: # list of vectors, one per cancer type, with the paths of the taxa tables (if more than one, the will be joined by rows)
+  taxa_corrected: # list of vectors, one per cancer type, with the paths of the taxa tables (if more than one, the will be joined by rows)
+  batches: # vector of batch properties, one for each tissue tested, add one more to test all the tissues together
+  x_axis_den: 2 # set the denominator to x axis of plots
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(kableExtra)
+	library(DT)
+	library(knitr)
+	library(evaluate)
+	library(ggsci)
+	library(ggplot2)
+	theme_update(
+             axis.title = element_text(size = 30), # axis labels
+             axis.text = element_text(size = 20), # tick labels
+             title = element_text(size = 50) # title 
+    ) 
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+	source("../property_association/functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			full_metadata=list()
+			for(i in 1:length(params$metadata)){
+				if(length(params$metadata[[i]])>1){
+					full_metadata[[length(full_metadata)+1]]=join_metadata(metadata_paths=params$metadata[[i]], join_by="rows", matching1="file_id", matching2="file_id")
+				} else {
+					full_metadata[[length(full_metadata)+1]]=read.csv(params$metadata[[i]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+				}
+			}
+			names(full_metadata)=params$tissues
+		# Taxa quantification
+			taxa_raw=list()
+			for(i in 1:length(params$taxa_raw)){
+				if(length(params$taxa_raw[[i]])>1){
+					taxa_raw[[length(taxa_raw)+1]]=join_taxa_table(taxa_paths=params$taxa_raw[[i]])	
+				} else {
+					taxa_raw[[length(taxa_raw)+1]]=read.csv(params$taxa_raw[[i]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+				}
+			}
+			names(taxa_raw)=params$tissues
+			taxa_corrected=list()
+			for(i in 1:length(params$taxa_corrected)){
+				if(length(params$taxa_corrected[[i]])>1){
+					taxa_corrected[[length(taxa_corrected)+1]]=join_taxa_table(taxa_paths=params$taxa_corrected[[i]])	
+				} else {
+					taxa_corrected[[length(taxa_corrected)+1]]=read.csv(params$taxa_corrected[[i]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+				}
+			}
+			names(taxa_corrected)=params$tissues
+```
+	
+```{r select_samples, include = FALSE}
+	# Select samples given the taxa table
+		metadata=list()
+		for(i in 1:length(taxa_raw)){
+			metadata[[length(metadata)+1]]=match_metadata(metadata=full_metadata[[i]], taxa_values=taxa_raw[[i]], colname_metadata="file_id")
+		}
+		names(metadata)=params$tissues
+```
+
+```{r new_metadata_proeprty, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				feat=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+				metadata=data.frame(metadata, feat)
+				colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+			}
+		}
+```
+
+```{r distance_matrix, echo = FALSE, fig.show = 'hold', out.width="25%"}
+	# PCA
+		PCA_raw=lapply(names(taxa_raw), function(tissue){
+				pca_data=PCA(taxa_values=taxa_raw[[tissue]], out_removal=0.95)
+				dist_mat=as.matrix(dist(pca_data$x[,1:6], method="euclidean"))
+			}
+		)
+		names(PCA_raw)=names(taxa_raw)
+		PCA_corrected=lapply(names(taxa_corrected), function(tissue){
+				pca_data=PCA(taxa_values=taxa_corrected[[tissue]], out_removal=0.95)
+				dist_mat=as.matrix(dist(pca_data$x[,1:6], method="euclidean"))
+			}
+		)
+		names(PCA_corrected)=names(taxa_corrected)
+	# intra ed extra distances
+		intra_extra_dist_raw=lapply(1:length(PCA_raw), function(i){
+				# same order
+				p=sapply(rownames(PCA_raw[[i]]), function(x){
+						which(metadata[[i]][,"file_id"]==x)
+					}
+				)
+				meta=metadata[[i]][p,]
+				feat=meta[,params$batches[[i]]]
+				if(length(unique(feat)[unique(feat)!="unknown"])==1 | length(unique(feat)[unique(feat)!="unknown"])==0 | 
+								length(unique(feat))==length(feat)){
+					return(NA)
+				} else {
+					tab=table(feat)
+					lev=names(tab)[tab>=2 & names(tab)!="unknown"]
+					# calculate intra and extra distances
+					by_lev_intra_extra_means=lapply(lev, function(j){
+							p1=which(feat==j)
+							intra=apply(PCA_raw[[i]][p1,p1], 1, mean)
+							p2=which(feat!=j & feat!="unknown")
+							extra=apply(PCA_raw[[i]][p1,p2], 1, mean)
+							mat=cbind(intra, extra)
+						}
+					)
+					intra_extra_means=do.call(rbind, by_lev_intra_extra_means)
+					return(intra_extra_means)
+				}
+			}
+		)
+		names(intra_extra_dist_raw)=names(PCA_raw)
+		intra_extra_dist_corrected=lapply(1:length(PCA_corrected), function(i){
+				# same order
+				p=sapply(rownames(PCA_corrected[[i]]), function(x){
+						which(metadata[[i]][,"file_id"]==x)
+					}
+				)
+				meta=metadata[[i]][p,]
+				feat=meta[,params$batches[[i]]]
+				if(length(unique(feat)[unique(feat)!="unknown"])==1 | length(unique(feat)[unique(feat)!="unknown"])==0 | 
+								length(unique(feat))==length(feat)){
+							return(NA)
+				} else {
+					tab=table(feat)
+					lev=names(tab)[tab>=2 & names(tab)!="unknown"]
+					# calculate intra and extra distances
+					by_lev_intra_extra_means=lapply(lev, function(j){
+							p1=which(feat==j)
+							intra=apply(PCA_corrected[[i]][p1,p1], 1, mean)
+							p2=which(feat!=j & feat!="unknown")
+							extra=apply(PCA_corrected[[i]][p1,p2], 1, mean)
+							mat=cbind(intra, extra)
+						}
+					)
+					intra_extra_means=do.call(rbind, by_lev_intra_extra_means)
+					return(intra_extra_means)
+				}
+			}
+		)
+		names(intra_extra_dist_corrected)=names(PCA_corrected)
+```
+
+```{r density_plots, echo = FALSE, fig.show = 'hold', out.width="25%"}
+	# Make density plots of distances
+		tot_label=paste(names(intra_extra_dist_raw), collapse="_")
+		intra_extra_dist_raw[[length(intra_extra_dist_raw)+1]]=do.call(rbind, intra_extra_dist_raw)
+		names(intra_extra_dist_raw)[[length(intra_extra_dist_raw)]]=tot_label
+		tot_label=paste(names(intra_extra_dist_corrected), collapse="_")
+		intra_extra_dist_corrected[[length(intra_extra_dist_corrected)+1]]=do.call(rbind, intra_extra_dist_corrected)
+		names(intra_extra_dist_corrected)[[length(intra_extra_dist_corrected)]]=tot_label
+
+		density_plot=lapply(1:length(intra_extra_dist_raw), function(x){
+				tab_raw=melt(data.frame(intra_extra_dist_raw[[x]], type=rep("before", nrow(intra_extra_dist_raw[[x]]))))
+			  tab_corrected=melt(data.frame(intra_extra_dist_corrected[[x]], type=rep("after", nrow(intra_extra_dist_corrected[[x]]))))
+			  final_tab=rbind(tab_raw, tab_corrected)
+			  colnames(final_tab)[ncol(final_tab)]="Distances"
+			  final_tab[,"type"]=as.factor(final_tab[,"type"])
+			  final_tab[,"variable"]=as.factor(final_tab[,"variable"])
+			  p=ggplot(final_tab, aes(Distances, fill=variable, colour=variable))+
+	              facet_wrap(~type)+
+	              geom_density(alpha=0.1)+
+	              scale_color_startrek()+
+	              theme_light()+
+	              theme(legend.title=element_blank(), strip.text.x=element_text(size=25))
+	      return(p)
+			}
+		)
+		names(density_plot)=names(intra_extra_dist_raw)
+		# zoom
+		if(!is.na(params$x_axis_den)){
+			density_plot_zoom=lapply(1:length(intra_extra_dist_raw), function(x){
+					tab_raw=melt(data.frame(intra_extra_dist_raw[[x]], type=rep("before", nrow(intra_extra_dist_raw[[x]]))))
+				  tab_corrected=melt(data.frame(intra_extra_dist_corrected[[x]], type=rep("after", nrow(intra_extra_dist_corrected[[x]]))))
+				  final_tab=rbind(tab_raw, tab_corrected)
+				  colnames(final_tab)[ncol(final_tab)]="Distances"
+				  final_tab[,"type"]=as.factor(final_tab[,"type"])
+				  final_tab[,"variable"]=as.factor(final_tab[,"variable"])
+				  p=ggplot(final_tab, aes(Distances, fill=variable, colour=variable))+
+		              facet_wrap(~type)+
+		              geom_density(alpha=0.1)+
+		              scale_color_startrek()+
+		              theme_light()+
+		              theme(legend.title=element_blank(), strip.text.x=element_text(size=25))+
+		              xlim(0, max(final_tab[,"Distances"])/params$x_axis_den)
+		      return(p)
+				}
+			)
+		} else {
+			density_plot_zoom=NA
+		}
+		
+		names(density_plot_zoom)=names(intra_extra_dist_raw)
+```
+
+
+Differences {data-orientation=rows}
+===================================== 
+  
+Row {.tabset .tabset-fade}
+-------------------------------------
+  
+```{r, echo=FALSE, include=FALSE}
+# You need this code to conduct the magic dependences attaching...
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+for(i in 1:length(density_plot)){
+  cat("\n", sep="")
+  cat("### ", names(density_plot)[[i]], "\n", sep="")
+  evaluate(print(density_plot[[i]]))
+  evaluate(print(density_plot_zoom[[i]]))
+  cat("\n", sep="")
+}
+```

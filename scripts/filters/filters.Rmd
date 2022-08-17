@@ -1,0 +1,184 @@
+---
+title: "Filters"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata_tissue: # vector of all metadata files paths of tissue to be analysed
+  join_by_tissue: "columns" # rows or columns, indicate the direction to join metadatas
+  metadata_comp: # list of vectors of all metadata files paths of comparison tissues
+  join_by_comp: "rows" # rows or columns, indicate the direction to join metadatas
+  taxa_tissue: # vector of all taxa values files paths of tissue to be analysed
+  taxa_comp: # vector of all taxa values files paths of comparison tissues
+  feat_tissue: # feature that allows to distinguish between tissues in comparison group
+  batch_feat: "" # batch feature
+  thr_presence: "" # vector of threshold values for minimum prevalence
+  total_taxa: "../../data/all_bacteria_species.txt" # path where all taxa are listed
+  output_folder: "" # path to the out tables
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(length(params$metadata_tissue)>1){
+				full_metadata_tissue=join_metadata(metadata_paths=params$metadata_tissue, join_by=params$join_by_tissue, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata_tissue=read.csv(params$metadata_tissue, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+			if(length(params$metadata_comp)>1){
+				full_metadata_comp=join_metadata(metadata_paths=params$metadata_comp, join_by=params$join_by_comp, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata_comp=read.csv(params$metadata_comp, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}	
+		# Bacteria quantification
+			if(length(params$taxa_tissue)>1){
+				taxa_values_tissue=join_taxa_table(taxa_paths=params$taxa_tissue)
+			} else {
+				taxa_values_tissue=read.csv(params$taxa_tissue, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+			if(length(params$taxa_comp)>1){
+				taxa_values_comp=join_taxa_table(taxa_paths=params$taxa_comp)
+			} else {
+				taxa_values_comp=read.csv(params$taxa_comp, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Total taxa
+			all_taxa_tab=read.csv(params$total_taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)		
+			all_taxa=all_taxa_tab[,2]
+			names(all_taxa)=as.character(all_taxa_tab[,1])
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_values
+		metadata_tissue=match_metadata(metadata=full_metadata_tissue, taxa_values=taxa_values_tissue, colname_metadata="file_id")
+		metadata_comp=match_metadata(metadata=full_metadata_comp, taxa_values=taxa_values_comp, colname_metadata="file_id")
+```
+
+```{r taxa_prevalence, include = FALSE}
+	presence_total=list()
+	if(all(params$thr_presence!="")){
+		for(i in params$thr_presence){
+			p=sapply(colnames(taxa_values_tissue), function(y){
+					res=mean(taxa_values_tissue[,y]!=0)
+					if(res>i){
+						return(TRUE)
+					} else {
+						return(FALSE)
+					}
+				}
+			)
+			presence_total_taxa=colnames(taxa_values_tissue)[p]
+			presence_total[[length(presence_total)+1]]=presence_total_taxa
+			names(presence_total)[length(presence_total)]=paste("presence_more", i, "samples", sep='')
+
+			# write the table
+				nam=sapply(presence_total_taxa, function(x){
+						if(any(names(all_taxa)==as.character(x))){
+							return(all_taxa[[as.character(x)]])
+						} else {
+							return(x)
+						}
+					}
+				)
+				new_taxa_tab=data.frame(presence_total_taxa, nam)
+				colnames(new_taxa_tab)=c("tax_id", "taxon_name")
+				file_name=paste(params$output_folder, "Presence_more", i, "samples_", names(params$taxa_tissue)[1], ".txt", sep='')
+				write.table(new_taxa_tab, file=file_name, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+	}
+```	
+
+```{r taxa_diffdistr_batch, include = FALSE}
+	diff_distr_batched=list()
+	if(params$batch_feat!=""){
+		for(i in params$batch_feat){
+			tab=data.frame(taxa_values_tissue, batch=metadata_tissue[,i])
+			colnames(tab)[ncol(tab)]=i
+
+			test=sapply(colnames(taxa_values_tissue), function(y){
+					t=kruskal.test(formula(paste("X", y, " ~ ", i, sep='')), data = tab)$p.value
+					return(t)
+				}
+			)
+			test_multipletest_corrected=p.adjust(test, method="fdr")
+			diffdistr_batched=names(test_multipletest_corrected[test_multipletest_corrected<0.1])
+			diff_distr_batched[[length(diff_distr_batched)+1]]=diffdistr_batched
+			
+			# write out
+				nam=sapply(diffdistr_batched, function(x){
+						if(any(names(all_taxa)==as.character(x))){
+							return(all_taxa[[as.character(x)]])
+						} else {
+							return(x)
+						}
+					}
+				)
+				new_taxa_tab=data.frame(diffdistr_batched, nam)
+				colnames(new_taxa_tab)=c("tax_id", "taxon_name")
+				file_name=paste(params$output_folder, "Batch_", i, "_", names(params$taxa_tissue)[1], ".txt", sep='')
+				write.table(new_taxa_tab, file=file_name, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+		names(diff_distr_batched)=paste("diff_distr_", params$batch_feat, sep='')
+	}
+```	
+
+```{r higher_mean_vs_all_rest, include = FALSE}
+	# mean of taxa
+		mean_tissue=apply(taxa_values_tissue, 2, mean)
+		mean_comp=apply(taxa_values_comp, 2, mean)
+		all_col=unique(c(colnames(taxa_values_tissue), colnames(taxa_values_comp)))
+		
+	# add missing taxa
+		missing_tissue=setdiff(all_col, names(mean_tissue))
+		if(length(missing_tissue)>0){
+			missing_taxa=rep(0, length(missing_tissue))
+			names(missing_taxa)=missing_tissue
+			mean_tissue=c(mean_tissue, missing_taxa)
+		}
+		missing_comp=setdiff(all_col, names(mean_comp))
+		if(length(missing_comp)>0){
+			missing_taxa=rep(0, length(missing_comp))
+			names(missing_taxa)=missing_comp
+			mean_comp=c(mean_comp, missing_taxa)
+		}
+		
+	# same order
+		mean_tissue=mean_tissue[all_col]
+		mean_comp=mean_comp[all_col]
+
+	# Select taxa
+		high_mean_vs_all_rest=sapply(1:length(mean_tissue), function(x){
+				if(mean_tissue[[x]]>mean_comp[[x]]){
+					return(names(mean_tissue)[[x]])
+				} else {
+					return(NA)
+				}
+			}
+		)
+		high_mean_vs_all_rest=high_mean_vs_all_rest[!is.na(high_mean_vs_all_rest)]
+
+	# write out
+		nam=sapply(high_mean_vs_all_rest, function(x){
+				if(any(names(all_taxa)==as.character(x))){
+					return(all_taxa[[as.character(x)]])
+				} else {
+					return(x)
+				}
+			}
+		)
+		new_taxa_tab=data.frame(high_mean_vs_all_rest, nam)
+		colnames(new_taxa_tab)=c("tax_id", "taxon_name")
+		file_name=paste(params$output_folder, "HighMeanVsRest_", names(params$taxa_tissue)[1], "_vs_", paste(names(params$taxa_comp), collapse="_"), ".txt", sep='')
+		write.table(new_taxa_tab, file=file_name, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+```

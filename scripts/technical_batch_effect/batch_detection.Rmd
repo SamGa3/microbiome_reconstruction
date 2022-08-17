@@ -1,0 +1,223 @@
+---
+title: "Batch detection"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  tissues: # vector of the cancer types to be analysed
+  metadata: # list of vectors of metadata tables paths, one vector per cancer type
+  join: "" # list of vectors, one per cancer type, assigning the approach to be used to join together different metadata tables
+  taxa: # list of vectors, one per cancer type, with the paths of the taxa tables (if more than one, the will be joined by rows)
+  n_feat: 1000 # number of taxa to be used for the PCA
+  outlier_thr: 0.95 # threshold to detect outliers
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one (listed in general_function.R)
+  cov: "" # selection of the properties to be tested
+  exceptions: NA # vector of properties you want to test even if they don't pass the cutoffs
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(kableExtra)
+	library(DT)
+	library(knitr)
+	library(evaluate)
+	library(ggplot2)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+	source("../property_association/functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			full_metadata=list()	# Metadata
+			if(all(params$join!="")){
+				for(i in 1:length(params$metadata)){
+					full_metadata_tmp=join_metadata(metadata_paths=params$metadata[[i]], join_by=params$join[[i]], matching1="file_id", matching2="file_id")
+					full_metadata[[i]]=full_metadata_tmp
+				}
+				names(full_metadata)=params$tissues
+			} else {
+				for(i in 1:length(params$metadata)){
+					full_metadata[[length(full_metadata)+1]]=read.csv(params$metadata[[i]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+				}
+				names(full_metadata)=params$tissues
+			}
+		# Taxa quantification
+			taxa=list()
+			if(params$join!=""){
+				for(i in 1:length(params$taxa)){
+					taxa_values=join_taxa_table(taxa_paths=params$taxa[[i]])
+					taxa[[i]]=taxa_values
+				}
+				names(taxa)=params$tissue
+			} else {
+				for(i in 1:length(params$taxa)){
+					taxa[[length(taxa)+1]]=read.csv(params$taxa[[i]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+				}
+				names(taxa)=params$tissues
+			}
+	# Selected technical properties to be tested
+		if(all(params$cov=="")){
+			cov=NA
+		} else {
+			cov=params$cov
+		}
+	# Number of properties
+		if(length(params$n_feat)==1){
+			num_feat=rep(params$n_feat, length(taxa))
+		} else {
+			num_feat=params$n_feat
+		}
+```
+
+```{r select_samples, include = FALSE}
+	# Select samples given the taxa table
+		metadata=list()
+		for(i in 1:length(taxa)){
+			metadata[[length(metadata)+1]]=match_metadata(metadata=full_metadata[[i]], taxa_values=taxa[[i]], colname_metadata="file_id")
+			# make file_id as rownames
+			rownames(metadata[[length(metadata)]])=metadata[[length(metadata)]][,"file_id"]
+		}
+		names(metadata)=params$tissues
+```
+
+```{r new_metadata_property, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				for(j in 1:length(metadata)){
+					feat=create_new_property(metadata=metadata[[j]], old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+					metadata[[j]]=data.frame(metadata[[j]], feat)
+					colnames(metadata[[j]])[ncol(metadata[[j]])]=params$new_property[[i]][["new_name"]]
+				}			
+			}
+		}
+```
+
+```{r technical_property_selection, include = FALSE}
+	# If present, select the properties you want to test from the metadata file
+		if(all(!is.na(cov))){
+			new_metadata=list()
+			for(i in 1:length(metadata)){
+				new_metadata[[i]]=metadata[[i]][,cov]
+			}
+			metadata=new_metadata
+			names(metadata)=params$tissues
+		}
+```
+
+```{r distance_matrix, echo = FALSE, fig.show = 'hold', out.width="25%"}
+	# PCA
+		PCA_dist_matrix_list=lapply(1:length(taxa), function(x){
+				pca_data=PCA(taxa_values=taxa[[names(taxa)[x]]], out_removal=params$outlier_thr, num_features=num_feat[[x]])
+				dist_mat=as.matrix(dist(pca_data$x[,1:6], method="euclidean"))
+			}
+		)
+		names(PCA_dist_matrix_list)=names(taxa)
+	# ass_corr with features, only first 6 PCs
+		dist_mat_ass_corr=lapply(names(PCA_dist_matrix_list), function(tissue){
+				res=sapply(1:ncol(metadata[[tissue]]), function(y){
+						p=sapply(rownames(PCA_dist_matrix_list[[tissue]]), function(x){
+								which(rownames(metadata[[tissue]])==x)
+							}
+						)
+						meta=metadata[[tissue]][p,]
+						feat=meta[,y]
+						# check if the feature is numeric
+						is_num=can_be_numeric(feat)
+						# exceptions
+						if(colnames(metadata[[tissue]][y])=="plate_id" | colnames(metadata[[tissue]][y])=="less_plate_id"){
+							is_num=FALSE
+						}
+						if(is_num){
+							tab=matrix(c(NA, "numeric"))
+							return(tab)
+						} else {
+							# summary of the feature
+							tab_sum=table(feat)
+							if(any(colnames(meta)[y]==params$exceptions)){
+								lev=unique(feat)[unique(feat)!="unknown"]
+								by_lev_intra_extra_means=lapply(lev, function(j){
+										p1=which(feat==j)
+										if(length(p1)==1){
+											return(NA)
+										}
+										intra=apply(PCA_dist_matrix_list[[tissue]][p1,p1], 1, mean)
+										p2=which(feat!=j & feat!="unknown")
+										if(length(p2)==1){
+											return(NA)
+										}
+										extra=apply(PCA_dist_matrix_list[[tissue]][p1,p2], 1, mean)
+										mat=cbind(intra, extra)
+									}
+								)
+								by_lev_intra_extra_means=by_lev_intra_extra_means[!is.na(by_lev_intra_extra_means)]
+								intra_extra_means=do.call(rbind, by_lev_intra_extra_means)
+								p_val=wilcox.test(intra_extra_means[,1], intra_extra_means[,2])$p.value
+								tab=matrix(c(p_val, "ok"))
+								return(tab)
+							} else if(length(unique(feat)[unique(feat)!="unknown" & !is.na(unique(feat))])==1 | length(unique(feat)[unique(feat)!="unknown" & !is.na(unique(feat))])==0){
+								tab=matrix(c(NA, "too few levels"))
+								return(tab)
+							} else if(length(unique(feat))>=length(feat)*0.5){
+								tab=matrix(c(NA, "too many levels"))
+								return(tab)
+							} else if(any(tab_sum[names(tab_sum)!="unknown"]<5)){
+								tab=matrix(c(NA, "too few samples per level"))
+								return(tab)
+							} else {
+								lev=unique(feat)[unique(feat)!="unknown"]
+								by_lev_intra_extra_means=lapply(lev, function(j){
+										p1=which(feat==j)
+										intra=apply(PCA_dist_matrix_list[[tissue]][p1,p1], 1, mean)
+										p2=which(feat!=j & feat!="unknown")
+										extra=apply(PCA_dist_matrix_list[[tissue]][p1,p2], 1, mean)
+										mat=cbind(intra, extra)
+									}
+								)
+								intra_extra_means=do.call(rbind, by_lev_intra_extra_means)
+								p_val=wilcox.test(intra_extra_means[,1], intra_extra_means[,2])$p.value
+								tab=matrix(c(p_val, "ok"))
+								return(tab)
+							}
+						}
+					}
+				)
+				res=as.data.frame(t(res))
+				res[,1]=as.numeric(as.character(res[,1]))
+				rownames(res)=colnames(metadata[[tissue]])
+				return(res)
+			}
+		)
+		names(dist_mat_ass_corr)=names(PCA_dist_matrix_list)
+```
+
+
+Properties {data-orientation=rows}
+===================================== 
+  
+Row {.tabset .tabset-fade}
+-------------------------------------
+  
+```{r, echo=FALSE, include=FALSE}
+# You need this code to conduct the magic dependences attaching...
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+for(i in 1:length(metadata)){
+  cat("\n", sep="")
+  cat("### ", names(metadata)[[i]], "\n", sep="")
+  final_tab=data.frame(rownames(dist_mat_ass_corr[[i]]), dist_mat_ass_corr[[i]])
+  colnames(final_tab)=c("Properties", "p_val", "choice")
+  rownames(final_tab)=NULL
+  final_tab=final_tab[order(final_tab[,"p_val"]),]
+  cat(knitr::knit_print(kable(final_tab, format.args=list(digits=20, scientific=TRUE), "pipe")))
+}
+```

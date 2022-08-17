@@ -1,0 +1,328 @@
+---
+title: "Kaplan-Meier analysis"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vector of all metadata files paths
+  match_lab: "" # labels to be used to match metadata files
+  surv_data: # vector of survival data file paths
+  survival_analysis: # array of 3 string: time and status(in 0/1 or 1/2 for live/dead) column labels, and type of survival analysis, in this order
+  taxa: # vector of all taxa values files paths
+  join: # rows or columns, indicate the direction to join metadatas
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  numeric_covariates: "" # list of numeric covariates
+  categorical_covariates: "" # list of categorical covariates
+  values_not_considered: # vector of values not to be considered for cat feat
+  timerange_cat: "" # list of arrays of two numbers for starting and end point of time for categorical properties
+  timerange_cont: "" # list of arrays of two numbers for starting and end point of time for continuous properties
+  break_val: NULL # number to set breaks on x axis
+  picture_format: "svg" # list of vectors with the dimensionality reduction approach (type) and the probability (stat)
+  picture_path: "" # path with common name of files to save pictures
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(evaluate)
+	library(survival)
+	library(survminer)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(all(params$match_lab=="")){
+				match1="file_id"
+				match2="file_id"
+			} else {
+				match1=params$match_lab[1]
+				match2=params$match_lab[2]
+			}
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join, matching1=match1, matching2=match2)
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Survival data
+			surv_data=read.csv(params$surv_data, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		# Taxa quantification
+			if(length(params$taxa)>1){
+				taxa_values=join_taxa_table(taxa_paths=params$taxa)
+			} else {
+				taxa_values=read.csv(params$taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# timerange
+			timerange_cat=lapply(params$timerange_cat, function(x){
+					if(x==""){
+						return(c(min(surv_data[,params$survival_analysis[1]], na.rm=TRUE), max(surv_data[,params$survival_analysis[1]], na.rm=TRUE)))
+					} else {
+						return(x)
+					}
+				}
+			)		
+			timerange_cont=lapply(params$timerange_cont, function(x){
+					if(x==""){
+						return(c(min(surv_data[,params$survival_analysis[1]], na.rm=TRUE), max(surv_data[,params$survival_analysis[1]], na.rm=TRUE)))
+					} else {
+						return(x)
+					}
+				}
+			)	
+			timerange=list(timerange_cat, timerange_cont)
+			timerange=unlist(timerange, recursive=FALSE)
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_values
+		metadata=match_metadata(metadata=full_metadata, taxa_values=taxa_values, colname_metadata="file_id")
+```
+
+```{r new_metadata_property, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				feat=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+				metadata=data.frame(metadata, feat)
+				colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+			}
+		}
+```
+
+```{r join_metadata_to_surv_data, echo = FALSE}
+	# Join metadata and survival data
+		if(all(params$numeric_covariates!="") & all(params$categorical_covariates!="")){
+			tot_cov=c(params$categorical_covariates, params$numeric_covariates)
+		} else if(all(params$numeric_covariates=="")){
+			tot_cov=c(params$categorical_covariates)
+		} else if(all(params$categorical_covariates=="")){
+			tot_cov=c(params$numeric_covariates)
+		}
+		tmp_metadata=join_metadata(metadata_paths=list(metadata, surv_data), metadata_is_list=TRUE, join_by="columns", 
+																matching1="file_id", matching2="file_id")
+		new_metadata=tmp_metadata[,c(tot_cov, params$survival_analysis[1:2])]
+		if(!all(is.na(new_metadata[,params$survival_analysis[2]]) | new_metadata[,params$survival_analysis[2]]==0 | new_metadata[,params$survival_analysis[2]]==1 | 
+						new_metadata[,params$survival_analysis[2]]==2 | new_metadata[,params$survival_analysis[2]]=="unknown")){
+			stop("Patient status not described as 0/1 or 1/2 for alive/dead")
+		}
+		new_metadata[,params$survival_analysis[1]]=as.numeric(as.character(new_metadata[,params$survival_analysis[1]]))
+		new_metadata[,params$survival_analysis[2]]=as.numeric(as.character(new_metadata[,params$survival_analysis[2]]))
+```
+
+```{r cutpoint, echo = FALSE}
+	# Determine the optimal cutpoint for continuous variables, using the maximally selected rank statistics from the 'maxstat' R package. 
+	# This is an outcome-oriented methods providing a value of a cutpoint that correspond to the most significant relation with outcome (here, survival).
+		if(all(params$numeric_covariates!="")){
+			# Calculate cutpoints
+			cutpoints=lapply(params$numeric_covariates, function(x){
+					res=surv_cutpoint(new_metadata, time=params$survival_analysis[1],
+		                          event=params$survival_analysis[2],
+		                          variables=x)
+					return(res)
+				}
+			)
+			names(cutpoints)=params$numeric_covariates
+			cutpoint_tab_tmp=lapply(cutpoints, function(x){x$cutpoint})
+			names(cutpoint_tab_tmp)=params$numeric_covariates
+			cutpoint_tab=do.call(rbind, cutpoint_tab_tmp)
+			# Cutpoint plots
+				cutpoints_plots=lapply(1:length(cutpoints), function(x){
+						p=plot(cutpoints[[x]], params$numeric_covariates[x], palette="npg")
+						return(p)
+					}
+				)
+				names(cutpoints_plots)=params$numeric_covariates
+		} else {
+			cutpoints_plots=NA
+		}
+```
+
+```{r make_continuous_variables_to_categorical_with_cutpoint, include = FALSE}
+	# Use cutpoints to make the continuous variables categorical
+		if(all(params$numeric_covariates!="")){
+			for(i in 1:length(params$numeric_covariates)){
+				feat=sapply(new_metadata[,params$numeric_covariates[i]], function(x){
+						if(is.na(x)){
+							return("unknown")
+						} else if(x>=cutpoint_tab[params$numeric_covariates[i],"cutpoint"]){
+							return("high")
+						} else if(x<cutpoint_tab[params$numeric_covariates[i],"cutpoint"]){
+							return("low")
+						}
+					}
+				)
+				new_metadata=data.frame(new_metadata, feat)
+				colnames(new_metadata)[ncol(new_metadata)]=paste("bin_cp_", params$numeric_covariates[i], sep='')
+			}
+		}
+	
+	# Add the new properties
+		if(all(params$numeric_covariates!="") & all(params$categorical_covariates!="")){
+			tot_cov=c(params$categorical_covariates, paste("bin_cp_", params$numeric_covariates, sep=''))
+		} else if(all(params$numeric_covariates=="")){
+			tot_cov=c(params$categorical_covariates)
+		} else if(all(params$categorical_covariates=="")){
+			tot_cov=paste("bin_cp_", params$numeric_covariates, sep='')
+		}
+		values_to_be_removed=params$values_not_considered
+		values_to_be_removed[(length(params$values_not_considered)+1):(length(params$values_not_considered)+length(params$numeric_covariates))]=rep("unknown", length(params$numeric_covariates))
+```
+
+```{r km_analysis, echo = FALSE}
+	# Kaplan-Meyer test
+		categorical_km_fit_object=lapply(1:length(tot_cov), function(x){
+				mat=new_metadata
+				p=sapply(new_metadata[,tot_cov[[x]]], function(y){
+						if(any(y==values_to_be_removed[[x]])){
+							return(FALSE)
+						} else {
+							return(TRUE)
+						}
+					}
+				)
+				if(any(!p)){
+					mat=mat[p,]
+				}
+				fit=survfit(formula(paste("Surv(", params$survival_analysis[1], ", ", params$survival_analysis[2], ") ~ ", 
+										tot_cov[[x]], sep='')), data=mat)
+				return(fit)
+			}
+		)
+	# Kaplan-Meyer plots
+	categorical_km_plots=lapply(1:length(tot_cov), function(x){
+			mat=new_metadata
+			p=sapply(new_metadata[,tot_cov[[x]]], function(y){
+					if(any(y==values_to_be_removed[[x]])){
+						return(FALSE)
+					} else {
+						return(TRUE)
+					}
+				}
+			)
+			if(any(!p)){
+				mat=mat[p,]
+			}
+			mat=mat[,c(tot_cov[[x]], params$survival_analysis[1:2])]
+			colnames(mat)=c("variable", "time", "status")
+			new_fit=survfit(formula = Surv(time, status) ~ variable, data=mat)
+			p=ggsurvplot(new_fit, 
+          data=mat, conf.int=FALSE, pval=TRUE, risk.table=TRUE, legend.title=tot_cov[[x]],
+          legend.labs=gsub("variable=", "", names(new_fit$strata)),
+          xlim=timerange[[x]], risk.table.y.text.col=TRUE, risk.table.y.text = FALSE,
+          title=params$survival_analysis[3], 
+          xlab=params$survival_analysis[1],
+          pval.coord=c((timerange[[x]][1]+1), 0.13),
+          break.time.by=params$break_val,
+	        ggtheme=theme_light()
+        )
+			return(p)
+		}
+	)
+	names(categorical_km_plots)=tot_cov
+```
+
+```{r km_timerange_plot, echo = FALSE}
+	# Kaplan-Meyer test with timerange
+		if(all(timerange!="")){
+			categorical_timerange_km_plots=lapply(1:length(tot_cov), function(x){
+					mat=new_metadata
+					p=sapply(new_metadata[,tot_cov[[x]]], function(y){
+							if(any(y==values_to_be_removed[[x]])){
+								return(FALSE)
+							} else {
+								return(TRUE)
+							}
+						}
+					)
+					if(any(!p)){
+						mat=mat[p,]
+					}
+					mat=mat[,c(tot_cov[x], params$survival_analysis[1:2])]
+					colnames(mat)=c("variable", "time", "status")
+					# remove data out of the time range
+					p=which(mat[,"time"]>=timerange[[x]][1] & mat[,"time"]<=timerange[[x]][2])
+					mat=mat[p,]
+					new_fit=survfit(formula = Surv(time, status) ~ variable, data=mat)
+					surv_plot=ggsurvplot(new_fit, 
+		          data=mat, conf.int=FALSE, pval=TRUE, risk.table=TRUE, legend.title=tot_cov[[x]],
+		          legend.labs=gsub("variable=", "", names(new_fit$strata)),
+		          xlim=timerange[[x]], risk.table.y.text.col=TRUE, risk.table.y.text = FALSE,
+		          title=params$survival_analysis[3], 
+		          xlab=params$survival_analysis[1],
+		          pval.coord=c((timerange[[x]][1]+1), 0.13),
+		        	break.time.by=params$break_val,
+		        	ggtheme=theme_light()
+		        )
+					return(surv_plot)
+				}
+			)
+			names(categorical_timerange_km_plots)=tot_cov
+		} else {
+			categorical_timerange_km_plots=NA
+		}
+```
+
+Cutpoints plots {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="50%"}
+	out = NULL
+	if(any(!is.na(cutpoints_plots))){
+		names(cutpoints_plots)=NULL
+		for(i in 1:length(cutpoints_plots)){
+			names(cutpoints_plots[[i]])=NULL
+			evaluate(print(cutpoints_plots[[i]]))
+		}
+	}
+```
+
+KM plots {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="45%"}
+	out = NULL
+	if(any(!is.na(categorical_km_plots))){
+		for(i in 1:length(categorical_km_plots)){
+			evaluate(print(categorical_km_plots[[i]]))
+		}
+	}
+```
+
+KM plots, timerange corrected {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="50%"}
+	out = NULL
+	if(any(!is.na(categorical_timerange_km_plots))){
+		for(i in 1:length(categorical_timerange_km_plots)){
+			evaluate(print(categorical_timerange_km_plots[[i]]))
+		}
+	}
+```

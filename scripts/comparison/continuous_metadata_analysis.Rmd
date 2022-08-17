@@ -1,0 +1,245 @@
+---
+title: "Continuous correlation analysis"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata1: # vector of metadata files paths
+  join1: "columns" # rows or columns, indicate the direction to join metadatas
+  metadata2: # vector of metadata files paths
+  join2: "columns" # rows or columns, indicate the direction to join metadatas
+  taxa_tab: # list of vectors of all taxa values files paths
+  property1: # vector of features to be tested from metadata1
+  property2: # vector of features to be tested from metadata2
+  outlier1: "" # vector of methods to remove outliers, one per each property1
+  outlier2: "" # vector of methods to remove outliers, one per each property2
+  new_property1: "" # list of vectors with the name of the new feature, the feature to be used to create the new one, the method to create the new one
+  new_property2: "" # list of vectors with the name of the new feature, the feature to be used to create the new one, the method to create the new one
+  col_metadata: "" # vector of metadata files paths
+  col_join: "columns" # rows or columns, indicate the direction to join metadatas
+  output: "" # path of table output
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+  knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+  library(evaluate)
+  library(ggplot2)
+  library(ggpubr)
+```
+
+```{r functions, include = FALSE}
+  source("../general_functions.R")
+```
+
+```{r data, include = FALSE}
+  # Upload of
+    # Metadata
+      if(length(params$metadata1)>1){
+        full_metadata1=join_metadata(metadata_paths=params$metadata1, join_by=params$join1, matching1="file_id", matching2="file_id")
+      } else {
+        full_metadata1=read.csv(params$metadata1, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      }
+      if(!any(colnames(full_metadata1)=="file_id")){
+        tab=data.frame(rownames(full_metadata1), full_metadata1)
+        colnames(tab)=c("file_id", colnames(full_metadata1))
+        full_metadata1=tab
+        rm(tab)
+      }
+      if(length(params$metadata2)>1){
+        full_metadata2=join_metadata(metadata_paths=params$metadata2, join_by=params$join2, matching1="file_id", matching2="file_id")
+      } else {
+        full_metadata2=read.csv(params$metadata2, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      }
+      if(!any(colnames(full_metadata2)=="file_id")){
+        tab=data.frame(rownames(full_metadata2), full_metadata2)
+        colnames(tab)=c("file_id", colnames(full_metadata2))
+        full_metadata2=tab
+        rm(tab)
+      } 
+    # Samples analysed
+      if(length(params$taxa_tab[[1]])>1){
+        taxa_values1=join_taxa_table(taxa_paths=params$taxa_tab[[1]])
+      } else {
+        taxa_values1=read.csv(params$taxa_tab[[1]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      }
+      if(length(params$taxa_tab[[2]])>1){
+        taxa_values2=join_taxa_table(taxa_paths=params$taxa_tab[[2]])
+      } else {
+        taxa_values2=read.csv(params$taxa_tab[[2]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      }
+```
+
+```{r select_samples, include = FALSE}
+  # Match metadata and taxa_values to select only the samples I analysed
+    metadata1=match_metadata(metadata=full_metadata1, taxa_values=taxa_values1, colname_metadata="file_id")
+    metadata2=match_metadata(metadata=full_metadata2, taxa_values=taxa_values2, colname_metadata="file_id")
+```
+
+```{r new_metadata_property, include = FALSE}
+  # Make new properties 
+    if(all(params$new_property1=="")){
+      add_prop1=FALSE
+    } else {
+      add_prop1=TRUE
+    }
+    if(add_prop1){
+      for(i in 1:length(params$new_property1)){
+        prop=create_new_property(metadata=metadata1, old_prop=params$new_property1[[i]][["old"]], met=params$new_property1[[i]][["met"]])
+        metadata1=data.frame(metadata1, prop)
+        colnames(metadata1)[ncol(metadata1)]=params$new_property1[[i]][["new_name"]]
+      }
+    }
+    if(all(params$new_property2=="")){
+      add_prop2=FALSE
+    } else {
+      add_prop2=TRUE
+    }
+    if(add_prop2){
+      remove_x=c()
+      for(i in 1:length(params$new_property2)){
+        if(!any(params$new_property2[[i]][["old"]]==colnames(metadata2))){
+          old_lab=gsub("X*", "", colnames(metadata2))
+          colnames(metadata2)=old_lab
+          remove_x=c(remove_x, TRUE)
+        } else {
+          remove_x=c(remove_x, FALSE)
+        }
+        prop=create_new_property(metadata=metadata2, old_prop=params$new_property2[[i]][["old"]], met=params$new_property2[[i]][["met"]])
+        metadata2=data.frame(metadata2, prop)
+        colnames(metadata2)[ncol(metadata2)]=params$new_property2[[i]][["new_name"]]
+        if(any(remove_x)){
+          old_lab=gsub("X*", "", colnames(metadata2))
+          colnames(metadata2)=old_lab
+        }
+      }
+    }
+```
+
+```{r all_must_be_numeric, include = FALSE}
+  for(i in params$property1){
+    val=metadata1[,i]
+    if(class(val)!="numeric" & class(val)!="integer"){
+      res=sapply(val, function(x){
+          if(is.na(x) | as.character(x)=="unknown"){
+            return(NA)
+          } else {
+            return(as.numeric(as.character(x)))
+          }
+        }
+      )
+      metadata1[,i]=res
+    }
+  }
+  for(i in params$property2){
+    val=metadata2[,i]
+    if(class(val)!="numeric" & class(val)!="integer"){
+      res=sapply(val, function(x){
+          if(is.na(x) | as.character(x)=="unknown"){
+            return(NA)
+          } else {
+            return(as.numeric(as.character(x)))
+          }
+        }
+      )
+      metadata2[,i]=res
+    }
+  }
+```
+
+```{r correlations_tabs, include = FALSE}
+  # Correlations
+    spearm_corr=sapply(1:length(params$property1), function(x){
+        feat1=params$property1[[x]]
+        feat2=params$property2[[x]]
+        r=cor.test(metadata1[,feat1], metadata2[,feat2], method="spearman")$estimate
+        p=cor.test(metadata1[,feat1], metadata2[,feat2], method="spearman")$p.value
+          return(c(r=r, p=p))
+      }
+    )
+    pear_corr=sapply(1:length(params$property1), function(x){
+        feat1=params$property1[[x]]
+        feat2=params$property2[[x]]
+        r=cor.test(metadata1[,feat1], metadata2[,feat2], method="pearson")$estimate
+        p=cor.test(metadata1[,feat1], metadata2[,feat2], method="pearson")$p.value
+          return(c(r=r, p=p))
+      }
+    )
+    c_names=sapply(1:length(params$property1), function(x){
+        if(params$property1[[x]]==params$property2[[x]]){
+          return(params$property1[[x]])
+        } else {
+          return(paste(params$property1[[x]], "_", params$property2[[x]], sep=''))
+        }
+      }
+    )
+    colnames(spearm_corr)=c_names
+    colnames(pear_corr)=c_names
+```
+
+```{r cont_features, include = FALSE}
+  # Scatter plots
+  cont_plots=lapply(1:length(params$property1), function(x){
+      feat1=params$property1[[x]]
+      feat2=params$property2[[x]]
+      plotting_table=data.frame(metadata1[,feat1], metadata2[,feat2])
+      # remove NA
+        pos=apply(plotting_table, 1, function(y){
+            if(any(is.na(y))){
+              return(FALSE)
+            } else {
+              return(TRUE)
+            }
+          }
+        )
+        if(any(!pos)){
+          plotting_table=plotting_table[pos,]
+        }
+      if(!is.null(names(params$metadata1)[1])){
+        colnames(plotting_table)=c(paste(names(params$metadata1)[1], "_", feat1, sep=''),
+                                    paste(names(params$metadata2)[1], "_", feat2, sep=''))
+      } else {
+        colnames(plotting_table)=c(feat1, feat2)
+      }
+      cor_plot=ggscatter(plotting_table, x=colnames(plotting_table)[1], y=colnames(plotting_table)[2], 
+                              add="reg.line", conf.int=FALSE, cor.coef=TRUE, 
+                              cor.coeff.args=list(method="pearson", aes(color="blue"), show.legend=FALSE))+
+                      stat_cor(method="spearman", cor.coef.name="rho", label.x.npc="center", label.y.npc="bottom", 
+                                  aes(color="red"), show.legend=FALSE)+
+                      theme_light()+
+                      theme(legend.position="top")
+      return(cor_plot)
+    }
+  )
+  names(cont_plots)=paste(params$property1, "_", params$property2, sep='')
+  cont_plots=list(cont_plots)
+  names(cont_plots)="general"
+```
+
+```{r write_out, echo = FALSE}
+  res=data.frame(t(spearm_corr), t(pear_corr))
+  colnames(res)=c("spearm_rho", "spearman_p", "pearson_rho", "pearson_p")
+  write.table(res, file=params$output, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+```
+
+Correlations {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, echo=FALSE, include=FALSE}
+DT::datatable(matrix())
+```
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+  out = NULL
+  for(i in 1:length(cont_plots)){
+    cat("\n", sep="")
+    names(cont_plots[[1]])=NULL
+    evaluate(print(cont_plots[[i]]))
+    cat("\n", sep="")
+  }
+```
