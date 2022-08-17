@@ -104,7 +104,7 @@ gatk PathSeqPipelineSpark \
 Since this step requires a lot of time, we provide here a toy sample to test Pathseq on your local computer. This example was taken from [gatk Pathseq tutorial](https://gatk.broadinstitute.org/hc/en-us/articles/360035889911--How-to-Run-the-Pathseq-pipeline). The first step is to download the example references: 
 ```bash
 cd /microbiome_reconstruction/data/pathseq_tools
-wget 'ftp://gsapubftp-anonymous@ftp.broadinstitute.org/tutorials/datasets/tutorial_10913.tar.gz' -P /microbiome_paper/microbiome_reconstruction/data/pathseq_tools
+wget 'ftp://gsapubftp-anonymous@ftp.broadinstitute.org/tutorials/datasets/tutorial_10913.tar.gz' -P /microbiome_reconstruction/data/pathseq_tools
 tar –xvzf tutorial_10913.tar.gz
 ```
 Three samples were downloaded from [Zmora et al.](https://www.sciencedirect.com/science/article/pii/S0092867418311024?via%3Dihub) from [ENA](https://www.ebi.ac.uk/ena/browser/home) with the ERR2756905-7 accession number and aligned with STAR-2.7.7a following [this](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/Expression_mRNA_Pipeline/) pipeline. We selected the unmapped reads with samtools. The resulting files are located in /microbiome_reconstruction/data/RNAseq/input_bam/ folder. Then you can run the example (few minutes per sample):
