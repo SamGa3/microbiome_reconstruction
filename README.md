@@ -333,7 +333,7 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
                             "aneuploidy_score"),
         new_property = list(c(old="plate_id", met="corr_plate_id", new_name="corr_plate_id")),
         rotations_path="../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/COAD/tables/COAD_ComBat_plate_id_bacteria_species_merged_unamb_scores_norm_rotations.txt",
-        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/COAD/rables/COAD_ComBat_plate_id_tumour_bacteria_species_merged_unamb_scores_norm_pca_tab.txt",
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/COAD/tables/COAD_ComBat_plate_id_tumour_bacteria_species_merged_unamb_scores_norm_pca_tab.txt",
         palette = c("default", "default", "default", "CMS", rep("default", 10))
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/COAD/COAD_ComBat_plate_id_selectedTumor_property_association.html"
