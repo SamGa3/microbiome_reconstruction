@@ -490,9 +490,9 @@ A list of all the analyses is in scripts/ml/ml_lasso_classifier_commands.R and c
 To detect which microbial pathways are present in the analysed samples, we used the tool HUMAnN 3.0, from Huttenhower lab. Before running the tool, we merged together the samples we are interested in (left or right side of the colon or their random subsets). Here we show an example on the already presented toy samples from Zmora et al. 
 In the first step we convert the bam files from Pathseq to fastq files with samtools:
 ```bash
-samtools bam2fq data/RNAseq/pathseq_output/ERR2756905_out/bam_out.bam > data/RNAseq/humann_output/example/ERR2756905_out/fastq_out.fastq
-samtools bam2fq data/RNAseq/pathseq_output/ERR2756906_out/bam_out.bam > data/RNAseq/humann_output/example/ERR2756906_out/fastq_out.fastq
-samtools bam2fq data/RNAseq/pathseq_output/ERR2756907_out/bam_out.bam > data/RNAseq/humann_output/example/ERR2756907_out/fastq_out.fastq
+samtools bam2fq data/RNAseq/pathseq_output/example1/bam_out.bam > data/RNAseq/humann_output/example/ERR2756905_out/fastq_out.fastq
+samtools bam2fq data/RNAseq/pathseq_output/example2/bam_out.bam > data/RNAseq/humann_output/example/ERR2756906_out/fastq_out.fastq
+samtools bam2fq data/RNAseq/pathseq_output/example3/bam_out.bam > data/RNAseq/humann_output/example/ERR2756907_out/fastq_out.fastq
 cat data/RNAseq/humann_output/example/ERR2756905_out/fastq_out.fastq data/RNAseq/humann_output/example/ERR2756906_out/fastq_out.fastq data/RNAseq/humann_output/example/ERR2756907_out/fastq_out.fastq > data/RNAseq/humann_output/example/merged_fastq_out.fastq
 ```
 The tool step was run on the IEO cluster using local computer of 8 cores, 25 GB of ram.
