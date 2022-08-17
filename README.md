@@ -531,7 +531,7 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
     column_selected = "file_id",
     taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
     match_taxa = "rownames",
-    subset_size = 50,
+    subset_size = 30,
     random_tries = 30,
     output = "../../results/pathway_analysis/bootstrapped_samples/COAD_selectedTumor_left"
   )
@@ -553,9 +553,9 @@ rmarkdown::render("scripts/pathway_analysis/pathway_analysis.Rmd",
         pathways1 = c(left="../../data/RNAseq/humann_output/left/COAD_selectedTumor_left_pathabundance_unstratified_cpm.tsv"),
         pathways2 = c(right="../../data/RNAseq/humann_output/right/COAD_selectedTumor_right_pathabundance_unstratified_cpm.tsv"),
         random_pathways1 = "../../data/RNAseq/humann_output/random_subset_left/",
-        base_name1 = "COAD_selectedTumor_left_50random",
+        base_name1 = "COAD_selectedTumor_left_30random",
         random_pathways2 = "../../data/RNAseq/humann_output/random_subset_right/",
-        base_name2 = "COAD_selectedTumor_right_50random",
+        base_name2 = "COAD_selectedTumor_right_30random",
         output = "../../results/pathway_analysis/COAD_side_table.tsv"
     ), 
     output_file = "../../results/pathway_analysis/COAD_side_bootstrapping.html"
