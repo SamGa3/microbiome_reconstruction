@@ -1,0 +1,397 @@
+---
+title: "Continuous correlation analysis overview"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata1: # metadata files path
+  join1: "columns" # rows or columns, indicate the direction to join metadatas
+  name1: ""
+  metadata2: # metadata files path
+  join2: "columns" # rows or columns, indicate the direction to join metadatas
+  name2: ""
+  taxa_tab: # list of vectors of all taxa values files paths
+  property1: # vector of properties to be tested from metadata1
+  property2: # vector of properties to be tested from metadata2
+  outlier1: "" # vector of methods to remove outliers, one per each property1
+  outlier2: "" # vector of methods to remove outliers, one per each property2
+  new_property1: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  new_property2: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  thrs1: "" # vector of thresholds for metadata1
+  thrs2: "" # vector of thresholds for metadata2
+  palette: "" # name of one of my palette in general_function
+  output: "" # path of table output
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+  knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+  library(evaluate)
+  library(ggplot2)
+  library(ggridges)
+```
+
+```{r functions, include = FALSE}
+  source("../general_functions.R")
+```
+
+```{r data, include = FALSE}
+  # Upload of
+    # Metadata
+      full_metadata1=read.csv(params$metadata1, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      if(!any(colnames(full_metadata1)=="file_id")){
+        tab=data.frame(rownames(full_metadata1), full_metadata1)
+        colnames(tab)=c("file_id", colnames(full_metadata1))
+        full_metadata1=tab
+        rm(tab)
+      }
+      full_metadata2=read.csv(params$metadata2, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      if(!any(colnames(full_metadata2)=="file_id")){
+        tab=data.frame(rownames(full_metadata2), full_metadata2)
+        colnames(tab)=c("file_id", colnames(full_metadata2))
+        full_metadata2=tab
+        rm(tab)
+      } 
+    # Samples analysed
+      if(length(params$taxa_tab[[1]])>1){
+        taxa_values1=join_taxa_table(taxa_paths=params$taxa_tab[[1]])
+      } else {
+        taxa_values1=read.csv(params$taxa_tab[[1]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      }
+      if(length(params$taxa_tab[[2]])>1){
+        taxa_values2=join_taxa_table(taxa_paths=params$taxa_tab[[2]])
+      } else {
+        taxa_values2=read.csv(params$taxa_tab[[2]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+      }
+      if(length(params$taxa_tab)>2){
+        if(length(params$taxa_tab[[3]])>1){
+          taxa_values3=join_taxa_table(taxa_paths=params$taxa_tab[[3]])
+        } else if(length(params$taxa_tab[[3]])==1){
+          taxa_values3=read.csv(params$taxa_tab[[3]], sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+        } else {
+          taxa_values3=NA
+        }
+      } else {
+        taxa_values3=NA
+      }
+    # Palette
+      if(params$palette!=""){
+        pal=my_palettes[params$palette]
+      } else {
+        pal="default"
+      } 
+```
+
+```{r select_properties, include = FALSE}
+  if(all(params$property1=="intersection")){
+    int1=intersect(colnames(full_metadata1), colnames(full_metadata2))
+  } else {
+    int1=params$property1
+  }
+  full_metadata1=full_metadata1[,int1]
+  if(all(params$property2=="intersection")){
+    int2=int1
+  } else {
+    int2=params$property2
+  }
+  full_metadata2=full_metadata2[,int2]
+  if(length(params$property1)!=length(params$property2)){
+    stop("property1 and 2 with different lengths")
+  }
+```
+
+```{r select_samples, include = FALSE}
+  # Select common samples
+    common_samples=intersect(full_metadata1[,"file_id"], full_metadata2[,"file_id"])
+    p1=sapply(common_samples, function(x){
+        which(x==full_metadata1[,"file_id"])
+      }
+    )
+    p2=sapply(common_samples, function(x){
+        which(x==full_metadata2[,"file_id"])
+      }
+    )
+  # Match metadata and taxa_values to select only the samples I analysed
+    metadata1=match_metadata(metadata=full_metadata1[p1,], taxa_values=taxa_values1, colname_metadata="file_id")
+    metadata2=match_metadata(metadata=full_metadata2[p2,], taxa_values=taxa_values2, colname_metadata="file_id")
+    # remova NAs
+    na_p1=which(!is.na(metadata1[,2]))
+    na_p2=which(!is.na(metadata2[,2]))
+    na_pos=intersect(na_p1, na_p2)
+    metadata1=metadata1[na_pos,]
+    metadata2=metadata2[na_pos,]
+```
+
+```{r new_metadata_property, include = FALSE}
+  # Make new properties
+    # metadata1
+      if(all(params$new_property1=="")){
+        add_feat1=FALSE
+      } else {
+        add_feat1=TRUE
+      }
+      if(add_feat1){
+        for(i in 1:length(params$new_property1)){
+          feat=create_new_property(metadata=metadata1, old_feat=params$new_property1[[i]][["old"]], met=params$new_property1[[i]][["met"]])
+          metadata1=data.frame(metadata1, feat)
+          colnames(metadata1)[ncol(metadata1)]=params$new_property1[[i]][["new_name"]]
+        }
+      }
+    # metadata2
+      if(all(params$new_property2=="")){
+        add_feat2=FALSE
+      } else {
+        add_feat2=TRUE
+      }
+      if(add_feat2){
+        for(i in 1:length(params$new_property2)){
+          feat=create_new_property(metadata=metadata2, old_feat=params$new_property2[[i]][["old"]], met=params$new_property2[[i]][["met"]])
+          metadata2=data.frame(metadata2, feat)
+          colnames(metadata2)[ncol(metadata2)]=params$new_property2[[i]][["new_name"]]
+        }
+      }
+```
+
+```{r all_must_be_numeric, include = FALSE}
+  # Convert all the columns to numeric
+    for(i in int1[int1!="file_id"]){
+      val=metadata1[,i]
+      if(class(val)!="numeric" & class(val)!="integer"){
+        res=sapply(val, function(x){
+            if(is.na(x) | as.character(x)=="unknown"){
+              return(NA)
+            } else {
+              return(as.numeric(as.character(x)))
+            }
+          }
+        )
+        metadata1[,i]=res
+      }
+    }
+    for(i in int2){
+      val=metadata2[,i]
+      if(class(val)!="numeric" & class(val)!="integer"){
+        res=sapply(val, function(x){
+            if(is.na(x) | as.character(x)=="unknown"){
+              return(NA)
+            } else {
+              return(as.numeric(as.character(x)))
+            }
+          }
+        )
+        metadata2[,i]=res
+      }
+    }
+```
+
+```{r prepare_subsets, include = FALSE}
+  #`Prepare subsets of columns by thresholds
+    if(all(params$thrs1!="")){
+      thrs1=c(params$thrs1)
+    } else {
+      thrs1=c(0)
+    }
+    if(all(params$thrs2!="")){
+      thrs2=c(params$thrs2)
+    } else {
+      thrs2=c(0)
+    }
+```
+
+```{r spearm_plots, include = FALSE}
+  # Spearman test
+    r=sapply(2:ncol(metadata1), function(y){
+        cor.test(metadata1[,y], metadata2[,y], method="spearman")$estimate
+      }
+    )
+    names(r)=colnames(metadata1)[2:ncol(metadata1)]
+
+  # Calculate prevalence
+    pres1=apply(metadata1[,2:ncol(metadata1)], 2, function(y){
+        mean(y!=0)
+      }
+    )
+    pres2=apply(metadata2[,2:ncol(metadata2)], 2, function(y){
+        mean(y!=0)
+      }
+    )
+
+  # Make density plot per thr
+    singular_plots=lapply(1:length(thrs1), function(y){
+        p=which(pres1>=thrs1[[y]] & pres2>=thrs2[[y]])
+        # tot each sample, each taxa
+        met1=metadata1[,(p+1)]
+        met2=metadata2[,(p+1)]
+        tot_r=cor.test(unlist(met1), unlist(met2), method="spearman")
+        # tot sum samples (per taxa)
+        val1=apply(met1, 2, sum)
+        val2=apply(met2, 2, sum)
+        tot_sum_r=cor.test(val1, val2, method="spearman")
+        # per sample
+        val=r[p]
+        val=val[!is.na(val)]
+        plotting_table=data.frame(val)
+        colnames(plotting_table)="Spearman_R"
+        p_value=wilcox.test(plotting_table[,"Spearman_R"], alternative="greater")$p.value
+        R_plot=ggplot(plotting_table, aes_string(x="Spearman_R")) + 
+                      geom_density() +
+                      ggtitle(paste("Prevalence > ", signif(thrs1[[y]], 3), " and ",  signif(thrs2[[y]], 3), sep=''))+
+                      theme_light() + 
+                      geom_vline(aes(xintercept=0),
+                             color="blue", linetype="dashed", size=0.5) +
+                      annotate(x=0, y=0.5, geom="text", label=paste("one-sided Wilcoxon, p=", signif(p_value, 3),
+                                "\ncorr. tot r=", signif(tot_r$estimate, 3), ", p=", signif(tot_r$p.value, 5),
+                                "\ncorr. sum samples r=", signif(tot_sum_r$estimate, 3), ", p=", signif(tot_sum_r$p.value, 5),
+                                "\nn. taxa=", nrow(plotting_table), sep=''))
+        return(R_plot)
+      }
+    )
+
+    thr_r=lapply(1:length(thrs1), function(y){
+        p=which(pres1>=thrs1[[y]] & pres2>=thrs2[[y]])
+        plotting_table=data.frame(r[p])
+        colnames(plotting_table)="Spearman_R"
+        return(plotting_table)
+      }
+    )
+    thr_lab=sapply(1:length(thr_r), function(y){
+        return(rep(paste(signif(thrs1[[y]], 2), signif(thrs2[[y]], 2), sep=','), nrow(thr_r[[y]])))
+      }
+    )
+    thr_lab=unlist(thr_lab)
+    plotting_table=data.frame(do.call(rbind, thr_r), as.character(thr_lab))
+    colnames(plotting_table)=c("Spearman_R", "thr")
+    plotting_table=plotting_table[!is.na(plotting_table[,1]),]
+    
+    tot_plot=ggplot(plotting_table, aes_string(x="Spearman_R", y="thr", fill="thr")) +
+            geom_density_ridges() +
+            stat_density_ridges(quantile_lines=TRUE, quantiles=2) +
+            geom_vline(aes(xintercept=0), linetype="dotted") +
+            theme_light() 
+    if(all(pal[[1]]!="default")){
+      tot_plot=tot_plot+scale_fill_manual(values=pal[[1]], guide="none")
+    }
+
+    R_spearm_density_plots=c(list(tot_plot), singular_plots)
+```
+
+```{r pear_plots, include = FALSE}
+  # Pearson test
+    r=sapply(2:ncol(metadata1), function(y){
+        cor.test(metadata1[,y], metadata2[,y], method="pearson")$estimate
+      }
+    )
+    names(r)=colnames(metadata1)[2:ncol(metadata1)]
+
+  # Calculate prevalence
+    pres1=apply(metadata1[,2:ncol(metadata1)], 2, function(y){
+        mean(y!=0)
+      }
+    )
+    pres2=apply(metadata2[,2:ncol(metadata2)], 2, function(y){
+        mean(y!=0)
+      }
+    )
+
+  # Make density plot per thr
+    singular_plots=lapply(1:length(thrs1), function(y){
+        p=which(pres1>=thrs1[[y]] & pres2>=thrs2[[y]])
+        # tot each sample, each taxa
+        met1=metadata1[,(p+1)]
+        met2=metadata2[,(p+1)]
+        tot_r=cor.test(unlist(met1), unlist(met2), method="pearson")
+        # tot sum samples (per taxa)
+        val1=apply(met1, 2, sum)
+        val2=apply(met2, 2, sum)
+        tot_sum_r=cor.test(val1, val2, method="pearson")
+        # per sample
+        val=r[p]
+        val=val[!is.na(val)]
+        plotting_table=data.frame(val)
+        colnames(plotting_table)="Pearson_R"
+        p_value=wilcox.test(plotting_table[,"Pearson_R"], alternative="greater")$p.value
+        R_plot=ggplot(plotting_table, aes_string(x="Pearson_R")) + 
+                      geom_density() +
+                      ggtitle(paste("Prevalence > ", signif(thrs1[[y]], 3), " and ",  signif(thrs2[[y]], 3), sep=''))+
+                      theme_light() + 
+                      geom_vline(aes(xintercept=0),
+                             color="blue", linetype="dashed", size=0.5) +
+                      annotate(x=0, y=0.5, geom="text", label=paste("one-sided Wilcoxon, p=", signif(p_value, 3),
+                                "\ncorr. tot r=", signif(tot_r$estimate, 3), ", p=", signif(tot_r$p.value, 5),
+                                "\ncorr. sum samples r=", signif(tot_sum_r$estimate, 3), ", p=", signif(tot_sum_r$p.value, 5),
+                                "\nn. taxa=", nrow(plotting_table), sep=''))
+        return(R_plot)
+      }
+    )
+
+    thr_r=lapply(1:length(thrs1), function(y){
+        p=which(pres1>=thrs1[[y]] & pres2>=thrs2[[y]])
+        plotting_table=data.frame(r[p])
+        colnames(plotting_table)="Pearson_R"
+        return(plotting_table)
+      }
+    )
+    thr_lab=sapply(1:length(thr_r), function(y){
+        return(rep(paste(signif(thrs1[[y]], 2), signif(thrs2[[y]], 2), sep=','), nrow(thr_r[[y]])))
+      }
+    )
+    thr_lab=unlist(thr_lab)
+    plotting_table=data.frame(do.call(rbind, thr_r), as.character(thr_lab))
+    colnames(plotting_table)=c("Pearson_R", "thr")
+    plotting_table=plotting_table[!is.na(plotting_table[,1]),]
+    
+    tot_plot=ggplot(plotting_table, aes_string(x="Pearson_R", y="thr", fill="thr")) +
+            geom_density_ridges() +
+            stat_density_ridges(quantile_lines=TRUE, quantiles=2) +
+            geom_vline(aes(xintercept=0), linetype="dotted") +
+            theme_light() 
+    if(all(pal[[1]]!="default")){
+      tot_plot=tot_plot+scale_fill_manual(values=pal[[1]], guide="none")
+    }
+
+    R_pear_density_plots=c(list(tot_plot), singular_plots)
+```
+
+```{r tables, echo = FALSE}
+  if(params$output!=""){
+    R_spearm=sapply(2:ncol(metadata1), function(y){
+        cor.test(metadata1[,y], metadata2[,y], method="spearman")$estimate
+      }
+    )
+    names(R_spearm)=colnames(metadata1)[2:ncol(metadata1)]
+    r_spearm_tab=data.frame(colnames(metadata1)[2:ncol(metadata1)], R_spearm)
+    colnames(r_spearm_tab)=c("tax_id", "R_spearm")
+    write.table(r_spearm_tab, file=paste(params$output, "spearman.txt", sep=""), sep="\t", quote=FALSE, col.names=TRUE, row.names=FALSE)
+    R_pear=sapply(2:ncol(metadata1), function(y){
+        cor.test(metadata1[,y], metadata2[,y], method="pearson")$estimate
+      }
+    )
+    names(R_pear)=colnames(metadata1)[2:ncol(metadata1)]
+    r_pear_tab=data.frame(colnames(metadata1)[2:ncol(metadata1)], R_pear)
+    colnames(r_pear_tab)=c("tax_id", "R_pear")
+    write.table(r_pear_tab, file=paste(params$output, "pearson.txt", sep=""), sep="\t", quote=FALSE, col.names=TRUE, row.names=FALSE)
+  }
+```
+
+
+Pearson {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+  R_pear_density_plots
+```
+
+Spearman {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+  R_spearm_density_plots
+```

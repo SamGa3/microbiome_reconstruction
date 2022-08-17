@@ -1,0 +1,257 @@
+---
+title: "Reconstructed microbiome classification"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vector of all metadata files paths
+  match_metadata_to_taxa: "file_id" # column label of metadata table to be used to match the taxa table 
+  taxa: # vector of all taxa values files paths
+  join: # rows or columns, indicate the direction to join metadatas
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  cat_properties: "" # vector of categorical properties 
+  values_not_considered: # vector of values not to be considered in wilcoxon/kruskal tests for cat feat
+  cont_properties: "" # vector of continuous properties 
+  mutate_cat_properties: "" # list of lists with the levels to be grouped, the name is the grouped level
+  mutate_cont_properties: "" # list of lists with the levels to be grouped, the name is the grouped level
+  paired: "" # names of the colon to be considered to pair samples
+  filter: "" # vector of with the type of filter and the number of features to be selected
+  total_taxa: "../../data/all_bacteria_species.txt" # path where all taxa are listed
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(SIAMCAT)
+	library(ggplot2)
+	library(evaluate)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+	# source("functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Taxa quantification
+			if(length(params$taxa)>1){
+				taxa_values=join_taxa_table(taxa_paths=params$taxa)
+			} else {
+				taxa_values=read.csv(params$taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+	# Total taxa
+		all_taxa_tab=read.csv(params$total_taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)		
+		all_taxa=all_taxa_tab[,2]
+		names(all_taxa)=as.character(all_taxa_tab[,1])
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_values
+		metadata=match_metadata(metadata=full_metadata, taxa_values=taxa_values, colname_metadata="file_id")
+```
+
+```{r new_metadata_property, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				feat=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+				metadata=data.frame(metadata, feat)
+				colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+			}
+		}
+```
+
+```{r metadata_adjustments, include = FALSE}
+	properties=c()
+	mutate_properties=c()
+	# Adjust metadata per property to have binary levels
+		if(all(params$cat_properties!="")){
+			for(i in 1:length(params$cat_properties)){
+				prop=params$cat_properties[[i]]
+				levels=params$mutate_cat_properties[[i]]
+				removed_lev=params$values_not_considered[[i]]
+				new_col=sapply(metadata[,prop], function(y){
+						if(any(y==removed_lev)){
+							return(NA)
+						} else if(any(y==levels[[1]])){
+							return(names(levels)[1])
+						} else if(any(y==levels[[2]])){
+							return(names(levels)[2])
+						} else {
+							return(y)
+						}
+					}
+				)
+				metadata=data.frame(metadata, new_col)
+				colnames(metadata)[ncol(metadata)]=names(params$mutate_cat_properties)[i]
+				properties=c(properties, names(params$mutate_cat_properties)[i])
+				mutate_properties=c(mutate_properties, names(params$mutate_cat_properties[[i]])[1])
+			}
+		}
+		if(all(params$cont_properties!="")){
+			for(i in 1:length(params$cont_properties)){
+				prop=params$cont_properties[[i]]
+				levels=params$mutate_cont_properties[[i]]
+				new_col=sapply(metadata[,prop], function(y){
+						decision=sapply(levels, function(x){
+								if(x[1]=="over"){
+									if(y>=as.numeric(as.character(x[2]))){
+										return(TRUE)
+									} else {
+										return(FALSE)
+									}
+								} else if(x[1]=="equal"){
+									if(y==as.numeric(as.character(x[2]))){
+										return(TRUE)
+									} else {
+										return(FALSE)
+									}
+								} else if(x[1]=="below"){
+									if(y==as.numeric(as.character(x[2]))){
+										return(TRUE)
+									} else {
+										return(FALSE)
+									}
+								}
+							}
+						)
+						if(any(decision)){
+							return(names(decision)[which(decision)])
+						} else {
+							return(NA)
+						}
+					}
+				)
+				metadata=data.frame(metadata, new_col)
+				colnames(metadata)[ncol(metadata)]=names(params$mutate_cont_properties)[i]
+				properties=c(properties, names(params$mutate_cont_properties)[i])
+				mutate_properties=c(mutate_properties, names(params$mutate_cont_properties[[i]])[1])
+			}
+		}
+```
+
+```{r filter, include = FALSE}
+	# Feature selection by standard deviation 
+		if(all(params$filter!="")){
+			if(params$filter[[1]]=="sd"){
+				std_dev=apply(taxa_values, 2, sd)
+				if(params$filter[[2]]=="all" | params$filter[[2]]>ncol(taxa_values)){
+					params$filter[[2]]=ncol(tab)
+				}
+				most_variable=sort(unlist(std_dev), decreasing=TRUE)[1:params$filter[[2]]]
+				most_variable_features=unique(names(most_variable))
+				sel_col=sapply(colnames(taxa_values), function(x){
+						if(any(x==most_variable_features)){
+							return(TRUE)
+						} else {
+							return(FALSE)
+						}
+					}
+				)
+				taxa_values=taxa_values[,sel_col]
+			}
+		}
+	# Fix tables for siamcat
+		rownames(metadata)=metadata[,params$match_metadata_to_taxa]
+		tab=t(taxa_values)
+	# change id to tax_names
+		rownames(tab)=all_taxa[rownames(tab)]
+```
+
+```{r siamcat_workflow, include = FALSE}
+# SIAMCAT workflow
+	siam_obj=lapply(1:length(properties), function(x){
+			sc.obj=siamcat(meta=metadata, label=properties[[x]], case=mutate_properties[[x]], feat=tab, verbose=0)
+			sc.obj=create.data.split(sc.obj, num.folds=10, num.resample=10, inseparable=params$paired[[x]], verbose=0)
+			sc.obj=normalize.features(sc.obj, norm.method = 'std', norm.param = list(sd.min.q=0), feature.type = 'original', verbose=0)
+			sc.obj=train.model(sc.obj, method='lasso', verbose=0)
+			sc.obj=make.predictions(sc.obj, verbose=0)
+			sc.obj=evaluate.predictions(sc.obj, verbose=0)
+			return(sc.obj)
+		}
+	)
+	names(siam_obj)=properties
+```
+
+```{r bar_plots, include = FALSE}
+	tmp=sapply(1:length(siam_obj), function(x){
+			auc=as.numeric(siam_obj[[x]]@eval_data$auroc)
+			return(c(names(siam_obj)[x], auc))
+		}
+	)
+	plotting_table=as.data.frame(t(tmp))
+	colnames(plotting_table)=c("property", "AUC")
+	plotting_table[,"AUC"]=as.numeric(as.character(plotting_table[,"AUC"]))
+	bar_plot=ggplot(plotting_table, aes(x=property, y=AUC)) + 
+						  geom_bar(stat='identity') + 
+						  coord_cartesian(ylim=c(0, 1)) + 
+  						theme_light() + 
+						  theme(panel.grid.minor = element_blank(), 
+						        panel.grid.major.x = element_blank())+
+						  xlab('')
+```
+
+```{r evaluation_plot, include = FALSE}
+	# interpretation plots
+	for (i in properties){
+	  model.evaluation.plot(siam_obj[[i]], fn.plot=paste("../../results/ml/images/evaluation_", i, ".pdf", sep=''))
+	}
+```
+
+```{r interpretation_plot, include = FALSE}
+	# interpretation plots
+	for (i in properties){
+	  model.interpretation.plot(siam_obj[[i]], fn.plot=paste("../../results/ml/images/interpretation_", i, ".pdf", sep=''))
+	}
+```
+
+Barplot {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis', fig.show = 'asis', out.width="50%"}
+	bar_plot
+```
+
+Evaluation plots {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis'}
+	out = NULL
+	for(i in 1:length(properties)){
+		cat("\n", sep="")
+		cat("### ", properties[[i]], "\n", sep="")
+		cat(paste("![](../../results/ml/images/evaluation_", properties[[i]], ".pdf){width=800px height=1500px}", sep=''))
+		cat("\n", sep="")
+	}
+```
+
+Interpretation plots {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis'}
+	out = NULL
+	for(i in 1:length(properties)){
+		cat("\n", sep="")
+		cat("### ", properties[[i]], "\n", sep="")
+		cat(paste("![](../../results/ml/images/interpretation_", properties[[i]], ".pdf){width=1000px height=800px}", sep=''))
+		cat("\n", sep="")
+	}
+```

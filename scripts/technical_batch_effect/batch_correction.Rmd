@@ -1,0 +1,94 @@
+---
+title: "ComBat correction"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vectors of the metadata tables paths
+  join: "" # vector assigning the approach to be used to join together different metadata tables
+  taxa:  # list of vectors, one per cancer type, with the paths of the taxa tables (if more than one, the will be joined by rows)
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one (listed in general_function.R)
+  property: # Property to correct
+  output: ""  # path of the corrected taxa table
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(sva)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+	source("functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Taxa quantification
+			if(length(params$taxa)>1){
+				taxa_values=join_taxa_table(taxa_paths=params$taxa)
+			} else {
+				taxa_values=read.csv(params$taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Properties (must be column labels of full_metadata)
+			properties=params$property
+```
+
+```{r remove_all_zeros_taxa, include = FALSE}
+	# Remove samples with all zeros
+		p=apply(taxa_values, 1, function(x){
+				!all(x==0)
+			}
+		)
+		taxa_values=taxa_values[p,]
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_values
+		metadata=match_metadata(metadata=full_metadata, taxa_values=taxa_values, colname_metadata="file_id")
+```
+
+```{r new_metadata_property, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				feat=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+				metadata=data.frame(metadata, feat)
+				colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+			}
+		}
+```
+
+```{r data_transformation, echo = FALSE}
+	# Data preparation
+		transformed_data=transform_data_to_batchcorrect(taxa_values=taxa_values)
+```
+
+```{r batch_correction, echo = FALSE}
+	# Batch correction
+		corrected_data=ComBat(mod=NULL, dat=transformed_data, batch=metadata[,properties], par.prior=TRUE, prior.plots=FALSE)
+		colnames(corrected_data)=colnames(transformed_data)
+		corrected_data=t(corrected_data)
+```
+
+```{r write_out, echo = FALSE}
+	write.table(corrected_data, file=params$output, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+```
+
+Batch corrected data {data-orientation=rows}
+===================================== 
+
+```{r batch_corrected, echo = FALSE, fig.show = 'hold', out.width="25%"}
+	print(properties)
+	print("\n")
+	t=ComBat(mod=NULL, dat=transformed_data, batch=metadata[,properties], par.prior=TRUE,  prior.plots=TRUE)
+```

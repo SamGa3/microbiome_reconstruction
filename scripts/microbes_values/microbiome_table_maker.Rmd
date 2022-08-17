@@ -1,0 +1,51 @@
+---
+title: "Microbiome reconstruction table from Pathseq output"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  input_folder: "" # path to the folder where Pathseq outputs are stored
+  output_table: "" # path to the final table
+  sample_sheet: "" # path to the metadata file structured as the sample_sheet you can download from gdc
+  kingdom_level: "" # kingdom (e.g. Bacteria, Viruses, etc.)
+  taxon_level: "" # taxonomy level (e.g species, genus, etc.)
+  type_of_value: "" # type of estimation (score, score_normalized, reads, unambiguous)
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r functions, include = FALSE}
+	# upload specific functions
+	source("functions.R")
+```	
+
+```{r test, include = TRUE, eval=TRUE}
+	print(getwd())
+```
+
+```{r data, include = FALSE}
+	# Upload of
+		# Sample_id
+		if(params$sample_sheet!=""){
+			sample_ids=read.csv(params$sample_sheet, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		} else {
+			# create a sample_sheet from file folders
+			file_id=dir(params$input_folder)
+			file_id=gsub("_out", "", file_id)
+			sample_ids=matrix(c(file_id, dir(params$input_folder)), ncol=2)
+			colnames(sample_ids)=c("File ID", "File Name")
+		}		
+```
+
+```{r make_table, include = FALSE}
+	# Create table
+		microbiome_tab=create_reads_table(pathseq_output_folder=params$input_folder, taxon=params$taxon_level, 
+												samples_id=sample_ids, kingdom=params$kingdom_level, reads_type=params$type_of_value)
+```
+
+```{r write_out, echo = FALSE}
+	# write the output
+	write.table(microbiome_tab, file=params$output_table, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+```

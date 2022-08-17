@@ -1,0 +1,558 @@
+---
+title: "Property association"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vector of all metadata files paths
+  taxa: # vector of all taxa values files paths
+  join: # rows or columns, indicate the direction to join metadatas
+  new_property: "" # list of vectors with the name of the new property, the property to be used to create the new one, the method to create the new one
+  cat_properties: # vector of categorical properties 
+  cont_properties: # vector of continuous properties 
+  pca2prop: "" # list of 3 vectors, 2 of them with the properties to be compared in same scatter plot and the last with the palette name for the first property
+  picture_3d: "" # list of vectors with the properties (prop), the angles (angle) in picture 3d and the 3 components (PCs)
+  outlier_thr: 0.95 # indicate threshold for outlier removal
+  values_not_considered: # vector of values not to be considered in wilcoxon/kruskal tests for cat feat
+  taxa_selection: "all" # vector of taxa (column name) to be selected
+  taxa_selection_approach: "join" # join, intersect, setdiff, indicate the way combination of different taxa to be selected
+  labels_to_be_used: "" # vector with labels to be used for heatmap
+  total_taxa: "../../data/all_bacteria_species.txt" # path where all taxa are listed
+  rotations_path: "" # path to print out first 6 pca loadings ordered by importance
+  pca_matrix_path: "" # path to print out pca matrix
+  heatmap_ptab_path: "" # path to print out p values heatmap
+  heatmap_qtab_path: "" # path to print out q values heatmap
+  heatmap_nPCs: "" # number of PCs to be considered for the table output
+  n_feat: 1000 # number of microbes to be selected
+  palette: "" # name of one of my palette in general_function
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(DT)
+	library(knitr)
+	library(evaluate)
+	library(scatterplot3d)
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+	source("functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+		# Taxa quantification
+			if(length(params$taxa)>1){
+				taxa_values=join_taxa_table(taxa_paths=params$taxa)
+			} else {
+				taxa_values=read.csv(params$taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}
+	# Property modifications (must be column labels of full_metadata)
+		cat_properties=params$cat_properties
+		cont_properties=params$cont_properties
+		if(all(cat_properties=="")){
+			cat_properties=NA
+		}
+		if(all(cont_properties=="")){
+			cont_properties=NA
+		}
+		n_properties=length(cat_properties[!is.na(cat_properties)])+length(cont_properties[!is.na(cont_properties)])
+		not_considered=params$values_not_considered
+		if(length(not_considered)==""){
+			not_considered=NA
+		}
+		if(length(cat_properties)!=length(not_considered)){
+			stop("Problem in length cat properties and values_not_considered")
+		}
+		names(not_considered)=cat_properties
+	# Details for plot
+		# 2 properties scatterplots
+			if(params$pca2prop==""){
+				pca2prop=NA
+			} else {
+				pca2prop=params$pca2prop
+			}
+		# 3D versions of scatterplots
+			if(params$picture_3d==""){
+				picture_3d=NA
+			} else {
+				picture_3d=params$picture_3d
+			}
+	# Set the palette
+		if(params$palette!=""){
+			if(all(!is.na(cat_properties)) & all(!is.na(cont_properties))){
+				palette_col=my_palettes[params$palette]
+				names(palette_col)=c(cat_properties, cont_properties)
+			} else if(all(is.na(cat_properties)) & all(!is.na(cont_properties))){
+				palette_col=my_palettes[params$palette]
+				names(palette_col)=cont_properties
+			} else if(all(!is.na(cat_properties)) & all(is.na(cont_properties))){
+				palette_col=my_palettes[params$palette]
+				names(palette_col)=cat_properties
+			}
+		} else {
+			if(all(!is.na(cat_properties)) & all(!is.na(cont_properties))){
+				palette_col=rep("default", length(cat_properties)+length(cont_properties))
+				names(palette_col)=c(cat_properties, cont_properties)
+			} else if(all(is.na(cat_properties)) & all(!is.na(cont_properties))){
+				palette_col=rep("default", length(cont_properties))
+				names(palette_col)=cont_properties
+			} else if(all(!is.na(cat_properties)) & all(is.na(cont_properties))){
+				palette_col=rep("default", length(cat_properties))
+				names(palette_col)=cat_properties
+			}
+		}	
+	# Total taxa
+		all_taxa_tab=read.csv(params$total_taxa, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)		
+		all_taxa=all_taxa_tab[,2]
+		names(all_taxa)=as.character(all_taxa_tab[,1])
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_values
+		metadata=match_metadata(metadata=full_metadata, taxa_values=taxa_values, colname_metadata="file_id")
+```
+
+```{r taxa_sel, include = FALSE}
+	# Select a subset of taxa
+	if(all(params$taxa_selection!="all")){
+		subset_taxa_list=lapply(params$taxa_selection, function(x){
+				subset_taxa_tab=read.csv(x, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)		
+				subset_taxa=subset_taxa_tab[,2]
+				names(subset_taxa)=as.character(subset_taxa_tab[,1])
+				return(subset_taxa)
+			}
+		)
+		if(all(params$taxa_selection_approach=="join")){
+			subset_taxa=lapply(subset_taxa_list, names)
+			subset_taxa=unique(unlist(subset_taxa))
+		} else if(all(params$taxa_selection_approach=="intersect")){
+			subset_taxa_tmp=lapply(subset_taxa_list, names)
+			subset_taxa=list_intersection(subset_taxa_tmp)
+		} else if(length(params$taxa_selection)==1 & params$taxa_selection_approach=="setdiff"){
+			subset_taxa_tmp=lapply(subset_taxa_list, names)
+			subset_taxa=setdiff(colnames(taxa_values), subset_taxa_tmp[[1]])
+		} else if(all(params$taxa_selection_approach=="setdiff")){
+			subset_taxa_tmp=lapply(subset_taxa_list, names)
+			subset_taxa=list_setdiff(subset_taxa_tmp)
+		} else {
+			subset_taxa_tmp=names(subset_taxa_list[[1]])
+			for(i in 1:length(params$taxa_selection_approach)){
+				if(params$taxa_selection_approach[[i]]=="join"){
+					tmp=unique(c(subset_taxa_tmp, names(subset_taxa_list[[i+1]])))
+					subset_taxa_tmp=tmp
+				} else if(params$taxa_selection_approach[[i]]=="intersect"){
+					tmp=intersect(subset_taxa_tmp, names(subset_taxa_list[[i+1]]))
+					subset_taxa_tmp=tmp
+				} else if(params$taxa_selection_approach[[i]]=="setdiff"){
+					tmp=setdiff(subset_taxa_tmp, names(subset_taxa_list[[i+1]]))
+					subset_taxa_tmp=tmp
+				} 
+			}
+			subset_taxa=subset_taxa_tmp
+		}
+		
+		# select taxa 
+		taxa_values=taxa_values[,subset_taxa]
+	}
+```
+
+```{r new_metadata_property, include = FALSE}
+	# Make new properties 
+		if(all(params$new_property!="")){
+			for(i in 1:length(params$new_property)){
+				feat=create_new_property(metadata=metadata, old_feat=params$new_property[[i]][["old"]], met=params$new_property[[i]][["met"]])
+				metadata=data.frame(metadata, feat)
+				colnames(metadata)[ncol(metadata)]=params$new_property[[i]][["new_name"]]
+			}
+		}
+```
+
+```{r PCA, echo = FALSE}
+	# PCA
+		pca_data=PCA(taxa_values=taxa_values, out_removal=params$outlier_thr, num_features=params$n_feat)
+
+	# PCA rotations
+		pca_rotations=lapply(paste("PC", 1:6, sep=""), function(x){
+				val=pca_data[["rotation"]][,x]
+				val=abs(val)
+				thr_val=sort(val, decreasing=TRUE)
+				tax=names(thr_val)
+				nam_tax=all_taxa[tax]
+				nam_tax[is.na(nam_tax)]=tax[is.na(nam_tax)]
+				names(nam_tax)=NULL
+				res=data.frame(tax, nam_tax)
+				colnames(res)=c(x, paste("name_", x, sep=''))
+				rownames(res)=NULL
+				return(res)
+			}
+		)
+		rotations_tab=do.call(cbind, pca_rotations)
+		if(params$rotations_path!=""){
+			write.table(rotations_tab, file=params$rotations_path, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+
+	# PCA matrix
+		tab=data.frame(rownames(pca_data$x), pca_data$x)
+		colnames(tab)[1]="file_id"
+		if(params$pca_matrix_path!=""){
+			write.table(tab, file=params$pca_matrix_path, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+
+	# PCA plots
+		pca_plots=PCA_plots(pca_data=pca_data, metadata=metadata, cat_properties=cat_properties, 
+													cont_properties=cont_properties, PCs=1:6, val_removed=not_considered,
+													pal=palette_col)
+	# PCA plots 2 properties
+		if(any(!is.na(pca2prop))){
+			if(pca2prop[[3]]!="brew" & pca2prop[[3]]!="default"){
+				palette_tmp=lapply(pca2prop[[3]], function(x){
+						my_palettes[[pca2prop[[3]]]]
+					}
+				)
+			} else {
+				palette_tmp=pca2prop[[3]]
+			}
+			pca_plots_2prop=PCA_plots_2properties(pca_data=pca_data, metadata=metadata, PCs=1:6, 
+																						prop1=pca2prop[[1]], prop2=pca2prop[[2]],
+																						pal=palette_tmp)
+		} else {
+			pca_plots_2prop=NA
+		}
+```
+
+```{r ass_cor_PCA_to_properties, echo = FALSE}
+	# Test associations and correlations of properties to PCs
+		PCA_ass_cor=test_dimreduction_to_features(dimred_data=pca_data$x, metadata=metadata, cat_features=cat_properties, 
+																								cont_features=cont_properties, val_removed=not_considered)
+	
+	# Heatmap
+		heatmap_p_PCA_plot=feat_ass_heatmap(PCA_ass_cor=PCA_ass_cor, PCs=1:6, stat_val="p")
+		heatmap_q_PCA_plot=feat_ass_heatmap(PCA_ass_cor=PCA_ass_cor, PCs=1:6, stat_val="q")
+
+	# write table of p values
+		if(params$heatmap_ptab_path!=""){
+			if(!all(is.na(cat_properties))){
+				tab1=sapply(PCA_ass_cor[[1]], function(x){
+						if(any(colnames(x)=="krusk_p")){
+							return(x[,"krusk_p"])
+						} else if(any(colnames(x)=="wilc_p")){
+							return(x[,"wilc_p"])
+						}
+					}
+				)
+			} else {
+				tab1=NA
+			}
+			if(!all(is.na(cont_properties))){
+				tab2=sapply(PCA_ass_cor[[2]], function(x){
+						x[,"spearm_p"]
+					}
+				)
+			} else {
+				tab2=NA
+			}
+			if(is.na(tab1)){
+				tab=tab2
+			} else if(is.na(tab2)){
+				tab=tab1
+			} else {
+				tab=cbind(tab1, tab2)
+			}
+			if(params$heatmap_nPCs!=""){
+				tab=tab[1:params$heatmap_nPCs,]
+			}
+			tab=data.frame(PCs=rownames(tab), tab)
+			write.table(tab, file=params$heatmap_ptab_path, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+	# write table of q values (correcting all the PCs)
+		if(params$heatmap_qtab_path!="" & params$heatmap_nPCs==""){
+			if(!all(is.na(cat_properties))){
+				tab1=sapply(PCA_ass_cor[[1]], function(x){
+						if(any(colnames(x)=="krusk_q")){
+							return(x[,"krusk_q"])
+						} else if(any(colnames(x)=="wilc_q")){
+							return(x[,"wilc_q"])
+						}
+					}
+				)
+			} else {
+				tab1=NA
+			}
+			if(!all(is.na(cont_properties))){
+				tab2=sapply(PCA_ass_cor[[2]], function(x){
+						x[,"spearm_q"]
+					}
+				)
+			} else {
+				tab2=NA
+			}
+			if(is.na(tab1)){
+				tab=tab2
+			} else if(is.na(tab2)){
+				tab=tab1
+			} else {
+				tab=cbind(tab1, tab2)
+			}
+			tab=data.frame(PCs=rownames(tab), tab)
+			write.table(tab, file=params$heatmap_qtab_path, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}
+	# write table of q values (correcting a defined number of PCs)
+		if(params$heatmap_qtab_path!="" & params$heatmap_nPCs!=""){
+			if(!all(is.na(cat_properties))){
+				tab1=sapply(PCA_ass_cor[[1]], function(x){
+						if(any(colnames(x)=="krusk_p")){
+							return(x[,"krusk_p"])
+						} else if(any(colnames(x)=="wilc_p")){
+							return(x[,"wilc_p"])
+						}
+					}
+				)
+			} else {
+				tab1=NA
+			}
+			if(!all(is.na(cont_properties))){
+				tab2=sapply(PCA_ass_cor[[2]], function(x){
+						x[,"spearm_p"]
+					}
+				)
+			} else {
+				tab2=NA
+			}
+			if(is.na(tab1)){
+				tab=tab2
+			} else if(is.na(tab2)){
+				tab=tab1
+			} else {
+				tab=cbind(tab1, tab2)
+			}
+			tab=tab[1:params$heatmap_nPCs,]
+			row_names=rownames(tab)
+			col_names=colnames(tab)
+			tab=round(p.adjust(tab, method="fdr"), 2)
+			tab=data.frame(row_names, matrix(tab, nrow=params$heatmap_nPCs))
+			colnames(tab)=c("PCs", col_names)
+			write.table(tab, file=params$heatmap_qtab_path, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}	
+```
+
+```{r pca_3D, echo = FALSE}
+	if(any(!is.na(picture_3d))){
+		three_dim_pict_path=c()
+		for(i in 1:length(picture_3d)){
+			# Remove from metadata the samples considered outliers
+				p=sapply(rownames(pca_data$x), function(x){
+						which(metadata[,"file_id"]==x)
+					}
+				)
+				metadata_3d=metadata[p,]
+
+			# Percentage of variability explained
+				eigs=pca_data$sdev^2
+				perc=eigs/sum(eigs)*100
+
+			for(y in picture_3d[[i]][["feat"]]){
+				# define colors
+					lev=levels(metadata_3d[,y])
+					if(is.null(lev)){
+						lev=unique(metadata_3d[,y])
+					}
+					if(all(palette_col[[picture_3d[[i]][["feat"]]]]=="default")){
+						shades=gg_color_hue(length(lev))
+					} else {
+						shades=palette_col[[picture_3d[[i]][["feat"]]]]
+					}
+					names(shades)=lev
+					col=sapply(rownames(pca_data$x), function(t){
+				      proj=metadata_3d[metadata_3d[,"file_id"]==t,y]
+				      return(shades[proj])
+				    }
+				  )
+				  col=adjustcolor(col, alpha.f = 0.5)
+				# Legend
+					num_observations=table(metadata_3d[,y])
+					pos=which(num_observations!=0 & num_observations!="logical")
+					num_observations=num_observations[pos]
+					new_labels=paste(names(num_observations), "(", num_observations, ")", sep='')
+					tmp=data.frame(pca_data$x[,1:2], metadata_3d[,y])
+					colnames(tmp)=c("x_val", "y_val", "color_group")
+					col2=shades
+					names(col2)=NULL
+					PCA_tmp=ggplot(tmp)+
+										geom_point(size=2, aes(x=color_group, y="PC1",
+														col=factor(color_group, labels=new_labels)))+
+										labs(color=y)+ 
+										scale_color_manual(values=col2)+
+										theme(legend.title=element_text(size=20), legend.text=element_text(size=20))
+					leg=get_legend(PCA_tmp)
+					leg_plot=as_ggplot(leg)
+					# save plot
+				 	ggsave(filename=paste(params$picture_3d[[i]]$path, "_legend_PCA3D_", y, ".pdf", sep=""),
+								  dpi=500, plot=leg_plot
+								)
+				# PCA 3D
+					# invert the order
+						tab=pca_data$x[,picture_3d[[i]]$PCs]
+			 			tab=tab[nrow(tab):1,]
+			 			col=col[length(col):1]
+			 		# create a temporary file
+				  	pdf(paste(params$picture_3d[[i]]$path, "_PCA3D_", y, "_PC", picture_3d[[i]]$PCs[[1]], 
+													picture_3d[[i]]$PCs[[2]], picture_3d[[i]]$PCs[[3]], ".pdf", sep=''))
+						  dev.control(displaylist="enable")
+						  scatter3d_plot=scatterplot3d(x=pca_data$x[,picture_3d[[i]]$PCs[[1]]], 
+														y=pca_data$x[,picture_3d[[i]]$PCs[[2]]], 
+														z=pca_data$x[,picture_3d[[i]]$PCs[[3]]], 
+														color="white", angle=picture_3d[[i]]$angle, box=FALSE, grid=TRUE, 
+														xlab=paste("PC", picture_3d[[i]]$PCs[[1]], sep=''), 
+														ylab=paste("PC", picture_3d[[i]]$PCs[[2]], sep=''),
+														zlab=paste("PC", picture_3d[[i]]$PCs[[3]], sep=''),
+														cex.axis=1.5,
+														cex.lab=1.7,
+														pch=16
+														)
+							addgrids3d(pca_data$x[,picture_3d[[i]]$PCs], grid=c("xy", "xz"), angle=picture_3d[[i]]$angle)
+					 		scatter3d_plot$points3d(tab, pch=19, col=col)
+					  	PCA3D_plot=recordPlot()
+				  	dev.off()
+				# Add the file path
+			  three_dim_pict_path=c(three_dim_pict_path, 
+			  											paste(params$picture_3d[[i]]$path, "_legend_PCA3D_", y, ".pdf", sep=""),
+			  											paste(params$picture_3d[[i]]$path, "_PCA3D_", y, "_PC", picture_3d[[i]]$PCs[[1]], picture_3d[[i]]$PCs[[2]], picture_3d[[i]]$PCs[[3]], ".pdf", sep='')
+			  										)
+			}
+		}
+	}
+```
+
+```{r num_microbes, echo = FALSE}
+	tot_microbes=length(which(apply(taxa_values, 2, function(x){!all(x==0)})))
+```
+
+
+General {data-orientation=rows}
+===================================== 
+	
+Total number of taxa detected: `r tot_microbes` \
+Total number of taxa used in PCA: `r length(pca_data$center)` \
+Number of sample outliers: `r length(setdiff(rownames(taxa_values), rownames(pca_data$x)))`
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+	pca_plots[['scree']]
+	pca_plots[['cum_scree']]
+	cat(knitr::knit_print(kable(rotations_tab[1:50,grep("name_", colnames(rotations_tab))], format.args=list(digits=20, scientific=TRUE), "simple")))
+```
+
+PCA: scatter plots {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+	out = NULL
+	if(!is.na(cat_properties)){
+		for(i in 1:length(cat_properties)){
+			cat("\n", sep="")
+			cat("### ", names(pca_plots[["cat_plot"]])[i], "\n", sep="")
+			if(!is.na(pca_plots[["cat_plot"]][[i]][['legend']])){
+				evaluate(print(pca_plots[["cat_plot"]][[i]][['legend']]))
+				evaluate(print(pca_plots[["cat_plot"]][[i]][['scatters']]))
+			}
+			cat("\n", sep="")
+		}
+	}
+	if(!is.na(cont_properties)){
+		for(i in 1:length(cont_properties)){
+			cat("\n", sep="")
+			cat("### ", names(pca_plots[["cont_plot"]])[i], "\n", sep="")
+			if(!is.na(pca_plots[["cont_plot"]][[i]][['legend']])){
+				evaluate(print(pca_plots[["cont_plot"]][[i]][['legend']]))
+				evaluate(print(pca_plots[["cont_plot"]][[i]][['scatters']]))
+			}
+			cat("\n", sep="")
+		}
+	}
+```
+
+PCA: two properties scatter plots {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+	out = NULL
+	if(!is.na(pca_plots_2prop)){
+		for(i in 1:length(pca2prop[[1]])){
+			cat("\n", sep="")
+			cat("### ", pca2prop[[1]][i], " ", pca2prop[[2]][i], "\n", sep="")
+			evaluate(print(pca_plots_2prop[[i]][['legend']]))
+			evaluate(print(pca_plots_2prop[[i]][['scatter']]))
+			cat("\n", sep="")
+		}
+	}
+```
+
+PCA: 3D scatterplots {data-orientation=rows}
+===================================== 
+
+```{r, results='asis'}
+	out = NULL
+	if(!is.na(picture_3d)){
+		for(i in 1:length(three_dim_pict_path)){
+			cat("\n", sep="")
+			cat(paste("![](", three_dim_pict_path[[i]], "){width=500px height=500px}", sep=""))
+		}
+	}
+```
+
+PCs {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis', fig.show = 'asis', out.width="25%"}
+	out = NULL
+	if(!is.na(cat_properties)){
+		for(i in 1:length(cat_properties)){
+			cat("\n", sep="")
+			cat("### ", names(pca_plots[["cat_plot"]])[i], "\n", sep="")
+			if(!is.na(pca_plots[["cat_plot"]][[i]][['by_PCs']])){
+				evaluate(print(pca_plots[["cat_plot"]][[i]][['by_PCs']]))
+			}
+			cat("\n", sep="")
+		}
+	}
+	if(!is.na(cont_properties)){
+		for(i in 1:length(cont_properties)){
+			cat("\n", sep="")
+			cat("### ", names(pca_plots[["cont_plot"]])[i], "\n", sep="")
+			if(!is.na(pca_plots[["cont_plot"]][[i]][['by_PCs']])){
+				evaluate(print(pca_plots[["cont_plot"]][[i]][['by_PCs']]))
+			}
+			cat("\n", sep="")
+		}
+	}
+```
+
+Heatmap {data-orientation=rows}
+===================================== 
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+```{r, results='asis', fig.show = 'asis', fig.dim = c(7, n_properties/2.53), out.width="50%"}
+	heatmap_p_PCA_plot
+	heatmap_q_PCA_plot
+```

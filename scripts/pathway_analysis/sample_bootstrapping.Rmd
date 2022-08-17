@@ -1,0 +1,123 @@
+---
+title: "Make lists of bootstrapped samples to be merged"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vector of all metadata files paths
+  join_by: "columns" # rows or columns, indicate the direction to join metadatas
+  match_metadata: # column label to match metadata with taxa_tab
+  taxa_tab: # vector of all taxa values files paths
+  match_taxa: # column label to match taxa_tab with metadata
+  properties: # vector with the properties to be used to select samples
+  selection: # list of vector with the levels to be selected for each property
+  column_selected: # name of the column you want to print
+  subset_size: "" # number of samples per subset
+  random_tries: "" # number of bootstrapping
+  output: "" # path to print out the lists of samples
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}		
+		# taxa_tab
+			taxa=read.csv(params$taxa_tab, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		# Properties
+			properties=params$properties
+		# Group to be selected for each feature
+			selection=params$selection
+			names(selection)=properties
+```
+
+```{r select_from_metadata, include = FALSE}
+	# remove NA from column for matching
+		pos=!is.na(full_metadata[,params$match_metadata])
+		full_metadata=full_metadata[pos,]
+	# select samples in metadata
+		pos=sapply(1:nrow(full_metadata), function(x){
+				pos_check=sapply(properties, function(y){
+						if(!is.na(full_metadata[x,y])){
+							if(any(full_metadata[x,y]==selection[[y]])){
+								return(TRUE)
+							} else {
+								return(FALSE)
+							}
+						} else {
+							return(FALSE)
+						}	
+					}
+				)
+				if(any(!pos_check)){
+					return(FALSE)
+				} else {
+					return(TRUE)
+				}
+			}
+		)
+		metadata=full_metadata[pos,]
+```
+
+```{r select_samples_from_taxa_tab, include = FALSE}
+	# Match metadata and taxa_tab
+		if(params$match_metadata=="rownames" & params$match_taxa=="rownames"){
+			new_taxa_tab=taxa[rownames(metadata),]
+			new_metadata=metadata[rownames(new_taxa_tab),]
+		} else if(params$match_metadata=="rownames" & params$match_taxa!="rownames"){
+			p=sapply(rownames(metadata), function(x){
+					which(taxa[,params$match_taxa]==x)
+				}
+			)
+			new_taxa_tab=taxa[p,]
+			p=sapply(rownames(new_taxa_tab), function(x){
+					which(metadata[,params$match_metadata]==x)
+				}
+			)
+			new_metadata=metadata[p,]
+		} else if(params$match_metadata!="rownames" & params$match_taxa=="rownames"){
+			new_taxa_tab=taxa[metadata[,params$match_metadata],]
+			# It can be that 1 sample is missing because it had problems in running, so for that row it is returning NAs, I remove it
+			p=apply(new_taxa_tab, 1, function(x){
+					all(is.na(x))
+				}
+			)
+			if(length(which(p))>0){
+				new_taxa_tab=new_taxa_tab[!p,]
+			}
+
+			p=sapply(rownames(new_taxa_tab), function(x){
+					which(metadata[,params$match_metadata]==x)
+				}
+			)
+			new_metadata=metadata[p,]
+		}
+```
+
+```{r random_subsetting, include = FALSE}
+	# Make random subsets
+	if(params$random_tries!=""){
+		for(i in 1:params$random_tries){
+			set.seed(i)
+			pos=sample(1:nrow(new_metadata), size=params$subset_size)
+			write.table(new_metadata[pos,params$column_selected], file=paste(params$output, "_", params$subset_size, "random_", i, ".txt", sep=''), quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
+		}
+	}
+```
+
+
+```{r write_out, echo = FALSE}
+	write.table(new_metadata[,params$column_selected], file=paste(params$output, ".txt", sep=''), quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
+```

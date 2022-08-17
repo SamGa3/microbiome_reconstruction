@@ -1,0 +1,104 @@
+---
+title: "Selection of samples"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  metadata: # vector of metadata file paths
+  join: "columns"  # vector assigning the approach to be used to join together different metadata tables
+  match_metadata: # column label to match with taxa_tab, or "rownames" if the matching keys are the labels in the rows
+  taxa_tab: # path of the taxa table you want to subset
+  match_taxa: # column label to match with metadata file, or "rownames" if the matching keys are the labels in the rows
+  properties: # vector of the properties from which you want to select the samples
+  selection: # list of vectors (one per variable in the feature vector) with the variables that you want to select
+  output: "" # path to the table
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r functions, include = FALSE}
+	source("../general_functions.R")
+```	
+
+```{r data, include = FALSE}
+	# Upload of
+		# Metadata
+			if(length(params$metadata)>1){
+				full_metadata=join_metadata(metadata_paths=params$metadata, join_by=params$join, matching1="file_id", matching2="file_id")
+			} else {
+				full_metadata=read.csv(params$metadata, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+			}					
+		# taxa_tab
+			taxa=read.csv(params$taxa_tab, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		# Properties
+			properties=params$properties
+		# Group to be selected for each feature
+			selection=params$selection
+			names(selection)=properties
+```
+
+```{r select_from_metadata, include = FALSE}
+	# remove NA from column for matching
+		pos=!is.na(full_metadata[,params$match_metadata])
+		full_metadata=full_metadata[pos,]
+	# select samples in metadata
+		pos=sapply(1:nrow(full_metadata), function(x){
+				pos_check=sapply(properties, function(y){
+						if(!is.na(full_metadata[x,y])){
+							if(any(full_metadata[x,y]==selection[[y]])){
+								return(TRUE)
+							} else {
+								return(FALSE)
+							}
+						} else {
+							return(FALSE)
+						}	
+					}
+				)
+				if(any(!pos_check)){
+					return(FALSE)
+				} else {
+					return(TRUE)
+				}
+			}
+		)
+		metadata=full_metadata[pos,]
+```
+
+```{r select_samples, include = FALSE}
+	# Match metadata and taxa_tab
+		if(params$match_metadata=="rownames" & params$match_taxa=="rownames"){
+			new_taxa_tab=taxa[rownames(metadata),]
+		} else if(params$match_metadata=="rownames" & params$match_taxa!="rownames"){
+			p=sapply(rownames(metadata), function(x){
+					which(taxa[,params$match_taxa]==x)
+				}
+			)
+			new_taxa_tab=taxa[p,]
+		} else if(params$match_metadata!="rownames" & params$match_taxa=="rownames"){
+			new_taxa_tab=taxa[metadata[,params$match_metadata],]
+			# It can be that 1 sample is missing because it had problems in running, so for that row it is returning NAs, I remove it
+				p=apply(new_taxa_tab, 1, function(x){
+						all(is.na(x))
+					}
+				)
+				if(length(which(p))>0){
+					new_taxa_tab=new_taxa_tab[!p,]
+				}
+		}
+```
+
+```{r remove_all_zeros_taxa, include = FALSE}
+	# Remove taxa that are no more present after the selection
+		pos=apply(new_taxa_tab, 2, function(x){
+				all(x==0)
+			}
+		)
+		new_taxa_tab=new_taxa_tab[,!pos]
+```
+
+```{r write_out, echo = FALSE}
+	write.table(new_taxa_tab, file=params$output, quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+```
