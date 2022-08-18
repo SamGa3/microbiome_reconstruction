@@ -552,7 +552,7 @@ The scripts to obtain both the left and right subsets of samples are in:
 The workflow listed in the general workflow step is applied to each subset of samples: for privacy reasons, the fastq files of the COAD samples are not reported, while the output table of the runs of HUMAnN 3.0 on the bootstrapped sets of samples is in results/pathway_analysis .
 The list of the script to obtain unstratified and normalized tables are in:
 ```bash
-# Linux users
+# Linux/Ubuntu users
 ./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
 # Windows users
 sed -i -e 's/\r$//' ./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
