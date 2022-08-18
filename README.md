@@ -19,12 +19,6 @@ The first step is to clone this reporitory:
 ```bash
 git clone https://github.com/SamGa3/microbiome_reconstruction.git
 ```
-and then you must create the folder structure:
-```bash
-cd /microbiome_reconstruction
-chmod u+wrx scripts/make_structure.sh
-./scripts/make_structure.sh
-```
 
 ### Manual installation
 
@@ -88,6 +82,14 @@ Remember that step 2 of tyhe workflow is not supported (the available gatk versi
 conda install -c bioconda gatk
 ```
 
+#### Create the folder structure
+
+You must create the folder structure:
+```bash
+cd /microbiome_reconstruction
+chmod u+wrx scripts/make_structure.sh
+./scripts/make_structure.sh
+```
 ### 2. Alignment to microbial genomes - Pathseq
 
 This step was run on the IEO cluster using 16 cores with 50GB of memory, taking advange of Singularity and gatk docker image. Here, as an example, the command to run Pathseq on the file from sample1:
