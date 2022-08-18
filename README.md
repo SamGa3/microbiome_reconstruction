@@ -2,6 +2,7 @@
 
 ## Reconstruction of the condition- and location-specific colon cancer microbiome from human RNA sequencing data
 
+### Abstract
 Association between microbes and cancer has been reported repeatedly; however, it is not clear if molecular tumour properties are connected to specific microbial colonization patterns. This is due mainly to the current technical and analytical strategy limitations to characterise tumour-associated bacteria.
 Here, we propose an approach to detect bacterial signals in human RNA sequencing data and associate them with the clinical and molecular properties of the tumours. The method was tested on public datasets from The Cancer Genome Atlas and its accuracy was assessed on a new cohort of colorectal cancer patients.
 Our analysis shows that intratumoral microbiome composition is correlated with survival, anatomic location, microsatellite instability, consensus molecular subtype and immune cell infiltration in colon tumours. In particular, we find Faecalibacterium prausnitzii, Coprococcus comes, Bacteroides spp., Fusobacterium spp. and Clostridium spp. to be strongly associated with tumour properties.
@@ -36,7 +37,10 @@ Rscript requirements.R
 
 To install Docker on your local computer, follow the instructions described [here](https://docs.docker.com/engine/). Remember that you need root permisions to install and run docker. You can then pull the microbiome_reconstruction container:
 ```bash
+# Linux/Ubuntu users
 docker pull gaiasamb/microbiome_reconstruction
+# Windows users
+docker pull "gaiasamb/microbiome_reconstruction"
 ```
 ### Conda
 
@@ -64,7 +68,10 @@ All the scripts below must be run from the microbiome_reconstruction folder and 
 
 After pulling the docker container as explained above, you must activate it with the interactive way:
 ```bash
+# Linux/Ubuntu users
 sudo docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiome_reconstruction 7a13d2e31810 /bin/bash
+# Windows users
+docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiome_reconstruction 7a13d2e31810 /bin/bash
 ```
 Where 7a13d2e31810 is the image id of the repository, to check your own image id you can run:
 ```bash
@@ -113,7 +120,7 @@ Since this step requires a lot of time, we provide here a toy sample to test Pat
 ```bash
 cd /microbiome_reconstruction/data/pathseq_tools
 wget 'ftp://gsapubftp-anonymous@ftp.broadinstitute.org/tutorials/datasets/tutorial_10913.tar.gz' -P /microbiome_reconstruction/data/pathseq_tools
-tar –xvzf tutorial_10913.tar.gz
+tar –xvf tutorial_10913.tar.gz
 ```
 Three samples were downloaded from [Zmora et al.](https://www.sciencedirect.com/science/article/pii/S0092867418311024?via%3Dihub) from [ENA](https://www.ebi.ac.uk/ena/browser/home) with the ERR2756905-7 accession number and aligned with STAR-2.7.7a following [this](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/Expression_mRNA_Pipeline/) pipeline. We selected the unmapped reads with samtools. The resulting files are located in /microbiome_reconstruction/data/RNAseq/input_bam/ folder. Then you can run the example (few minutes per sample):
 ```bash
