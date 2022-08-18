@@ -137,10 +137,10 @@ gatk PathSeqPipelineSpark \
     --microbe-fasta data/pathseq_tools/pathseq_tutorial/e_coli_k12.fasta \
     --microbe-bwa-image data/pathseq_tools/pathseq_tutorial/e_coli_k12.fasta.img \
     --taxonomy-file data/pathseq_tools/pathseq_tutorial/e_coli_k12.db \
-    --output data/RNAseq/pathseq_output/example1/bam_out.bam \
-    --score-metrics data/RNAseq/pathseq_output/example1/scores.txt \
-    --filter-metrics data/RNAseq/pathseq_output/example1/metrics.txt \
-    --scores-output data/RNAseq/pathseq_output/example1/score_out.txt \
+    --output data/RNAseq/pathseq_output/ERR2756905_out/bam_out.bam \
+    --score-metrics data/RNAseq/pathseq_output/ERR2756905_out/scores.txt \
+    --filter-metrics data/RNAseq/pathseq_output/ERR2756905_out/metrics.txt \
+    --scores-output data/RNAseq/pathseq_output/ERR2756905_out/score_out.txt \
     --spark-runner LOCAL \
     --spark-master local[4]
 
@@ -152,10 +152,10 @@ gatk PathSeqPipelineSpark \
     --microbe-fasta data/pathseq_tools/pathseq_tutorial/e_coli_k12.fasta \
     --microbe-bwa-image data/pathseq_tools/pathseq_tutorial/e_coli_k12.fasta.img \
     --taxonomy-file data/pathseq_tools/pathseq_tutorial/e_coli_k12.db \
-    --output data/RNAseq/pathseq_output/example2/bam_out.bam \
-    --score-metrics data/RNAseq/pathseq_output/example2/scores.txt \
-    --filter-metrics data/RNAseq/pathseq_output/example2/metrics.txt \
-    --scores-output data/RNAseq/pathseq_output/example2/score_out.txt \
+    --output data/RNAseq/pathseq_output/ERR2756906_out/bam_out.bam \
+    --score-metrics data/RNAseq/pathseq_output/ERR2756906_out/scores.txt \
+    --filter-metrics data/RNAseq/pathseq_output/ERR2756906_out/metrics.txt \
+    --scores-output data/RNAseq/pathseq_output/ERR2756906_out/score_out.txt \
     --spark-runner LOCAL \
     --spark-master local[4]
 
@@ -167,10 +167,10 @@ gatk PathSeqPipelineSpark \
     --microbe-fasta data/pathseq_tools/pathseq_tutorial/e_coli_k12.fasta \
     --microbe-bwa-image data/pathseq_tools/pathseq_tutorial/e_coli_k12.fasta.img \
     --taxonomy-file data/pathseq_tools/pathseq_tutorial/e_coli_k12.db \
-    --output data/RNAseq/pathseq_output/example3/bam_out.bam \
-    --score-metrics data/RNAseq/pathseq_output/example3/scores.txt \
-    --filter-metrics data/RNAseq/pathseq_output/example3/metrics.txt \
-    --scores-output data/RNAseq/pathseq_output/example3/score_out.txt \
+    --output data/RNAseq/pathseq_output/ERR2756907_out/bam_out.bam \
+    --score-metrics data/RNAseq/pathseq_output/ERR2756907_out/scores.txt \
+    --filter-metrics data/RNAseq/pathseq_output/ERR2756907_out/metrics.txt \
+    --scores-output data/RNAseq/pathseq_output/ERR2756907_out/score_out.txt \
     --spark-runner LOCAL \
     --spark-master local[4]
 ```
