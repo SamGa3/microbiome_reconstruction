@@ -143,7 +143,7 @@ gatk PathSeqPipelineSpark \
 To run Pathseq on the 3 examples:
 ```bash
 cd /microbiome_reconstruction
-./scripts/patsheq/pathseq_runs.sh
+./scripts/pathseq/pathseq_runs.sh
 ```
 ### 3. Create unambiguous read and score microbiome tables
 
