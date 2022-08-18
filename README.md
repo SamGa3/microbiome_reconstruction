@@ -64,6 +64,18 @@ All the metadata files and the tables produced by the workflow use a "file_id" c
 
 All the scripts below must be run from the microbiome_reconstruction folder and are written with relative paths, so you don't need to modify the paths. Please make sure you are running the codes from microbiome_reconstruction folder.
 
+#### Create the folder structure
+
+You must create the folder structure:
+```bash
+cd /microbiome_reconstruction
+chmod u+wrx scripts/make_structure.sh
+# Linux/Ubuntu users
+./scripts/make_structure.sh
+# Windows users
+"scripts/make_structure.sh"
+```
+
 #### If you have chosen Docker
 
 After pulling the docker container as explained above, you must activate it with the interactive way:
@@ -89,14 +101,6 @@ Remember that step 2 of tyhe workflow is not supported (the available gatk versi
 conda install -c bioconda gatk
 ```
 
-#### Create the folder structure
-
-You must create the folder structure:
-```bash
-cd /microbiome_reconstruction
-chmod u+wrx scripts/make_structure.sh
-./scripts/make_structure.sh
-```
 ### 2. Alignment to microbial genomes - Pathseq
 
 This step was run on the IEO cluster using 16 cores with 50GB of memory, taking advange of Singularity and gatk docker image. Here, as an example, the command to run Pathseq on the file from sample1:
