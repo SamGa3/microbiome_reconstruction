@@ -20,19 +20,6 @@ The first step is to clone this reporitory:
 ```bash
 git clone https://github.com/SamGa3/microbiome_reconstruction.git
 ```
-
-### Manual installation
-
-To download the gatk Pathseq version (more details in the README.md file inside the downloaded folder):
-```bash
-cd /microbiome_reconstruction
-wget https://github.com/broadinstitute/gatk/releases/download/4.0.10.1/gatk-4.0.10.1.zip
-```
-The required R packages are listed in the requirements.R file. To download all the required R packages:
-```bash
-cd microbiome_reconstruction
-Rscript requirements.R
-```
 ### Docker
 
 To install Docker on your local computer, follow the instructions described [here](https://docs.docker.com/engine/). Remember that you need root permisions to install and run docker. You can then pull the microbiome_reconstruction container:
@@ -41,13 +28,6 @@ To install Docker on your local computer, follow the instructions described [her
 docker pull gaiasamb/microbiome_reconstruction
 # Windows users
 docker pull "gaiasamb/microbiome_reconstruction"
-```
-### Conda
-
-To install conda on your local computer, follow the instructions described [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). As explained [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), you can create your own conda environment with all the required packages from the microbiome_reconstruction.yml file:
-```bash
-    # IN PROGRESS
-    conda env create -f conda/microbiome_reconstruction.yml
 ```
 
 ## Workflow
@@ -76,7 +56,7 @@ chmod u+wrx scripts/make_structure.sh
 "scripts/make_structure.sh"
 ```
 
-#### If you have chosen Docker
+#### Docker
 
 After pulling the docker container as explained above, you must activate it with the interactive way:
 ```bash
@@ -88,17 +68,6 @@ docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiom
 Where 7a13d2e31810 is the image id of the repository, to check your own image id you can run:
 ```bash
 sudo docker images
-```
-
-#### If you have chosen Conda
-
-After creating your enviroment as explained above, you must activate it:
-```bash
-source activate microbiome_reconstruction_env
-```
-Remember that step 2 of tyhe workflow is not supported (the available gatk version in conda is not the one needed here). You can manually download gatk as described above or instal another version of gatk like this:
-```bash
-conda install -c bioconda gatk
 ```
 
 ### 2. Alignment to microbial genomes - Pathseq
