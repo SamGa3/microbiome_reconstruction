@@ -140,7 +140,11 @@ gatk PathSeqPipelineSpark \
     --spark-runner LOCAL \
     --spark-master local[4]
 ```
-
+To run Pathseq on the 3 examples:
+```bash
+cd /microbiome_reconstruction
+./scripts/patsheq/pathseq_runs.sh
+```
 ### 3. Create unambiguous read and score microbiome tables
 
 From this step on, we will run R scripts only, so you need to activate R from the microbiome_reconstruction folder.
