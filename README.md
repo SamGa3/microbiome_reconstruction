@@ -6,7 +6,7 @@
 Association between microbes and cancer has been reported repeatedly; however, it is not clear if molecular tumour properties are connected to specific microbial colonization patterns. This is due mainly to the current technical and analytical strategy limitations to characterise tumour-associated bacteria.
 Here, we propose an approach to detect bacterial signals in human RNA sequencing data and associate them with the clinical and molecular properties of the tumours. The method was tested on public datasets from The Cancer Genome Atlas and its accuracy was assessed on a new cohort of colorectal cancer patients.
 Our analysis shows that intratumoral microbiome composition is correlated with survival, anatomic location, microsatellite instability, consensus molecular subtype and immune cell infiltration in colon tumours. In particular, we find Faecalibacterium prausnitzii, Coprococcus comes, Bacteroides spp., Fusobacterium spp. and Clostridium spp. to be strongly associated with tumour properties.
-In conclusions, we implemented an approach to analyse concurrently clinical and molecular properties of the tumour and the composition of the associated microbiome. Our results may improve patient stratification and pave the path for mechanistic studies on microbiota-tumour crosstalk.
+In conclusion, we implemented an approach to analyse concurrently clinical and molecular properties of the tumour and the composition of the associated microbiome. Our results may improve patient stratification and pave the path for mechanistic studies on microbiota-tumour crosstalk.
 
 ## Requirements
 
@@ -16,13 +16,13 @@ To execute all the steps of this workflow, you can choose between manually downl
 
 ### Clone this repository
 
-The first step is to clone this reporitory:
+The first step is to clone this repository:
 ```bash
 git clone https://github.com/SamGa3/microbiome_reconstruction.git
 ```
 ### Docker
 
-To install Docker on your local computer, follow the instructions described [here](https://docs.docker.com/engine/). Remember that you need root permisions to install and run docker. You can then pull the microbiome_reconstruction container:
+To install Docker on your local computer, follow the instructions described [here](https://docs.docker.com/engine/). Remember that you need root permissions to install and run docker. You can then pull the microbiome_reconstruction container:
 ```bash
 # Linux/Ubuntu users
 docker pull gaiasamb/microbiome_reconstruction
@@ -32,12 +32,12 @@ docker pull "gaiasamb/microbiome_reconstruction"
 
 ## Workflow
 
-Following this tutorial you will test the microbial reads extraction from bam files using a toy example and reproduce the figures of the paper for COAD samples. To obtain the same results for another cancer type, you need to adapt the scripts accordingly to input that cancer type specific data provided or your own data. 
+Following this tutorial, you will test the microbial reads extraction from bam files using a toy example and reproduce the figures of the paper for COAD samples. To obtain the same results for another cancer type, you need to adapt the scripts accordingly to input that cancer type specific data provided or your own data. 
 
 ### Script overview
 
 The scripts use Rmarkdown and produce an html file that wraps together the figures. When needed for further analyses, tables are also produced.
-The structure of this workflow has a scripts folder that contains all the required scripts, categorised by type of analysis. The results of these scripts are stored in a folder with a similar structure in the results folder. Each analysis requires its own functions, written in the functions.R file in each script subfolder, while a general set of function needed by multiple scripts is listed in general_functions.R script.
+The structure of this workflow has a scripts folder that contains all the required scripts, categorised by type of analysis. The results of these scripts are stored in a folder with a similar structure to the results folder. Each analysis requires its own functions, written in the functions.R file in each script subfolder, while a general set of functions needed by multiple scripts is listed in general_functions.R script.
 All the metadata files and the tables produced by the workflow use a "file_id" column as key to link the information of each sample (for TCGA samples it is the file_id provided by the gdc database). To easily recover the patient's barcode, an extra table linking the file_id to the TCGA barcode has been added.
 
 ### 1. Setup
@@ -58,7 +58,7 @@ chmod u+wrx scripts/make_structure.sh
 
 #### Docker
 
-After pulling the docker container as explained above, you must activate it with the interactive way:
+After pulling the docker container as explained above, you must activate it in interactive way:
 ```bash
 # Linux/Ubuntu users
 sudo docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiome_reconstruction 7a13d2e31810 /bin/bash
@@ -72,7 +72,7 @@ sudo docker images
 
 ### 2. Alignment to microbial genomes - Pathseq
 
-This step was run on the IEO cluster using 16 cores with 50GB of memory, taking advange of Singularity and gatk docker image. Here, as an example, the command to run Pathseq on the file from sample1:
+This step was run on the IEO cluster using 16 cores with 50GB of memory, taking advantage of Singularity and gatk docker image. Here, as an example, the command to run Pathseq on the file from sample1:
 ```bash
 gatk PathSeqPipelineSpark \
     --input data/RNAseq/input_bam/sample1/input_bam.bam \
@@ -95,7 +95,7 @@ cd /microbiome_reconstruction/data/pathseq_tools
 wget 'ftp://gsapubftp-anonymous@ftp.broadinstitute.org/tutorials/datasets/tutorial_10913.tar.gz' -P /microbiome_reconstruction/data/pathseq_tools
 tar –xvf tutorial_10913.tar.gz
 ```
-Three samples were downloaded from [Zmora et al.](https://www.sciencedirect.com/science/article/pii/S0092867418311024?via%3Dihub) from [ENA](https://www.ebi.ac.uk/ena/browser/home) with the ERR2756905-7 accession number and aligned with STAR-2.7.7a following [this](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/Expression_mRNA_Pipeline/) pipeline. We selected the unmapped reads with samtools. The resulting files are located in /microbiome_reconstruction/data/RNAseq/input_bam/ folder. Then you can run the example (few minutes per sample):
+Three samples were downloaded from [Zmora et al.](https://www.sciencedirect.com/science/article/pii/S0092867418311024?via%3Dihub) from [ENA](https://www.ebi.ac.uk/ena/browser/home) with the ERR2756905-7 accession number and aligned with STAR-2.7.7a following [this](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/Expression_mRNA_Pipeline/) pipeline. We selected the unmapped reads with samtools. The resulting files are located in /microbiome_reconstruction/data/RNAseq/input_bam/ folder. Then you can run the example (a few minutes per sample):
 ```bash
 cd /microbiome_reconstruction
 gatk PathSeqPipelineSpark \
@@ -180,7 +180,7 @@ rmarkdown::render("scripts/microbes_values/microbiome_table_maker.Rmd",
 ### 4. Create unambiguous score microbiome table
 
 This step of the pipeline creates the table of unambiguous scores. To do this you need both the table of unambiguous reads and score in the data folder. These two tables have been created summarising each sample table output of pathseq (step 3).
-As suggested by Pathseq, some taxonomic_id must be merged together. The list of these taxa is in the merged.dmp file, provided with Pathseq.
+As suggested by Pathseq, some taxonomic_id must be merged together. The list of these taxa is in the merged.dmp file provided with Pathseq.
 
 ```R
 rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd", 
@@ -249,7 +249,7 @@ rmarkdown::render("scripts/technical_batch_effect/batch_detection.Rmd",
   output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_bacteria_species_merged_unamb_score_norm_batch_detection.html"
 )
 ```
-A list of all the test done in this paper is available in scripts/technical_batch_effect/batch_effect_detection_commands.R and can be run altogether:
+A list of all the tests done in this paper is available in scripts/technical_batch_effect/batch_effect_detection_commands.R and can be run altogether:
 
 ```bash
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_effect_detection_commands.R
@@ -271,7 +271,7 @@ rmarkdown::render("scripts/technical_batch_effect/batch_correction.Rmd",
     output_file = "../../results/technical_batch_effect/COAD_selectedTumor_ComBat_batch_correction_corr_plate_id.html"
 )
 ```
-A list of all the correction used in this paper is in scripts/technical_batch_effect/batch_correction_commands.R and can be run altogether:
+A list of all the corrections used in this paper is in scripts/technical_batch_effect/batch_correction_commands.R and can be run altogether:
 ```bash
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_correction_commands.R
 ```
@@ -331,7 +331,7 @@ A list of all the comparisons done in this paper is in scripts/technical_batch_e
 
 ### 7. Property association
 
-This represents one of the most important steps of the workflow. It applies PCA to the reconstructed microbiome and associates the PCs to the properties of the tumour. Here the script to find the associations between the COAD reconstructed microbiome and the clinical tumour properties.
+This represents one of the most important steps of the workflow. It applies PCA to the reconstructed microbiome and associates the PCs to the properties of the tumour. Here is the script to find the associations between the COAD reconstructed microbiome and the clinical tumour properties.
 ```R
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
     params = list(
@@ -387,7 +387,7 @@ rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd",
 
 #### Kaplan-Meyer
 
-Since PC4 has been found associated to DFS in Cox proportional-hazard model test and other COAD tumour properties are associated to PC4, we check if PC4 or any og these properties are associated to the DFS of patients:
+Since PC4 has been found associated to DFS in Cox proportional-hazard model test and other COAD tumour properties are associated to PC4, we check if PC4 or any of these properties are associated to the DFS of patients:
 ```R
 rmarkdown::render("scripts/survival_analysis/km_analysis.Rmd", 
     params = list(
@@ -410,7 +410,7 @@ rmarkdown::render("scripts/survival_analysis/km_analysis.Rmd",
 
 ### 9. Bacterial species filters
 
-This step selects the species that satisfy the criteria needed to either tissue specificity, not-batch association or most prevalence in tumor COAD reconstructed microbiomes.
+This step selects the species that satisfy the criteria needed for either tissue specificity, not-batch association or most prevalence in tumor COAD reconstructed microbiomes.
 ```R
 rmarkdown::render("scripts/filters/filters.Rmd", 
     params = list(
@@ -497,9 +497,7 @@ A list of all the analyses is in scripts/ml/ml_lasso_classifier_commands.R and c
 
 #### General microbial pathway workflow
 
-!NB: this is the only step that must NOT be run in R!
-
-To detect which microbial pathways are present in the analysed samples, we used the tool HUMAnN 3.0, from Huttenhower lab. Before running the tool, we merged together the samples we are interested in (left or right side of the colon or their random subsets). Here we show an example on the already presented toy samples from Zmora et al. 
+To detect which microbial pathways are present in the analysed samples, we used the tool HUMAnN 3.0, from Huttenhower lab. Before running the tool, we merged together the samples we are interested in (left or right side of the colon or their random subsets). Here we show an example of the already presented toy samples from Zmora et al. 
 In the first step we convert the bam files from Pathseq to fastq files with samtools:
 ```bash
 samtools bam2fq data/RNAseq/pathseq_output/example1/bam_out.bam > data/RNAseq/humann_output/example/ERR2756905_out/fastq_out.fastq
@@ -508,12 +506,10 @@ samtools bam2fq data/RNAseq/pathseq_output/example3/bam_out.bam > data/RNAseq/hu
 cat data/RNAseq/humann_output/example/ERR2756905_out/fastq_out.fastq data/RNAseq/humann_output/example/ERR2756906_out/fastq_out.fastq data/RNAseq/humann_output/example/ERR2756907_out/fastq_out.fastq > data/RNAseq/humann_output/example/merged_fastq_out.fastq
 ```
 The tool step was run on the IEO cluster using local computer of 8 cores, 25 GB of ram.
-Since the reference databases are big (several GBs), here we show an example with the demo databases, as described in HUMAnN tutorial (https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-3.0), (few minutes per sample):
-NB: this step requires several minutes to automatically download the required databases.
+Since the reference databases are big (several GBs) and the setting up of HUMAnN tool is behind the scope of this paper, we provide the command we used and the required HUMAnN output tables. Please refer to the [HUMAnN tutorial](https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-3.0) for setting up and running the tool. This is the command used to run it on the cluster:
 ```bash
-humann --input data/RNAseq/humann_output/example/merged_fastq_out.fastq --output data/RNAseq/humann_output/example
+humann --input merged_fastq_out.fastq --output example
 ```
-Given we are using toy samples and demo databases, the output is empty, meaning that no pathways were detected (as expected).
 The second step of HUMAnN 3.0 tool involves the split of stratified and unstratified pathways (not stratified by microbes) and the normalisation of the data from RPKs to CPM:
 ```bash
 # left
@@ -553,7 +549,7 @@ The scripts to obtain both the left and right subsets of samples are in:
 ```bash
 ../R-3.6.1/bin/Rscript scripts/pathway_analysis/boothstrapping_commands.R
 ```
-The workflow listed in the general workflow step is applied on each subset of samples: for privacy reasons, the fastq files of the COAD samples are not reported, while the output table of the runs of HUMAnN 3.0 on the bootstrapped sets of samples are in results/pathway_analysis .
+The workflow listed in the general workflow step is applied to each subset of samples: for privacy reasons, the fastq files of the COAD samples are not reported, while the output table of the runs of HUMAnN 3.0 on the bootstrapped sets of samples is in results/pathway_analysis .
 The list of the script to obtain unstratified and normalized tables are in:
 ```bash
 ./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
