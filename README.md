@@ -12,7 +12,7 @@ In conclusion, we implemented an approach to analyse concurrently clinical and m
 
 This project was developed on a cluster of 12 computing nodes of 28 cores, 128GB of ram (alignment to microbial genomes, second step) and a local computer of 6 cores, 15.5GB of ram. The alignment to microbial genomes is executed by Pathseq from [GATK](https://gatk.broadinstitute.org/hc/en-us) (version 4.0.10.1). All the scripts are written in R (R version 3.6.1 (2019-07-05) -- "Action of the Toes").
 
-To execute all the steps of this workflow, you can choose between manually downloading all the required packages and tools, pulling our docker container (suggested approach) or creating a conda environment from our yml file (conda doesn't provide the gatk version we used, so the second step of this workflow must be executed by another version of gatk or manually downloading the correct version as described below).
+To execute all the steps of this workflow, you must pull our docker container and work in it.
 
 ### Clone this repository
 
