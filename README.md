@@ -10,17 +10,20 @@ In conclusion, we implemented an approach to analyse concurrently clinical and m
 
 ## Requirements
 
-This project was developed on a cluster of 12 computing nodes of 28 cores, 128GB of ram (alignment to microbial genomes, second step) and a local computer of 6 cores, 15.5GB of ram. The alignment to microbial genomes is executed by Pathseq from [GATK](https://gatk.broadinstitute.org/hc/en-us) (version 4.0.10.1). All the scripts are written in R (R version 3.6.1 (2019-07-05) -- "Action of the Toes").
+This project was developed on a cluster of 12 computing nodes of 28 cores, 128GB of ram running CentOS Linux 7 (Core) (alignment to microbial genomes, second step) and a local computer of 6 cores, 15.5GB of ram running Ubuntu 20.04.4 LTS (Focal Fossa). The alignment to microbial genomes is executed by Pathseq from [GATK](https://gatk.broadinstitute.org/hc/en-us) (version 4.0.10.1). All the scripts are written in R (R version 3.6.1 (2019-07-05) -- "Action of the Toes"). The scripts were tested also on a laptop with 4 cores, 8 GB of ram running Windows 11 Pro 21H2.
 
-To execute all the steps of this workflow, you must pull our docker container and work in it.
+To execute all the steps of this workflow, you must pull our docker container and work in it (suggested approach), create a conda environment from our yml file and activate it or manually download the required packages (check the requirements.txt file for R package versions).
 
 ### Clone this repository
 
-The first step is to clone this repository:
+The first step is to clone this repository (you need git, if you haven't installed it, check [this link](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)):
 ```bash
 git clone https://github.com/SamGa3/microbiome_reconstruction.git
 ```
-### Docker
+
+### Choose your environment
+
+#### Docker
 
 To install Docker on your local computer, follow the instructions described [here](https://docs.docker.com/engine/). Remember that you need root permissions to install and run docker. You can then pull the microbiome_reconstruction container:
 ```bash
@@ -30,9 +33,22 @@ docker pull gaiasamb/microbiome_reconstruction
 docker pull "gaiasamb/microbiome_reconstruction"
 ```
 
+#### Conda
+
+To install conda on your local computer, follow the instructions described [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). As explained [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), you can create your own conda environment with all the required packages from the microbiome_reconstruction_env.yml file:
+```bash
+conda env create -f conda/microbiome_reconstruction_env.yml
+```
+Windows users must use the Anaconda prompt and run this command from the microbiome_reconstruction folder of the cloned github repository.
+gatk doesn't provide a conda the gatk 4.0.10.1 version, so you can download the gatk Pathseq version (more details in the README.md file inside the downloaded folder):
+```bash
+cd microbiome_reconstruction
+wget https://github.com/broadinstitute/gatk/releases/download/4.0.10.1/gatk-4.0.10.1.zip
+```
+
 ## Workflow
 
-Following this tutorial, you will test the microbial reads extraction from bam files using a toy example and reproduce the figures of the paper for COAD samples. To obtain the same results for another cancer type, you need to adapt the scripts accordingly to input that cancer type specific data provided or your own data. 
+Following this tutorial, you will test the microbial reads extraction from bam files using a toy example and reproduce the figures of the paper for COAD samples. To obtain the same results for another cancer type, you need to adapt the scripts accordingly to input that cancer-type-specific data provided or your own data. 
 
 ### Script overview
 
@@ -42,7 +58,7 @@ All the metadata files and the tables produced by the workflow use a "file_id" c
 
 ### 1. Setup
 
-:warning: All the scripts below must be run from the microbiome_reconstruction folder and are written with relative paths, so you don't need to modify the paths. Please make sure you are running the codes from microbiome_reconstruction folder.
+:warning: All the scripts below must be run from the microbiome_reconstruction folder (from the cloned github repository) and are written with relative paths, so you don't need to modify the paths. Please make sure you are running the codes from microbiome_reconstruction folder.
 
 #### Create the folder structure
 
@@ -69,7 +85,16 @@ Where 7a13d2e31810 is the image id of the repository, to check your own image id
 sudo docker images
 ```
 
+#### Conda
+
+After creating the microbiome_recosntruction_env environment from the yml file, you must activate it:
+```bash
+source activate microbiome_reconstruction_env
+```
+
 ### 2. Alignment to microbial genomes - Pathseq
+
+:warning: If you are using conda, you must download and install manually the gatk tool (see Choose your environment - Conda)
 
 This step was run on the IEO cluster using 16 cores with 50GB of memory, taking advantage of Singularity and gatk docker image. Here, as an example, the command to run Pathseq on the file from sample1:
 ```bash
@@ -145,10 +170,13 @@ gatk PathSeqPipelineSpark \
 
 ### 3. Create unambiguous read and score microbiome tables
 
-From this step on, we will run R scripts only, so you need to activate R from the microbiome_reconstruction folder.
+From this step on, we will run R scripts only (HUMAnN tool is the only exception, a summary of all the scripts needed to reproduce this paper figures are listed in a R file that can be run outside R using Rscript command), so you need to activate R from the microbiome_reconstruction folder.
 ```bash
 cd /microbiome_reconstruction
+# Docker
 ../R-3.6.1/bin/R
+# Conda
+R
 ```
 
 This step of the pipeline creates a table of unambiguous reads and scores of all samples analysed by Pathseq. The results of this step are already available in the final folders (/microbiome_reconstruction/data/RNAseq/bacteria/raw/unamb and /microbiome_reconstruction/data/RNAseq/bacteria/score) for all the analysed TCGA cancer types and IEO cohort samples. Here we apply the pipeline to the toy samples previously analysed to test it on your local computer. 
@@ -193,7 +221,10 @@ rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd",
 To obtain all the tables needed to reproduce this paper results, you can run this file that wraps up all the runs needed.
 
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/microbes_values/microbiome_estimation_commands.R
+# Conda
+Rscript scripts/microbes_values/microbiome_estimation_commands.R
 ```
 
 ### 5. Selection of samples
@@ -217,7 +248,10 @@ rmarkdown::render("scripts/microbes_values/sample_selection.Rmd",
 A list of all the subset of samples used in this paper is available in scripts/microbes_values/sample_selection_commands.R and can be run altogether:
 
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/microbes_values/sample_selection_commands.R
+# Conda
+Rscript scripts/microbes_values/sample_selection_commands.R
 ```
 
 ### 6. Technical batch effect
@@ -251,7 +285,10 @@ rmarkdown::render("scripts/technical_batch_effect/batch_detection.Rmd",
 A list of all the tests done in this paper is available in scripts/technical_batch_effect/batch_effect_detection_commands.R and can be run altogether:
 
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_effect_detection_commands.R
+# Conda
+Rscript scripts/technical_batch_effect/batch_effect_detection_commands.R
 ```
 
 #### Technical batch effect correction
@@ -272,7 +309,10 @@ rmarkdown::render("scripts/technical_batch_effect/batch_correction.Rmd",
 ```
 A list of all the corrections used in this paper is in scripts/technical_batch_effect/batch_correction_commands.R and can be run altogether:
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_correction_commands.R
+# Conda
+Rscript scripts/technical_batch_effect/batch_correction_commands.R
 ```
 
 #### Technical batch effect comparison
@@ -325,7 +365,10 @@ rmarkdown::render("scripts/technical_batch_effect/batch_correction_comparison.Rm
 ```
 A list of all the comparisons done in this paper is in scripts/technical_batch_effect/batch_effect_comparison_commands.R and can be run altogether:
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_effect_comparison_commands.R
+# Conda
+Rscript scripts/technical_batch_effect/batch_effect_comparison_commands.R
 ```
 
 ### 7. Property association
@@ -357,10 +400,7 @@ A list of all the tests used in this paper is in scripts/property_association/po
 
 ### 8. Survival analysis
 
-This step looks for associations between the reconstructed microbiome and the survival of patients. A list of all the tests used in this paper is in scripts/survival_analysis/survival_analysis_commands.R and can be run altogether:
-```bash
-../R-3.6.1/bin/Rscript scripts/survival_analysis/survival_analysis_commands.R
-```
+This step looks for associations between the reconstructed microbiome and the survival of patients. 
 
 #### Cox proportional-hazards model
 
@@ -406,10 +446,19 @@ rmarkdown::render("scripts/survival_analysis/km_analysis.Rmd",
     output_file = "../../results/survival_analysis/COAD_selectedTumor_KM_DFS_PC4.html"
 )
 ```
+#### All
+
+A list of all the tests used in this paper is in scripts/survival_analysis/survival_analysis_commands.R and can be run altogether:
+```bash
+# Docker
+../R-3.6.1/bin/Rscript scripts/survival_analysis/survival_analysis_commands.R
+# Conda
+Rscript scripts/survival_analysis/survival_analysis_commands.R
+```
 
 ### 9. Bacterial species filters
 
-This step selects the species that satisfy the criteria needed for either tissue specificity, not-batch association or most prevalence in tumor COAD reconstructed microbiomes.
+This step selects the species that satisfy the criteria needed for either tissue specificity, not-batch association or most prevalence in tumour COAD reconstructed microbiomes.
 ```R
 rmarkdown::render("scripts/filters/filters.Rmd", 
     params = list(
@@ -463,7 +512,10 @@ rmarkdown::render("scripts/identification_related_species/taxa_compositions.Rmd"
 
 A list of all the analyses is in scripts/identification_related_species/identification_related_species_commands.R and can be run altogether:
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/identification_related_species/identification_related_species_commands.R
+# Conda
+Rscript scripts/identification_related_species/identification_related_species_commands.R
 ```
 
 ### 11. Microbiome classification
@@ -489,12 +541,17 @@ rmarkdown::render("scripts/ml/ml_lasso_classifier.Rmd",
 
 A list of all the analyses is in scripts/ml/ml_lasso_classifier_commands.R and can be run altogether:
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/ml/ml_lasso_classifier_commands.R
+# Conda
+Rscript scripts/ml/ml_lasso_classifier_commands.R
 ```
 
 ### 12. Microbial pathway analysis
 
 #### General microbial pathway workflow
+
+:warning: The general microbial pathway workflow must be run outside R
 
 To detect which microbial pathways are present in the analysed samples, we used the tool HUMAnN 3.0, from Huttenhower lab. Before running the tool, we merged together the samples we are interested in (left or right side of the colon or their random subsets). Here we show an example of the already presented toy samples from Zmora et al. 
 In the first step we convert the bam files from Pathseq to fastq files with samtools:
@@ -528,6 +585,7 @@ humann_renorm_table --input data/RNAseq/humann_output/right/COAD_selectedTumor_r
 #### Bootstrapping
 
 The selection of the subsets of samples to be merged has been done with this script:
+:warning: You must run this step from R
 ```R
 rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd", 
   params=list(
@@ -546,7 +604,10 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
 ```
 The scripts to obtain both the left and right subsets of samples are in:
 ```bash
+# Docker
 ../R-3.6.1/bin/Rscript scripts/pathway_analysis/boothstrapping_commands.R
+# Conda
+Rscript scripts/pathway_analysis/boothstrapping_commands.R
 ```
 The workflow listed in the general workflow step is applied to each subset of samples: for privacy reasons, the fastq files of the COAD samples are not reported, while the output table of the runs of HUMAnN 3.0 on the bootstrapped sets of samples is in results/pathway_analysis .
 The list of the script to obtain unstratified and normalized tables are in:
@@ -558,6 +619,7 @@ sed -i -e 's/\r$//' ./scripts/pathway_analysis/boothstrapped_samples_management_
 ./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
 ```
 To see the distributions of the pathways from the bootstrapped samples, we ran:
+:warning: You must run this step from R
 ```R
 rmarkdown::render("scripts/pathway_analysis/pathway_analysis.Rmd", 
     params=list(
