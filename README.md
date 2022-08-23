@@ -37,7 +37,7 @@ docker pull "gaiasamb/microbiome_reconstruction"
 
 To install conda on your local computer, follow the instructions described [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). As explained [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), you can create your own conda environment with all the required packages from the microbiome_reconstruction_env.yml file. To do this, move to the microbiome_reconstruction folder of the cloned repository:
 ```bash
-conda env create -f conda/microbiome_reconstruction_env.yml
+conda env create -f conda/microbiome_reconstruction_env_fromhistory.yml
 ```
 :warning: Windows users must use the Anaconda prompt and run this command from the microbiome_reconstruction folder of the cloned github repository.
 
@@ -90,7 +90,7 @@ sudo docker images
 
 After creating the microbiome_recosntruction_env environment from the yml file, you must activate it:
 ```bash
-source activate microbiome_reconstruction_env
+conda activate microbiome_reconstruction_env
 ```
 
 ### 2. Alignment to microbial genomes - Pathseq
