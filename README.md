@@ -35,11 +35,11 @@ docker pull "gaiasamb/microbiome_reconstruction"
 
 #### Conda
 
-To install conda on your local computer, follow the instructions described [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). As explained [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), you can create your own conda environment with all the required packages from the microbiome_reconstruction_env.yml file:
+To install conda on your local computer, follow the instructions described [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). As explained [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), you can create your own conda environment with all the required packages from the microbiome_reconstruction_env.yml file. To do this, move to the microbiome_reconstruction folder of the cloned repository:
 ```bash
 conda env create -f conda/microbiome_reconstruction_env.yml
 ```
-Windows users must use the Anaconda prompt and run this command from the microbiome_reconstruction folder of the cloned github repository.
+:warning: Windows users must use the Anaconda prompt and run this command from the microbiome_reconstruction folder of the cloned github repository.
 gatk doesn't provide a conda the gatk 4.0.10.1 version, so you can download the gatk Pathseq version (more details in the README.md file inside the downloaded folder):
 ```bash
 cd microbiome_reconstruction
