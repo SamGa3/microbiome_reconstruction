@@ -42,15 +42,14 @@ All the metadata files and the tables produced by the workflow use a "file_id" c
 
 ### 1. Setup
 
-All the scripts below must be run from the microbiome_reconstruction folder and are written with relative paths, so you don't need to modify the paths. Please make sure you are running the codes from microbiome_reconstruction folder.
+:warning: All the scripts below must be run from the microbiome_reconstruction folder and are written with relative paths, so you don't need to modify the paths. Please make sure you are running the codes from microbiome_reconstruction folder.
 
 #### Create the folder structure
 
 You must create the folder structure:
 ```bash
-cd /microbiome_reconstruction
-chmod u+wrx scripts/make_structure.sh
 # Linux/Ubuntu users
+chmod u+wrx scripts/make_structure.sh
 ./scripts/make_structure.sh
 # Windows users
 "scripts/make_structure.sh"
