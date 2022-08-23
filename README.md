@@ -187,7 +187,7 @@ rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd",
     params = list(
         unamb="../../data/RNAseq/bacteria/raw/unamb/example_bacteria_species_unamb.txt",
         score="../../data/RNAseq/bacteria/raw/score/example_bacteria_species_score.txt",
-        unamb_score_norm_tab="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/example_bacteria_species_merged_unamb_score_norm.txt"
+        unamb_score_norm_tab="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/example/example_bacteria_species_merged_unamb_score_norm.txt"
     )
 )
 ```
