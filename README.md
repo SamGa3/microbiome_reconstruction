@@ -40,6 +40,7 @@ To install conda on your local computer, follow the instructions described [here
 conda env create -f conda/microbiome_reconstruction_env.yml
 ```
 :warning: Windows users must use the Anaconda prompt and run this command from the microbiome_reconstruction folder of the cloned github repository.
+
 gatk doesn't provide a conda the gatk 4.0.10.1 version, so you can download the gatk Pathseq version (more details in the README.md file inside the downloaded folder):
 ```bash
 cd microbiome_reconstruction
