@@ -1,0 +1,15 @@
+name: microbiome_reconstruction_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base=3.6.1
+  - r-kableextra=1.3.4
+  - r-ggsci=2.9
+  - r-scatterplot3d=0.3-41
+  - r-survminer=0.4.9
+  - r-ggpubr=0.4.0
+  - r-ggridges=0.5.3
+  - r-flexdashboard
+  - r-systemfonts
+prefix: /home/gaia/anaconda3/envs/microbiome_reconstruction_env
