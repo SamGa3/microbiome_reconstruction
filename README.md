@@ -149,7 +149,6 @@ gatk PathSeqPipelineSpark \
 From this step on, we will run R scripts only (HUMAnN tool is the only exception, a summary of all the scripts needed to reproduce this paper figures are listed in a R file that can be run outside R using Rscript command), so you need to activate R from the microbiome_reconstruction folder.
 ```bash
 cd /microbiome_reconstruction
-# Docker
 ../R-3.6.1/bin/R
 ```
 
@@ -195,7 +194,6 @@ rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd",
 To obtain all the tables needed to reproduce this paper results, you can run this file that wraps up all the runs needed.
 
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/microbes_values/microbiome_estimation_commands.R
 ```
 
@@ -220,7 +218,6 @@ rmarkdown::render("scripts/microbes_values/sample_selection.Rmd",
 A list of all the subset of samples used in this paper is available in scripts/microbes_values/sample_selection_commands.R and can be run altogether:
 
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/microbes_values/sample_selection_commands.R
 ```
 
@@ -255,7 +252,6 @@ rmarkdown::render("scripts/technical_batch_effect/batch_detection.Rmd",
 A list of all the tests done in this paper is available in scripts/technical_batch_effect/batch_effect_detection_commands.R and can be run altogether:
 
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_effect_detection_commands.R
 ```
 
@@ -277,7 +273,6 @@ rmarkdown::render("scripts/technical_batch_effect/batch_correction.Rmd",
 ```
 A list of all the corrections used in this paper is in scripts/technical_batch_effect/batch_correction_commands.R and can be run altogether:
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_correction_commands.R
 ```
 
@@ -331,7 +326,6 @@ rmarkdown::render("scripts/technical_batch_effect/batch_correction_comparison.Rm
 ```
 A list of all the comparisons done in this paper is in scripts/technical_batch_effect/batch_effect_comparison_commands.R and can be run altogether:
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/technical_batch_effect/batch_effect_comparison_commands.R
 ```
 
@@ -414,7 +408,6 @@ rmarkdown::render("scripts/survival_analysis/km_analysis.Rmd",
 
 A list of all the tests used in this paper is in scripts/survival_analysis/survival_analysis_commands.R and can be run altogether:
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/survival_analysis/survival_analysis_commands.R
 ```
 
@@ -474,7 +467,6 @@ rmarkdown::render("scripts/identification_related_species/taxa_compositions.Rmd"
 
 A list of all the analyses is in scripts/identification_related_species/identification_related_species_commands.R and can be run altogether:
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/identification_related_species/identification_related_species_commands.R
 ```
 
@@ -501,7 +493,6 @@ rmarkdown::render("scripts/ml/ml_lasso_classifier.Rmd",
 
 A list of all the analyses is in scripts/ml/ml_lasso_classifier_commands.R and can be run altogether:
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/ml/ml_lasso_classifier_commands.R
 ```
 
@@ -562,7 +553,6 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
 ```
 The scripts to obtain both the left and right subsets of samples are in:
 ```bash
-# Docker
 ../R-3.6.1/bin/Rscript scripts/pathway_analysis/boothstrapping_commands.R
 ```
 The workflow listed in the general workflow step is applied to each subset of samples: for privacy reasons, the fastq files of the COAD samples are not reported, while the output table of the runs of HUMAnN 3.0 on the bootstrapped sets of samples is in results/pathway_analysis .
@@ -575,6 +565,7 @@ sed -i -e 's/\r$//' ./scripts/pathway_analysis/boothstrapped_samples_management_
 ./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
 ```
 To see the distributions of the pathways from the bootstrapped samples, we ran:
+
 :warning: You must run this step from R
 ```R
 rmarkdown::render("scripts/pathway_analysis/pathway_analysis.Rmd", 
