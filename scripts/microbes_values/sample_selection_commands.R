@@ -149,6 +149,23 @@ rmarkdown::render("scripts/microbes_values/sample_selection.Rmd",
 rm(list=ls())
 gc(full=TRUE)
 
+# genus
+# noFFPE OnlyPrimaryTumor NoRiboZeroG
+rmarkdown::render("scripts/microbes_values/sample_selection.Rmd", 
+  params=list(
+    metadata = c("../../metadata/COAD/COAD_technical_metadata.txt", "../../metadata/COAD/COAD_clinical_metadata.txt"),
+    match_metadata = "file_id",
+    taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_bacteria_genus_merged_unamb_score_norm.txt",
+    match_taxa = "rownames",
+    properties = c("sample_type", "is_ffpe", "library_name"),
+    selection = list("Primary Tumor", "NO", c("Illumina TruSeq", "unknown")),
+    output = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_genus_merged_unamb_score_norm.txt"
+  )
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
 ## GBM
 
 # OnlyPrimaryTumor NoDupl
@@ -366,6 +383,40 @@ rmarkdown::render("scripts/microbes_values/sample_selection.Rmd",
     properties = c("sample_type"),
     selection = list(c("Primary Tumor", "Solid Tissue Normal")),
     output = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt"
+  )
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+## BRCA
+
+# noFFPE OnlyPrimaryTumor NoRiboZeroG
+rmarkdown::render("scripts/microbes_values/sample_selection.Rmd", 
+  params=list(
+    metadata = c("../../metadata/BRCA/BRCA_technical_metadata.txt", "../../metadata/BRCA/BRCA_clinical_metadata.txt"),
+    match_metadata = "file_id",
+    taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_bacteria_species_merged_unamb_score_norm.txt",
+    match_taxa = "rownames",
+    properties = c("sample_type", "is_ffpe", "library_name"),
+    selection = list("Primary Tumor", "NO", "Illumina TruSeq"),
+    output = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
+  )
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+# noFFPE NormalPrimary NoRiboZeroG
+rmarkdown::render("scripts/microbes_values/sample_selection.Rmd", 
+  params=list(
+    metadata = c("../../metadata/BRCA/BRCA_technical_metadata.txt", "../../metadata/BRCA/BRCA_clinical_metadata.txt"),
+    match_metadata = "file_id",
+    taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_bacteria_species_merged_unamb_score_norm.txt",
+    match_taxa = "rownames",
+    properties = c("sample_type", "is_ffpe", "library_name"),
+    selection = list(c("Primary Tumor", "Solid Tissue Normal"), "NO", "Illumina TruSeq"),
+    output = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt"
   )
 )
 
