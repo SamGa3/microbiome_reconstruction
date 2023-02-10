@@ -8,7 +8,7 @@
 rm(list=ls())
 gc(full=TRUE)
 
-## ALL TISSUES (COAD GBM LUAD LUSC HNSC OV READ) 
+## ALL TISSUES (COAD GBM LUAD LUSC HNSC OV READ BRCA) 
 
 # merged_unamb_score_norm
 
@@ -19,14 +19,16 @@ gc(full=TRUE)
 # OV OnlyPrimary NomirVana
 # READ OnlyPrimary
 # SKCM OnlyPrimary
+# BRCA noFFPE OnlyPrimary NoRiboZeroG
 
 rmarkdown::render("scripts/technical_batch_effect/batch_detection.Rmd", 
   params=list(
-    tissues = c("COAD", "GBM", "LUAD", "LUSC", "HNSC", "OV", "READ", "SKCM"),
+    tissues = c("COAD", "GBM", "LUAD", "LUSC", "HNSC", "OV", "READ", "SKCM", "BRCA"),
     metadata = c("../../metadata/COAD/COAD_technical_metadata.txt", "../../metadata/GBM/GBM_technical_metadata.txt",
                   "../../metadata/LUAD/LUAD_technical_metadata.txt", "../../metadata/LUSC/LUSC_technical_metadata.txt", 
                   "../../metadata/HNSC/HNSC_technical_metadata.txt", "../../metadata/OV/OV_technical_metadata.txt", 
-                  "../../metadata/READ/READ_technical_metadata.txt", "../../metadata/SKCM/SKCM_technical_metadata.txt"),
+                  "../../metadata/READ/READ_technical_metadata.txt", "../../metadata/SKCM/SKCM_technical_metadata.txt", 
+                  "../../metadata/BRCA/BRCA_technical_metadata.txt"),
     new_property = list(c(old="plate_id", met="corr_plate_id", new_name="corr_plate_id")),
     taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
@@ -35,10 +37,11 @@ rmarkdown::render("scripts/technical_batch_effect/batch_detection.Rmd",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/OV/OV_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/READ/READ_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
-                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
                 )
   ), 
-  output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_bacteria_species_merged_unamb_score_norm_batch_detection.html"
+  output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_bacteria_species_merged_unamb_score_norm_batch_detection.html"
 )
 
 rm(list=ls())
