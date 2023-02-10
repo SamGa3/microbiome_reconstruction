@@ -25,6 +25,18 @@ rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd",
 rm(list=ls())
 gc(full=TRUE)
 
+# genus
+rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd", 
+  params = list(
+    unamb = "../../data/RNAseq/bacteria/raw/unamb/COAD_bacteria_genus_unamb.txt",
+    score = "../../data/RNAseq/bacteria/raw/score/COAD_bacteria_genus_score.txt",
+    unamb_score_norm_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_bacteria_genus_merged_unamb_score_norm.txt"
+  )
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
 # GBM
 
 rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd", 
@@ -110,6 +122,19 @@ rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd",
     unamb = "../../data/RNAseq/bacteria/raw/unamb/SKCM_bacteria_species_unamb.txt",
     score = "../../data/RNAseq/bacteria/raw/score/SKCM_bacteria_species_score.txt",
     unamb_score_norm_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_bacteria_species_merged_unamb_score_norm.txt"
+  )
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+# BRCA
+
+rmarkdown::render("scripts/microbes_values/microbiome_estimation.Rmd", 
+  params = list(
+    unamb = "../../data/RNAseq/bacteria/raw/unamb/BRCA_bacteria_species_unamb.txt",
+    score = "../../data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score.txt",
+    unamb_score_norm_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_bacteria_species_merged_unamb_score_norm.txt"
   )
 )
 
