@@ -19,6 +19,7 @@ params:
   labels_to_be_used: "" # list of names to be used instead of property names
   picture_format: "svg" # list of vectors with the dimensionality reduction approach (type) and the probability (stat)
   picture_path: "" # path with common name of files to save pictures
+  table_path: "" # path to table 
 ---
 
 ```{r setup, include = FALSE, dev = "CairoPNG"}
@@ -186,6 +187,9 @@ params:
 			univ_results=data.frame(params$labels_to_be_used, univ_results)
 			colnames(univ_results)=c("Properties", "beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value") 
 		}
+		if(params$table_path!=""){
+			write.table(univ_results, file=paste(params$table_path, "univ.txt", sep=''), quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
 	# Univariate forest plot
 		univ_forest_plot=lapply(tot_cov, function(x){
 				if(any(params$categorical_covariates==x)){
@@ -257,6 +261,9 @@ params:
 		if(all(params$labels_to_be_used!="")){
 			univ_timerange_results=data.frame(params$labels_to_be_used, univ_timerange_results)
 			colnames(univ_timerange_results)=c("properties", "beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value") 
+		}	
+		if(params$table_path!=""){
+			write.table(univ_timerange_results, file=paste(params$table_path, "univ_timerange.txt", sep=''), quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
 		}
 	# Univariate forest plot with timerange
 		univ_timerange_forest_plot=lapply(1:length(tot_cov), function(x){
@@ -325,6 +332,9 @@ params:
 	  	multiv_results=data.frame(beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(HR)), rep(p.value, length(HR)))
 	  	colnames(multiv_results)=c("beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value")
 	  }
+	  if(params$table_path!=""){
+			write.table(multiv_results, file=paste(params$table_path, "multiv.txt", sep=''), quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
 	# multivariate forest plot
 		multiv_forest_plot=ggforest(multiv_res_cox, data=mat)
 ```
@@ -386,6 +396,9 @@ params:
 	  	multiv_timerange_results=data.frame(beta, HR, HR.confint.lower, HR.confint.upper, rep(wald.test, length(HR)), rep(p.value, length(HR)), timerange_res)
 			colnames(multiv_timerange_results)=c("beta", "HR", "lower 95% HR CI", "upper 95% HR CI", "wald.test", "p.value", "timerange")
 	  }
+	  if(params$table_path!=""){
+			write.table(multiv_timerange_results, file=paste(params$table_path, "multiv_timerange.txt", sep=''), quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+		}
 	# remove data out of the time range
 		mat2=mat
 		time_tot=c(max(sapply(timerange, function(x){x[1]})), min(sapply(timerange, function(x){x[2]})))
