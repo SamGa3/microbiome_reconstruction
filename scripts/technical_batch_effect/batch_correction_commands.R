@@ -192,6 +192,28 @@ gc(full=TRUE)
 
 #---------------------------------------------------------------------------------------------------------------------------
 
+## BRCA noFFPE OnlyPrimary NoRiboZeroG
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+# corr_plate_id
+rmarkdown::render("scripts/technical_batch_effect/batch_correction.Rmd", 
+    params=list(
+        metadata = c("../../metadata/BRCA/BRCA_clinical_metadata.txt", "../../metadata/BRCA/BRCA_technical_metadata.txt"),
+        join = "columns", 
+        taxa = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+        new_property = list(c(old="plate_id", met="corr_plate_id", new_name="corr_plate_id")),
+        property = "corr_plate_id",
+        output = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
+    ), 
+    output_file = "../../results/technical_batch_effect/BRCA_selectedTumor_ComBat_batch_correction_corr_plate_id.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+#---------------------------------------------------------------------------------------------------------------------------
+
 ## IEO
 
 #---------------------------------------------------------------------------------------------------------------------------
