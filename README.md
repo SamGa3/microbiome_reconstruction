@@ -230,11 +230,12 @@ The bacterial signal detected can be affected by technical issues. This step det
 ```R
 rmarkdown::render("scripts/technical_batch_effect/batch_detection.Rmd", 
   params = list(
-    tissues = c("COAD", "GBM", "LUAD", "LUSC", "HNSC", "OV", "READ", "SKCM"),
+    tissues = c("COAD", "GBM", "LUAD", "LUSC", "HNSC", "OV", "READ", "SKCM", "BRCA"),
     metadata = c("../../metadata/COAD/COAD_technical_metadata.txt", "../../metadata/GBM/GBM_technical_metadata.txt",
                   "../../metadata/LUAD/LUAD_technical_metadata.txt", "../../metadata/LUSC/LUSC_technical_metadata.txt", 
                   "../../metadata/HNSC/HNSC_technical_metadata.txt", "../../metadata/OV/OV_technical_metadata.txt", 
-                  "../../metadata/READ/READ_technical_metadata.txt", "../../metadata/SKCM/SKCM_technical_metadata.txt"),
+                  "../../metadata/READ/READ_technical_metadata.txt", "../../metadata/SKCM/SKCM_technical_metadata.txt", 
+                  "../../metadata/BRCA/BRCA_technical_metadata.txt"),
     new_property = list(c(old="plate_id", met="corr_plate_id", new_name="corr_plate_id")),
     taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
@@ -243,10 +244,11 @@ rmarkdown::render("scripts/technical_batch_effect/batch_detection.Rmd",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/OV/OV_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/READ/READ_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
-                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
                 )
   ), 
-  output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_bacteria_species_merged_unamb_score_norm_batch_detection.html"
+  output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_bacteria_species_merged_unamb_score_norm_batch_detection.html"
 )
 ```
 A list of all the tests done in this paper is available in scripts/technical_batch_effect/batch_effect_detection_commands.R and can be run altogether:
@@ -282,31 +284,34 @@ To compare the differences of bacteria estimations before and after the batch co
 ```R
 rmarkdown::render("scripts/technical_batch_effect/batch_correction_comparison.Rmd", 
     params = list(
-        tissues = c("COAD", "LUAD", "LUSC", "HNSC", "OV", "READ", "SKCM"),
+        tissues = c("COAD", "LUAD", "LUSC", "HNSC", "OV", "READ", "SKCM", "BRCA"),
         metadata = list("../../metadata/COAD/COAD_technical_metadata.txt",
                     "../../metadata/LUAD/LUAD_technical_metadata.txt", 
                     "../../metadata/LUSC/LUSC_technical_metadata.txt", 
                     "../../metadata/HNSC/HNSC_technical_metadata.txt", 
                     "../../metadata/OV/OV_technical_metadata.txt", 
                     "../../metadata/READ/READ_technical_metadata.txt", 
-                    "../../metadata/SKCM/SKCM_technical_metadata.txt"),
+                    "../../metadata/SKCM/SKCM_technical_metadata.txt", 
+                    "../../metadata/BRCA/BRCA_technical_metadata.txt"),
         taxa_raw = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                     "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/LUAD/LUAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                     "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/LUSC/LUSC_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                     "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                     "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/OV/OV_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                     "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/READ/READ_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
-                    "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+                    "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+                    "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         taxa_corrected = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/COAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUSC_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/HNSC_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/OV_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/READ_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
-                            "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/SKCM_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+                            "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/SKCM_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+                            "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         batches = rep("plate_id", 7)
     ), 
-    output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_ComBat_corr_plate_id_bacteria_species_batch_comparison_plate_id.html"
+    output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_ComBat_corr_plate_id_bacteria_species_batch_comparison_plate_id.html"
 )
 ```
 Since COAD and READ show a strong batch effect due to the read length used to sequence the samples (48 and 76bp), here we test the differences between samples with different read_length before and after the batch correction of plate_id in COAD and READ samples:
@@ -423,21 +428,28 @@ rmarkdown::render("scripts/filters/filters.Rmd",
                             LUSC="../../metadata/LUSC/LUSC_technical_metadata.txt", 
                             HNSC="../../metadata/HNSC/HNSC_technical_metadata.txt", 
                             OV="../../metadata/OV/OV_technical_metadata.txt",
-                            SKCM="../../metadata/SKCM/SKCM_technical_metadata.txt"),
+                            SKCM="../../metadata/SKCM/SKCM_technical_metadata.txt",
+                            BRCA="../../metadata/BRCA/BRCA_technical_metadata.txt"),
         taxa_tissue = c(COAD="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         taxa_comp = c(GBM="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                         LUAD="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/LUAD/LUAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                         LUSC="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/LUSC/LUSC_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                         HNSC="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
                         OV="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/OV/OV_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
-                        SKCM="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+                        SKCM="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt", 
+                        BRCA="../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         feat_tissue = "Project_ID",
         batch_feat = "plate_id",
         output_folder = "../../results/filters/",
         thr_presence = 0.1
     ), 
-    output_file = "../../results/filters/COAD_selectedTumor_vs_GBM_LUAD_LUSC_HNSC_OV_SKCM_selectedTumor_filters.html"
+    output_file = "../../results/filters/COAD_selectedTumor_vs_GBM_LUAD_LUSC_HNSC_OV_SKCM_BRCA_selectedTumor_filters.html"
 )
+```
+
+A list of all the tests used in this paper is in scripts/survival_analysis/survival_analysis_commands.R and can be run altogether:
+```bash
+../R-3.6.1/bin/Rscript scripts/filters/filters_commands.R
 ```
 
 ### 10. Identification of species related to tumour properties
@@ -530,6 +542,14 @@ humann_renorm_table --input data/RNAseq/humann_output/right/COAD_selectedTumor_r
                     --units cpm \
                     --update-snames
 ```
+A list of all the analyses is in scripts/pathway_analysis/samples_management_commands.sh and can be run altogether:
+```bash
+# Linux/Ubuntu users
+./scripts/pathway_analysis/samples_management_commands.sh
+# Windows users
+sed -i -e 's/\r$//' ./scripts/pathway_analysis/samples_management_commands.sh
+.scripts/pathway_analysis/samples_management_commands.sh
+```
 
 #### Bootstrapping
 
@@ -545,8 +565,8 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
     column_selected = "file_id",
     taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
     match_taxa = "rownames",
-    subset_size = 30,
-    random_tries = 30,
+    subset_size = 35,
+    random_tries = 50,
     output = "../../results/pathway_analysis/bootstrapped_samples/COAD_selectedTumor_left"
   )
 )
