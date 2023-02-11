@@ -14,6 +14,7 @@ gc(full=TRUE)
 # OV OnlyPrimary NomirVana
 # READ OnlyPrimary
 # SKCM OnlyPrimary
+# BRCA noFFPE OnlyPrimary NoRiboZeroG
 
 #---------------------------------------------------------------------------------------------------------------------------
 
@@ -22,7 +23,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         metadata = c("../../metadata/COAD/COAD_clinical_metadata.txt", "../../metadata/GBM/GBM_clinical_metadata.txt", 
                       "../../metadata/LUAD/LUAD_clinical_metadata.txt", "../../metadata/LUSC/LUSC_clinical_metadata.txt", 
                       "../../metadata/HNSC/HNSC_clinical_metadata.txt", "../../metadata/OV/OV_clinical_metadata.txt", 
-                      "../../metadata/READ/READ_clinical_metadata.txt", "../../metadata/SKCM/SKCM_clinical_metadata.txt"
+                      "../../metadata/READ/READ_clinical_metadata.txt", "../../metadata/SKCM/SKCM_clinical_metadata.txt",
+                      "../../metadata/BRCA/BRCA_clinical_metadata.txt"
                     ),
         join = "rows",
         taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
@@ -32,15 +34,16 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/OV/OV_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/READ/READ_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
-                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"
                 ),
         cat_properties = c("project_id"),
         values_not_considered = list("unknown"),
         cont_properties = c(""),
-        picture_3d=list(list(path="../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images/COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM", feat="project_id", angle=20, PCs=c(1,2,3))),
+        picture_3d=list(list(path="../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images/COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA", feat="project_id", angle=20, PCs=c(1,2,3))),
         palette = c("locuszoom2")
     ), 
-    output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_selectedTumor_property_association.html"
+    output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_selectedTumor_property_association.html"
 )
 
 rm(list=ls())
@@ -48,7 +51,7 @@ gc(full=TRUE)
 
 #---------------------------------------------------------------------------------------------------------------------------
 
-## ALL TISSUES (IEO + COAD GBM LUAD LUSC HNSC OV READ SKCM)
+## ALL TISSUES (IEO + COAD GBM LUAD LUSC HNSC OV READ SKCM BRCA)
 
 # IEO list OnlySelected
 # COAD noFFPE NormalPrimary NoRiboZeroG
@@ -59,6 +62,7 @@ gc(full=TRUE)
 # OV OnlyPrimary NomirVana
 # READ NormalPrimary
 # SKCM NOrmalPrimary
+# BRCA noFFPE OnlyPrimary NoRiboZeroG
 
 #---------------------------------------------------------------------------------------------------------------------------
 
@@ -68,7 +72,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
                       "../../metadata/COAD/COAD_clinical_metadata.txt", "../../metadata/GBM/GBM_clinical_metadata.txt", 
                       "../../metadata/LUAD/LUAD_clinical_metadata.txt", "../../metadata/LUSC/LUSC_clinical_metadata.txt", 
                       "../../metadata/HNSC/HNSC_clinical_metadata.txt", "../../metadata/OV/OV_clinical_metadata.txt", 
-                      "../../metadata/READ/READ_clinical_metadata.txt", "../../metadata/SKCM/SKCM_clinical_metadata.txt"
+                      "../../metadata/READ/READ_clinical_metadata.txt", "../../metadata/SKCM/SKCM_clinical_metadata.txt",
+                      "../../metadata/BRCA/BRCA_clinical_metadata.txt"
                     ),
         join = "rows",
         taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/IEO/IEO_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt",
@@ -79,15 +84,16 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/HNSC/HNSC_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/OV/OV_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
                   "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/READ/READ_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt",
-                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt"
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM/SKCM_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt",
+                  "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA/BRCA_selectedTumorNormal_bacteria_species_merged_unamb_score_norm.txt"
                 ),
         cat_properties = c("project_id"),
         values_not_considered = list("unknown"),
         cont_properties = c(""),
-        picture_3d=list(list(path="../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images/IEO_COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM", feat="project_id", angle=20, PCs=c(1,2,3))),
+        picture_3d=list(list(path="../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images/IEO_COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA", feat="project_id", angle=20, PCs=c(1,2,3))),
         palette = c("COAD_IEO_rest")
     ), 
-    output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/IEO_COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_selectedTumor_property_association.html"
+    output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/IEO_COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_selectedTumor_property_association.html"
 )
 
 rm(list=ls())
@@ -199,6 +205,25 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score")
     ), 
     output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_property_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/GBM/GBM_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
 )
 
 rm(list=ls())
@@ -440,6 +465,25 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUAD/LUAD_selectedTumor_property_association.html"
 )
 
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/LUAD/LUAD_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUAD/LUAD_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
 # mutations
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
     params = list(
@@ -522,6 +566,25 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUSC/LUSC_selectedTumor_property_association.html"
 )
+
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/LUSC/LUSC_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUSC_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUSC/LUSC_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
 
 # mutations
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
@@ -607,6 +670,25 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_property_association.html"
 )
+
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/HNSC/HNSC_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/HNSC_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
 
 # mutations
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
@@ -694,6 +776,25 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/OV/OV_selectedTumor_property_association.html"
 )
 
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/OV/OV_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/OV_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/OV/OV_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
 # mutations
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
     params = list(
@@ -779,6 +880,25 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/READ/READ_selectedTumor_property_association.html"
 )
 
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/READ/READ_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/READ_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/READ/READ_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
 # mutations
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
     params = list(
@@ -863,6 +983,25 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_property_association.html"
 )
 
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/SKCM/SKCM_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/SKCM_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
 # mutations
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
     params = list(
@@ -925,6 +1064,112 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         heatmap_nPCs = 6
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_armAneuploidy_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+## BRCA ComBat corr_plate_id
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+# OnlyPrimary
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/BRCA/BRCA_technical_metadata.txt", "../../metadata/BRCA/BRCA_clinical_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = c("gender", "stage", "history_of_other_malignancy", "MSI_status"),
+        values_not_considered = list("unknown", c("unknown", "NOS"), c("unknown","inconsistency")),
+        cont_properties = c("percent_normal_cells", "age_at_diagnosis", "mutation_burden", "stemness", "aneuploidy_score")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_property_association.html"
+)
+
+# cibersort relative
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/BRCA/BRCA_immuneInfiltrationRelative_pbelow05_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = "",
+        values_not_considered = "",
+        cont_properties = c("B_cells_naive", "B_cells_memory", "Plasma_cells", "T_cells_CD8", "T_cells_CD4_naive", "T_cells_CD4_memory_resting", "T_cells_CD4_memory_activated", 
+                            "T_cells_follicular_helper", "T_cells_regulatory_Tregs", "T_cells_gamma_delta", "NK_cells_resting", "NK_cells_activated", "Monocytes", "Macrophages_M0", 
+                            "Macrophages_M1", "Macrophages_M2", "Dendritic_cells_resting", "Dendritic_cells_activated", "Mast_cells_resting", "Mast_cells_activated", 
+                            "Eosinophils", "Neutrophils")
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_immuneInfiltrationRelative_pbelow05_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+# mutations
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/BRCA/BRCA_mutation_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = c("PIK3CA", "TP53", "GATA3", "MAP3K1", #"MLL3", 
+                            "CDH1", "NCOR1", 
+                            "MAP2K4", "PTEN", "RUNX1", "PIK3R1", "CTCF", "AKT1", "CBFB", 
+                            "SPEN", "SF3B1", "ARID1A", "RB1", #"MLL", 
+                            "KRAS", 
+                            "TBX3", "ERBB2", "FOXA1", "MED23", "STAG2", "MYB", "TBL1XR1", "HIST1H3B", 
+                            "CASP8", "CDKN1B", "CUL4B", "RAB40A", 
+                            "ERBB3", "CDC42BPA", "SETDB1", "FGFR2", "GNPTAB", "EP300", "ACVR1B"
+                            ),
+        values_not_considered = rep("unknown", 37),
+        cont_properties = c(""),
+        heatmap_qtab_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables/BRCA_selectedTumor_mutation_association.txt",
+        heatmap_nPCs = 6
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_mutation_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+# aneuploidy whole chr
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/BRCA/BRCA_wholeChrAneuploidy_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", 
+                              "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22"
+                          ),
+        values_not_considered = rep("unknown", 22),
+        cont_properties = c(""),
+        heatmap_qtab_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables/BRCA_selectedTumor_wholeChrAneuploidy_association.txt",
+        heatmap_nPCs = 6
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_wholeChrAneuploidy_association.html"
+)
+
+rm(list=ls())
+gc(full=TRUE)
+
+# aneuploidy armlevel
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/BRCA/BRCA_armAneuploidy_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
+        cat_properties = c("chr1p", "chr1q", "chr2p", "chr2q", "chr3p", "chr3q", "chr4p", "chr4q", "chr5p", "chr5q", "chr6p", "chr6q", 
+                            "chr7p", "chr7q", "chr8p", "chr8q", "chr9p", "chr9q", "chr10p", "chr10q", "chr11p", "chr11q", "chr12p", "chr12q", 
+                            "chr13q", "chr14q", "chr15q", "chr16p", "chr16q", "chr17p", "chr17q", "chr18p", "chr18q", "chr19p", "chr19q", 
+                            "chr20p", "chr20q", "chr21q", "chr22q"
+                          ),
+        values_not_considered = rep("unknown", 39),
+        cont_properties = c(""),
+        heatmap_qtab_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables/BRCA_selectedTumor_armAneuploidy_association.txt",
+        heatmap_nPCs = 6
+    ), 
+    output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_armAneuploidy_association.html"
 )
 
 rm(list=ls())
