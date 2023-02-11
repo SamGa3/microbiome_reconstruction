@@ -19,7 +19,7 @@ tar -xvf data/RNAseq/bacteria/raw/ambig/BRCA_bacteria_species_ambig.tar.xz --dir
 tar -xvf data/RNAseq/bacteria/raw/unamb/BRCA_bacteria_species_unamb.tar.xz --directory data/RNAseq/bacteria/raw/unamb
 
 # Merge big tables
-cat data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score1.txt data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score2.txt data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score3.txt > data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score_merged.txt
+cat data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score1.txt data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score2.txt data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score3.txt > data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score.txt
 ### Create microbiome_reconstruction structure of folders
 
 # data folder
