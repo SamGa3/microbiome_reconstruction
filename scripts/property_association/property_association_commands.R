@@ -4,7 +4,7 @@ gc(full=TRUE)
 
 #---------------------------------------------------------------------------------------------------------------------------
 
-## ALL TISSUES (COAD GBM LUAD LUSC HNSC OV READ SKCM)
+## ALL TISSUES (COAD GBM LUAD LUSC HNSC OV READ SKCM BRCA)
 
 # COAD noFFPE OnlyPrimary NoRiboZeroG
 # GBM OnlyPrimary NoDupl
@@ -41,7 +41,7 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         values_not_considered = list("unknown"),
         cont_properties = c(""),
         picture_3d=list(list(path="../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images/COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA", feat="project_id", angle=20, PCs=c(1,2,3))),
-        palette = c("locuszoom2")
+        palette = c("locuszoom3")
     ), 
     output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_selectedTumor_property_association.html"
 )
@@ -91,7 +91,7 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         values_not_considered = list("unknown"),
         cont_properties = c(""),
         picture_3d=list(list(path="../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images/IEO_COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA", feat="project_id", angle=20, PCs=c(1,2,3))),
-        palette = c("COAD_IEO_rest")
+        palette = c("COAD_IEO_rest2")
     ), 
     output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/IEO_COAD_GBM_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_selectedTumor_property_association.html"
 )
