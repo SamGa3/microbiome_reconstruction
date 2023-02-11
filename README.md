@@ -480,9 +480,10 @@ rmarkdown::render("scripts/identification_related_species/taxa_compositions.Rmd"
 )
 ```
 
-A list of all the analyses is in scripts/identification_related_species/identification_related_species_commands.R and can be run altogether:
+A list of all the analyses is in scripts/identification_related_species/identification_related_species_commands.R and scripts/identification_related_species/identification_related_species_wilc_commands.R . They can be run altogether:
 ```bash
 ../R-3.6.1/bin/Rscript scripts/identification_related_species/identification_related_species_commands.R
+../R-3.6.1/bin/Rscript scripts/identification_related_species/identification_related_species_wilc_commands.R
 ```
 
 ### 11. Microbiome classification
