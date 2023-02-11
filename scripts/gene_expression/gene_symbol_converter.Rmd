@@ -1,0 +1,69 @@
+---
+title: "Gene table creator"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  tpm: # vector of all tpm files paths
+  modify_TPM: "" # action to be applied to TPM gene column
+  column_name: # column label to be converted from TPM tab
+  input_gene: # gene type symbol of the converter table
+  output_gene: # gene type symbol you want
+  converter_tab: "" # path to the converter tab
+  output_conversion: "" # path to the file of conversion
+  output: # output table paths
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(dplyr)
+```
+
+```{r functions, include = FALSE}
+
+```	
+
+```{r data, include = FALSE}
+	# TPM
+		TPM=read.csv(params$tpm, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)	
+		if(params$modify_TPM!=""){
+			tmp=sapply(TPM[,params$column_name], function(x){
+					if(params$modify_TPM=="remove_version"){
+						res=strsplit(x, "\\.")[[1]][1]
+					}
+					return(res)
+				}
+			)
+			TPM[,params$column_name]=tmp
+		}
+```
+
+```{r convert_genes_from_tab, include = FALSE}
+	# Match metadata and gene_expression
+		converter=read.csv(params$converter_tab, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)	
+		res_gene=sapply(TPM[,params$column_name], function(x){
+				p=which(converter[,params$input_gene]==x)
+				if(length(p)==0){
+					return(NA)
+				} else if(length(p)>1){ # if there are genes with more outputs, select the first one
+					return(converter[p[1],params$output_gene])
+				} else {
+					return(converter[p,params$output_gene])
+				}
+			}
+		)
+```
+
+```{r write_out, include = FALSE}
+	# Write the table
+		TPM[,params$column_name]=res_gene
+		TPM=TPM[!is.na(TPM[,params$column_name]),]
+		if(any(duplicated(TPM[,params$column_name]))){
+			TPM=TPM %>% group_by(ensembl_id) %>% summarise_all(funs(sum))
+			TPM=as.data.frame(TPM)
+		}
+		write.table(TPM, file=params$output, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+```
