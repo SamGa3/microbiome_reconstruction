@@ -646,3 +646,39 @@ rmarkdown::render("scripts/comparison/continuous_metadata_analysis_overview.Rmd"
     output_file = "../../results/comparison/IEO_correlations_16S_RNAseq.html"
 )
 ```
+Select the genera with the highest correlation
+```R
+genus_tab=read.csv("../../results/comparison/IEO_correlations_16S_RNAseq_spearman.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+all_genera=read.csv("../../data/all_bacteria_genus.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+genera_names=sapply(genus_tab[,"tax_id"], function(x){
+        p=which(x==all_genera[,"tax_id"])
+        if(length(p)>0){
+            return(all_genera[p,"taxon_name"])
+        } else {
+            return(NA)
+        }
+    }
+)
+genus_tab=data.frame(genus_tab, taxon_name=genera_names)
+pos=which(!is.na(genus_tab[,"R_spearm]) & genus_tab[,"R_spearm]>0.5)
+res=genus_tab[pos,c("tax_id", "taxon_name")]
+write.table("../../results/comparison/top_spearman_r_over0.25_16SvsRNAseq.txt", file=res, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+```
+Test property association of the highest correlated genera
+```R
+rmarkdown::render("scripts/property_association/diversity.Rmd", 
+    params = list(
+        metadata = c("../../metadata/COAD/COAD_technical_metadata.txt", "../../metadata/COAD/COAD_clinical_metadata.txt"),
+        join = "columns",
+        taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD_selectedTumor_bacteria_genus_merged_unamb_score_norm.txt"),
+        cat_properties = c("gender", "bmi", "stage", "CMS", "history_of_other_malignancy", "side", "MSI_status", "CIMP_status", "history_colon_polyps"),
+        values_not_considered = list("unknown", "unknown", "unknown", c("unknown", "NOLBL"), c("unknown","inconsistency"), "unknown", "unknown", "unknown", "unknown"),
+        new_property = list(c(old="plate_id", met="corr_plate_id", new_name="corr_plate_id")),
+        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
+        taxa_selection = c("../../../microbiome_reconstruction/results/comparison/16S/tables/top_spearman_r_over0.25_16SvsRNAseq.txt"),
+        taxa_selection_approach=c("all"),
+        total_taxa = "../../data/all_bacteria_genus.txt",
+    ), 
+    output_file = "../../results/property_association/bacteria_genus/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_property_association.html"
+)
+```
