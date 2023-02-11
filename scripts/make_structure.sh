@@ -45,6 +45,7 @@ mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/LUSC
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/OV
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/READ
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/SKCM
+mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/BRCA
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/IEO
 mkdir -p data/RNAseq/bacteria/raw/merged_unamb_score_norm/example
 
@@ -67,6 +68,7 @@ mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_pl
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/OV/tables
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/READ/tables
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/tables
+mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/IEO
 mkdir -p results/survival_analysis
 mkdir -p results/technical_batch_effect
