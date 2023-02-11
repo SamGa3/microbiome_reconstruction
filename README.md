@@ -280,7 +280,7 @@ A list of all the corrections used in this paper is in scripts/technical_batch_e
 
 #### Technical batch effect comparison
 
-To compare the differences of bacteria estimations before and after the batch correction of plate_id in COAD, LUAD, LUSC, HNSC, OV, READ and SKCM samples:
+To compare the differences of bacteria estimations before and after the batch correction of plate_id in COAD, LUAD, LUSC, HNSC, OV, READ, SKCM and BRCA samples:
 ```R
 rmarkdown::render("scripts/technical_batch_effect/batch_correction_comparison.Rmd", 
     params = list(
