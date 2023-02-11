@@ -471,7 +471,7 @@ rmarkdown::render("scripts/identification_related_species/taxa_compositions.Rmd"
         values_not_considered = list(c("unknown", "NOLBL"), "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", 
                                         "unknown", "unknown"),
         taxa_selection = c("../../results/filters/Presence_more0.1samples_COAD.txt",
-                            "../../results/filters/HighMeanVsRest_COAD_vs_GBM_LUAD_LUSC_HNSC_OV_SKCM.txt"),
+                            "../../results/filters/HighMeanVsRest_COAD_vs_GBM_LUAD_LUSC_HNSC_OV_SKCM_BRCA.txt"),
         taxa_selection_approach="intersect",
         palette = c("CMS", "Left_right", "MSI", "jama", "nejm", "default", "default", "default", "default", "default", "default"),
         table_path = "../../results/identification_related_species/tables/COAD_selectedTumor_3filters"
