@@ -309,7 +309,7 @@ rmarkdown::render("scripts/technical_batch_effect/batch_correction_comparison.Rm
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/READ_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/SKCM_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
                             "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
-        batches = rep("plate_id", 7)
+        batches = rep("plate_id", 8)
     ), 
     output_file = "../../results/technical_batch_effect/COAD_LUAD_LUSC_HNSC_OV_READ_SKCM_BRCA_ComBat_corr_plate_id_bacteria_species_batch_comparison_plate_id.html"
 )
