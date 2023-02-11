@@ -58,6 +58,7 @@ mkdir -p results/pathway_analysis/bootstrapped_samples
 mkdir -p results/property_association/bacteria_species/raw/merged_unamb_score_norm/all/images
 mkdir -p results/property_association/bacteria_species/raw/merged_unamb_score_norm/COAD
 mkdir -p results/property_association/bacteria_species/raw/merged_unamb_score_norm/GBM/tables
+mkdir -p results/property_association/bacteria_genus/raw/merged_unamb_score_norm/COAD
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_read_length/merged_unamb_score_norm/COAD
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/COAD/tables
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/GBM/tables
