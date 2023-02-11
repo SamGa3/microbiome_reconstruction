@@ -12,11 +12,19 @@ tar -xvf data/RNAseq/bacteria/raw/score/LUAD_bacteria_species_score.tar.xz --dir
 tar -xvf data/RNAseq/bacteria/raw/score/HNSC_bacteria_species_score.tar.xz --directory data/RNAseq/bacteria/raw/score
 tar -xvf data/RNAseq/bacteria/raw/score/LUSC_bacteria_species_score.tar.xz --directory data/RNAseq/bacteria/raw/score
 tar -xvf data/RNAseq/bacteria/raw/score/SKCM_bacteria_species_score.tar.xz --directory data/RNAseq/bacteria/raw/score
+tar -xvf data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score1.tar.xz --directory data/RNAseq/bacteria/raw/score
+tar -xvf data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score2.tar.xz --directory data/RNAseq/bacteria/raw/score
+tar -xvf data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score3.tar.xz --directory data/RNAseq/bacteria/raw/score
+tar -xvf data/RNAseq/bacteria/raw/ambig/BRCA_bacteria_species_ambig.tar.xz --directory data/RNAseq/bacteria/raw/ambig
+tar -xvf data/RNAseq/bacteria/raw/unamb/BRCA_bacteria_species_unamb.tar.xz --directory data/RNAseq/bacteria/raw/unamb
 
+# Merge big tables
+cat data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score1.txt data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score2.txt data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score3.txt > data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score_merged.txt
 ### Create microbiome_reconstruction structure of folders
 
 # data folder
 mkdir -p data/pathseq_tools
+mkdir -p data/TPM/tcga
 mkdir -p data/RNAseq/pathseq_output/ERR2756905_out
 mkdir -p data/RNAseq/pathseq_output/ERR2756906_out
 mkdir -p data/RNAseq/pathseq_output/ERR2756907_out
