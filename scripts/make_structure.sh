@@ -24,7 +24,6 @@ cat data/RNAseq/bacteria/raw/score/BRCA_bacteria_species_score1.txt data/RNAseq/
 
 # data folder
 mkdir -p data/pathseq_tools
-mkdir -p data/TPM/tcga
 mkdir -p data/RNAseq/pathseq_output/ERR2756905_out
 mkdir -p data/RNAseq/pathseq_output/ERR2756906_out
 mkdir -p data/RNAseq/pathseq_output/ERR2756907_out
