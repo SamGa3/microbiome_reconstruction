@@ -586,7 +586,6 @@ The list of the script to obtain unstratified and normalized tables are in:
 ./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
 # Windows users
 sed -i -e 's/\r$//' ./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
-./scripts/pathway_analysis/boothstrapped_samples_management_commands.sh
 ```
 To see the distributions of the pathways from the bootstrapped samples, we ran:
 
