@@ -673,14 +673,14 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     params = list(
         metadata = c("../../metadata/COAD/COAD_technical_metadata.txt", "../../metadata/COAD/COAD_clinical_metadata.txt"),
         join = "columns",
-        taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD_selectedTumor_bacteria_genus_merged_unamb_score_norm.txt"),
+        taxa = c("../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_genus_merged_unamb_score_norm.txt"),
         cat_properties = c("gender", "bmi", "stage", "CMS", "history_of_other_malignancy", "side", "MSI_status", "CIMP_status", "history_colon_polyps"),
         values_not_considered = list("unknown", "unknown", "unknown", c("unknown", "NOLBL"), c("unknown","inconsistency"), "unknown", "unknown", "unknown", "unknown"),
         new_property = list(c(old="plate_id", met="corr_plate_id", new_name="corr_plate_id")),
         cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
-        taxa_selection = c("../../../microbiome_reconstruction/results/comparison/16S/tables/top_spearman_r_over0.25_16SvsRNAseq.txt"),
+        taxa_selection = c("../../../microbiome_reconstruction/results/comparison/top_spearman_r_over0.25_16SvsRNAseq.txt"),
         taxa_selection_approach=c("all"),
-        total_taxa = "../../data/all_bacteria_genus.txt",
+        total_taxa = "../../data/all_bacteria_genus.txt"
     ), 
     output_file = "../../results/property_association/bacteria_genus/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_property_association.html"
 )
