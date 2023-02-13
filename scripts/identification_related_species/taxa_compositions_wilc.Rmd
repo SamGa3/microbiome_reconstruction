@@ -30,6 +30,7 @@ params:
 	library(stringr)
 	library(scales)
 	library(reshape2)
+	library(ggplot2)
 ```
 
 ```{r functions, include = FALSE}
