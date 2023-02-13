@@ -70,5 +70,5 @@ mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_pl
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/tables
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables
 mkdir -p results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/IEO
-mkdir -p results/survival_analysis
+mkdir -p results/survival_analysis/tables
 mkdir -p results/technical_batch_effect
