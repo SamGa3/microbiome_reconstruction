@@ -651,8 +651,8 @@ rmarkdown::render("scripts/comparison/continuous_metadata_analysis_overview.Rmd"
 ```
 Select the genera with the highest correlation
 ```R
-genus_tab=read.csv("../../results/comparison/IEO_correlations_16S_RNAseq_spearman.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
-all_genera=read.csv("../../data/all_bacteria_genus.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+genus_tab=read.csv("results/comparison/IEO_correlations_16S_RNAseq_spearman.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+all_genera=read.csv("data/all_bacteria_genus.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 genera_names=sapply(genus_tab[,"tax_id"], function(x){
         p=which(x==all_genera[,"tax_id"])
         if(length(p)>0){
@@ -663,9 +663,9 @@ genera_names=sapply(genus_tab[,"tax_id"], function(x){
     }
 )
 genus_tab=data.frame(genus_tab, taxon_name=genera_names)
-pos=which(!is.na(genus_tab[,"R_spearm]) & genus_tab[,"R_spearm]>0.5)
+pos=which(!is.na(genus_tab[,"R_spearm"]) & genus_tab[,"R_spearm"]>0.25)
 res=genus_tab[pos,c("tax_id", "taxon_name")]
-write.table("../../results/comparison/top_spearman_r_over0.25_16SvsRNAseq.txt", file=res, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+write.table(res, file="results/comparison/top_spearman_r_over0.25_16SvsRNAseq.txt", quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
 ```
 Test property association of the highest correlated genera
 ```R
