@@ -203,7 +203,7 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         cat_properties = c("gender", "MSI_status"),
         values_not_considered = list("unknown", "unknown"),
         cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
-        pca_matrix_path = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/GBM/tables/GBM_selectedTumor_pca_tab.txt",
+        pca_matrix_path = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/GBM/tables/GBM_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_property_association.html"
 )
