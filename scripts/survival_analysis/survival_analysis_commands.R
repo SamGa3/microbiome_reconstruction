@@ -1,5 +1,3 @@
-### COMMANDS
-
 #---------------------------------------------------------------------------------------------------------------------------
 
 ## COX
@@ -14,38 +12,44 @@ rm(list=ls())
 gc(full=TRUE)
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/COAD/COAD_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/COAD/pca_matrix/COAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/COAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/COAD/COAD_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/COAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/COAD_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/COAD/COAD_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/COAD/tables/COAD_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/COAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/COAD/COAD_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/COAD_selectedTumor_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/COAD_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/COAD/COAD_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/COAD/pca_matrix/COAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/COAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/COAD/COAD_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/COAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/COAD_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/COAD/COAD_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/COAD/tables/COAD_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/COAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/COAD/COAD_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/COAD_selectedTumor_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/COAD_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -82,38 +86,44 @@ rm(list=ls())
 gc(full=TRUE)
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/GBM/GBM_metadata.txt",
-                "../../results/diversity/raw/merged_unamb_score_norm/GBM/pca_matrix/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/raw/merged_unamb_score_norm/GBM/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_score_norm.txt",
-  surv_data = "../../metadata/GBM/GBM_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/GBM_OnlyPrimaryNoDupl_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/GBM_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/GBM/GBM_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/raw/merged_unamb_score_GBM/GBM/tables/GBM_OnlyPrimaryNoDupl_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../bacteria/RNAseq/raw/merged_unamb_score_norm/GBM/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/GBM/GBM_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/GBM_OnlyPrimaryNoDupl_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/GBM_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/GBM/GBM_metadata.txt",
-                "../../results/diversity/raw/merged_unamb_score_norm/GBM/pca_matrix/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/raw/merged_unamb_score_norm/GBM/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_score_norm.txt",
-  surv_data = "../../metadata/GBM/GBM_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/GBM_OnlyPrimaryNoDupl_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/GBM_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/GBM/GBM_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/raw/merged_unamb_score_GBM/GBM/tables/GBM_OnlyPrimaryNoDupl_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../bacteria/RNAseq/raw/merged_unamb_score_norm/GBM/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/GBM/GBM_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/GBM_OnlyPrimaryNoDupl_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/GBM_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -125,38 +135,44 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/LUAD/LUAD_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/LUAD/pca_matrix/LUAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/LUAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/LUAD/LUAD_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/LUAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/LUAD_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/LUAD/LUAD_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUAD/tables/LUAD_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/LUAD/LUAD_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/LUAD_selectedTumor_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/LUAD_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/LUAD/LUAD_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/LUAD/pca_matrix/LUAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/LUAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/LUAD/LUAD_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/LUAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/LUAD_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/LUAD/LUAD_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUAD/tables/LUAD_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/LUAD/LUAD_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/LUAD_selectedTumor_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/LUAD_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -168,38 +184,44 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/LUSC/LUSC_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/LUSC/pca_matrix/LUSC_ComBat_less_plate_id_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/LUSC_ComBat_less_plate_id_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/LUSC/LUSC_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/LUSC_OnlyPrimaryNoDupl_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/LUSC_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/LUSC/LUSC_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUSC/tables/LUSC_ComBat_corr_plate_id_OnlyPrimaryNoDupl_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUSC_ComBat_corr_plate_id_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/LUSC/LUSC_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/LUSC_OnlyPrimaryNoDupl_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/LUSC_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/LUSC/LUSC_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/LUSC/pca_matrix/LUSC_ComBat_less_plate_id_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/LUSC_ComBat_less_plate_id_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/LUSC/LUSC_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/LUSC_OnlyPrimaryNoDupl_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/LUSC_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/LUSC/LUSC_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUSC/tables/LUSC_ComBat_corr_plate_id_OnlyPrimaryNoDupl_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUSC_ComBat_corr_plate_id_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/LUSC/LUSC_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/LUSC_OnlyPrimaryNoDupl_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/LUSC_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -211,38 +233,44 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/HNSC/HNSC_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/HNSC/pca_matrix/HNSC_ComBat_less_plate_id_noFFPEOnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/HNSC_ComBat_less_plate_id_noFFPEOnlyPrimary_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/HNSC/HNSC_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/HNSC_noFFPEOnlyPrimary_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/HNSC_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/HNSC/HNSC_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/HNSC/tables/HNSC_ComBat_corr_plate_id_noFFPEOnlyPrimary_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/HNSC_ComBat_corr_plate_id_noFFPEOnlyPrimary_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/HNSC/HNSC_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/HNSC_noFFPEOnlyPrimary_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/HNSC_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/HNSC/HNSC_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/HNSC/pca_matrix/HNSC_ComBat_less_plate_id_noFFPEOnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/HNSC_ComBat_less_plate_id_noFFPEOnlyPrimary_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/HNSC/HNSC_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/HNSC_noFFPEOnlyPrimary_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/HNSC_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/HNSC/HNSC_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/HNSC/tables/HNSC_ComBat_corr_plate_id_noFFPEOnlyPrimary_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/HNSC_ComBat_corr_plate_id_noFFPEOnlyPrimary_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/HNSC/HNSC_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/HNSC_noFFPEOnlyPrimary_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/HNSC_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -254,38 +282,44 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/OV/OV_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/OV/pca_matrix/OV_ComBat_less_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/OV_ComBat_less_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/OV/OV_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/OV_OnlyPrimaryNomirVana_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/OV_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/OV/OV_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/OV/tables/OV_ComBat_corr_plate_id_OnlyPrimaryNomirVana_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/OV_ComBat_corr_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/OV/OV_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/OV_OnlyPrimaryNomirVana_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/OV_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/OV/OV_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/OV/pca_matrix/OV_ComBat_less_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/OV_ComBat_less_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/OV/OV_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/OV_OnlyPrimaryNomirVana_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/OV_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/OV/OV_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/OV/tables/OV_ComBat_corr_plate_id_OnlyPrimaryNomirVana_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/OV_ComBat_corr_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/OV/OV_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/OV_OnlyPrimaryNomirVana_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/OV_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -297,38 +331,44 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/SKCM/SKCM_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/SKCM/pca_matrix/SKCM_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/SKCM_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/SKCM/SKCM_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/SKCM_OnlyPrimary_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/SKCM_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/SKCM/SKCM_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/tables/SKCM_ComBat_corr_plate_id_OnlyPrimary_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/SKCM_ComBat_corr_plate_id_OnlyPrimary_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/SKCM/SKCM_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/SKCM_OnlyPrimary_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/SKCM_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/SKCM/SKCM_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/SKCM/pca_matrix/SKCM_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/SKCM_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/SKCM/SKCM_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/SKCM_OnlyPrimary_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/SKCM_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/SKCM/SKCM_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/tables/SKCM_ComBat_corr_plate_id_OnlyPrimary_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/SKCM_ComBat_corr_plate_id_OnlyPrimary_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/SKCM/SKCM_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/SKCM_OnlyPrimary_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/SKCM_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -340,38 +380,44 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/READ/READ_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/READ/pca_matrix/READ_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/READ_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/READ/READ_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/READ_OnlyPrimary_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/READ_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/READ/READ_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/READ/tables/READ_ComBat_corr_plate_id_OnlyPrimary_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/READ_ComBat_corr_plate_id_OnlyPrimary_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/READ/READ_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/READ_OnlyPrimary_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/READ_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/READ/READ_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/READ/pca_matrix/READ_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/READ_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/READ/READ_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/READ_OnlyPrimary_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/READ_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/READ/READ_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/READ/tables/READ_ComBat_corr_plate_id_OnlyPrimary_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/READ_ComBat_corr_plate_id_OnlyPrimary_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/READ/READ_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/READ_OnlyPrimary_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/READ_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -383,38 +429,44 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/BRCA/BRCA_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/BRCA/pca_matrix/BRCA_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/BRCA_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/BRCA/BRCA_cBioPortal_overall_survival_firehose.txt",
-  survival_analysis = c("OS_YEARS", "patient_status", "OS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/BRCA_noFFPEOnlyPrimaryNoRiboZeroG_COX_OS_PC123456_"
-), output_file = "../../results/survival_analysis/BRCA_selectedTumor_COX_OS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/BRCA/BRCA_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables/BRCA_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/BRCA/BRCA_cBioPortal_overall_survival_firehose.txt",
+    survival_analysis = c("OS_YEARS", "patient_status", "OS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/BRCA_selectedTumor_COX_OS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/BRCA_selectedTumor_COX_OS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
-  metadata = c("../../metadata/BRCA/BRCA_metadata.txt",
-                "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/BRCA/pca_matrix/BRCA_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
-  join = c("columns"),
-  bacteria = "../../bacteria/RNAseq/ComBat_batch_corrected_less_plate_id/BRCA_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm.txt",
-  surv_data = "../../metadata/BRCA/BRCA_cBioPortal_disease_free_survival_firehose.txt",
-  survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
-  categorical_covariates = "",
-  values_not_considered = "",
-  timerange_cat = "",
-  numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
-  timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
-  table_path = "../../results/survival_analysis/tables/BRCA_noFFPEOnlyPrimaryNoRiboZeroG_COX_DFS_PC123456_"
-), output_file = "../../results/survival_analysis/BRCA_selectedTumor_COX_DFS_PC123456.html")
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
+  params=list(
+    metadata = c("../../metadata/BRCA/BRCA_clinical_metadata.txt",
+                  "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables/BRCA_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"),
+    join = c("columns"),
+    taxa = "../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
+    surv_data = "../../metadata/BRCA/BRCA_cBioPortal_disease_free_survival_firehose.txt",
+    survival_analysis = c("DFS_YEARS", "patient_status", "DFS"),
+    categorical_covariates = "",
+    values_not_considered = "",
+    timerange_cat = "",
+    numeric_covariates = c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6"),
+    timerange_cont = list(c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5), c(0, 5)),
+    table_path = "../../results/survival_analysis/tables/BRCA_selectedTumor_COX_DFS_PC123456_"
+  ), 
+  output_file = "../../results/survival_analysis/BRCA_selectedTumor_COX_DFS_PC123456.html"
+)
 
 rm(list=ls())
 gc(full=TRUE)
@@ -426,9 +478,9 @@ gc(full=TRUE)
 rm(list=ls())
 gc(full=TRUE)
 
-COAD_OS=read.csv("../../results/survival_analysis/COAD/tables/COAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_OS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+COAD_OS=read.csv("../../results/survival_analysis/COAD/tables/COAD_selectedTumor_COX_OS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 COAD_OS=data.frame(cancer_type=rep("COAD", nrow(COAD_OS)), surv=rep("OS", nrow(COAD_OS)), PCs=rownames(COAD_OS), COAD_OS)
-COAD_DFS=read.csv("../../results/survival_analysis/COAD/tables/COAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_DFS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+COAD_DFS=read.csv("../../results/survival_analysis/COAD/tables/COAD_selectedTumor_COX_DFS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 COAD_DFS=data.frame(cancer_type=rep("COAD", nrow(COAD_DFS)), surv=rep("DFS", nrow(COAD_OS)), PCs=rownames(COAD_DFS), COAD_DFS)
 
 GBM_OS=read.csv("../../results/survival_analysis/GBM/tables/GBM_OnlyPrimaryNoDupl_COX_OS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
@@ -441,9 +493,9 @@ HNSC_OS=data.frame(cancer_type=rep("HNSC", nrow(HNSC_OS)), surv=rep("OS", nrow(H
 HNSC_DFS=read.csv("../../results/survival_analysis/HNSC/tables/HNSC_noFFPEOnlyPrimary_COX_DFS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 HNSC_DFS=data.frame(cancer_type=rep("HNSC", nrow(HNSC_DFS)), surv=rep("DFS", nrow(HNSC_OS)), PCs=rownames(HNSC_DFS), HNSC_DFS)
 
-LUAD_OS=read.csv("../../results/survival_analysis/LUAD/tables/LUAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_OS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+LUAD_OS=read.csv("../../results/survival_analysis/LUAD/tables/LUAD_selectedTumor_COX_OS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 LUAD_OS=data.frame(cancer_type=rep("LUAD", nrow(LUAD_OS)), surv=rep("OS", nrow(LUAD_OS)), PCs=rownames(LUAD_OS), LUAD_OS)
-LUAD_DFS=read.csv("../../results/survival_analysis/LUAD/tables/LUAD_noFFPEOnlyPrimaryNoRiboZeroG_COX_DFS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+LUAD_DFS=read.csv("../../results/survival_analysis/LUAD/tables/LUAD_selectedTumor_COX_DFS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 LUAD_DFS=data.frame(cancer_type=rep("LUAD", nrow(LUAD_DFS)), surv=rep("DFS", nrow(LUAD_OS)), PCs=rownames(LUAD_DFS), LUAD_DFS)
 
 LUSC_OS=read.csv("../../results/survival_analysis/LUSC/tables/LUSC_OnlyPrimaryNoDupl_COX_OS_PC123456_univ.txt", sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
