@@ -21,11 +21,11 @@ params:
   table_path: ""
 ---
 
-```{r environments, include = FALSE}
-	# pathseq_env conda environment needed
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
 ```
 
-```{r setup, include = FALSE}
+```{r libraries, include = FALSE}
 	library(evaluate)
 	library(stringr)
 	library(scales)
@@ -248,26 +248,6 @@ params:
 	# Make tab with microbes informations
 		final_microbes=data.frame(names(all_taxa), all_taxa)
 		colnames(final_microbes)=c("tax_id", "name")
-		# Add columns to identify microbes in database
-		database_pres=sapply(final_microbes[,"tax_id"], function(x){
-				tmp=sapply(database_taxa_tab, function(y){
-						if(any(names(y)==x)){
-							return("T")
-						} else {
-							return("")
-						}
-					}
-				)
-				return(tmp)
-			}
-		)
-		if(class(database_pres)=="character"){
-			database_pres=matrix(database_pres, ncol=1)
-		} else {
-			database_pres=t(database_pres)
-		}	
-		final_microbes=data.frame(final_microbes, database_pres)
-		colnames(final_microbes)=c("tax_id", "name", names(database_taxa_tab))
 ```
 
 ```{r make_final_df, include = FALSE}
