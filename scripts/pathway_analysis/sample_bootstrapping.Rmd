@@ -10,6 +10,8 @@ params:
   taxa_tab: # vector of all taxa values files paths
   match_taxa: # column label to match taxa_tab with metadata
   properties: # vector with the properties to be used to select samples
+  cont_properties: "" # vector with the continouos properties to be used to select samples
+  binning_approach: "" # approach chosen to bin the cointinuous properties
   selection: # list of vector with the levels to be selected for each property
   column_selected: # name of the column you want to print
   subset_size: "" # number of samples per subset
@@ -37,7 +39,39 @@ params:
 		# taxa_tab
 			taxa=read.csv(params$taxa_tab, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
 		# Properties
-			properties=params$properties
+			if(all(params$cont_properties=="")){
+				properties=params$properties
+			} else {
+				new_feat=sapply(1:length(params$cont_properties), function(x){
+						if(params$binning_approach[[x]][["approach"]]=="feature_binning_decision"){
+							thr=feature_binning_decision(metadata=full_metadata,
+							columns_to_be_tested=params$cont_properties[[x]], 
+							perc_thr=params$binning_approach[[x]][["perc_thr"]], 
+							perc_NA=params$binning_approach[[x]][["perc_NA"]])
+							if(length(thr[[1]])==1){
+								new_val=sapply(full_metadata[,params$cont_properties[[x]]], function(y){
+										if(is.na(y)){
+											return("unknown")
+										} else if(y>=thr[[1]]){
+											return("high")
+										} else if(y<thr[[1]]){
+											return("low")
+										}
+									}
+								)
+								return(new_val)
+							}
+						}
+					}
+				)
+				new_cont_names=sapply(params$binning_approach, function(x){
+						x[["new_name"]]
+					}
+				)
+				colnames(new_feat)=new_cont_names
+				full_metadata=data.frame(full_metadata, new_feat)
+				features=c(params$properties, new_cont_names)
+			}
 		# Group to be selected for each feature
 			selection=params$selection
 			names(selection)=properties
