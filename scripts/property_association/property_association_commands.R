@@ -461,7 +461,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUAD_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         cat_properties = c("gender", "stage", "history_of_other_malignancy", "MSI_status"),
         values_not_considered = list("unknown", "unknown", c("unknown","inconsistency"), "unknown"),
-        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score")
+        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUAD/tables/LUAD_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUAD/LUAD_selectedTumor_property_association.html"
 )
@@ -563,7 +564,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/LUSC_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         cat_properties = c("gender", "stage", "MSI_status"),
         values_not_considered = list("unknown", "unknown", "unknown"),
-        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score")
+        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUSC/tables/LUSC_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUSC/LUSC_selectedTumor_property_association.html"
 )
@@ -667,7 +669,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/HNSC_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         cat_properties = c("gender", "stage", "history_of_other_malignancy", "MSI_status"),
         values_not_considered = list("unknown", "unknown", c("unknown","inconsistency"), "unknown"),
-        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score")
+        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/HNSC/tables/HNSC_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/HNSC/HNSC_selectedTumor_property_association.html"
 )
@@ -772,7 +775,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/OV_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         cat_properties = c("stage", "MSI_status"),
         values_not_considered = list("unknown", "unknown"),
-        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score")
+        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/OV/tables/OV_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/OV/OV_selectedTumor_property_association.html"
 )
@@ -876,7 +880,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
                               "history_colon_polyps"),
         values_not_considered = list("unknown", "unknown", "unknown", "unknown", c("unknown","inconsistency"), "unknown", 
                                        "unknown", "unknown"),
-        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score")
+        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/READ/tables/READ_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/READ/READ_selectedTumor_property_association.html"
 )
@@ -979,7 +984,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/SKCM_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         cat_properties = c("gender", "stage", "history_of_other_malignancy"),
         values_not_considered = list("unknown", c("unknown", "NOS"), c("unknown","inconsistency")),
-        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score")
+        cont_properties = c("percent_normal_cells", "age", "mutation_burden", "stemness", "aneuploidy_score"),
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/tables/SKCM_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/SKCM/SKCM_selectedTumor_property_association.html"
 )
@@ -1084,7 +1090,8 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         cat_properties = c("gender", "stage", "history_of_other_malignancy", "MSI_status"),
         values_not_considered = list("unknown", c("unknown", "NOS"), c("unknown","inconsistency"), "unknown"),
-        cont_properties = c("percent_normal_cells", "age_at_diagnosis", "mutation_burden", "stemness", "aneuploidy_score")
+        cont_properties = c("percent_normal_cells", "age_at_diagnosis", "mutation_burden", "stemness", "aneuploidy_score"),
+        pca_matrix_path = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/tables/BRCA_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_property_association.html"
 )
