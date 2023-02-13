@@ -23,6 +23,7 @@ params:
   heatmap_ptab_path: "" # path to print out p values heatmap
   heatmap_qtab_path: "" # path to print out q values heatmap
   heatmap_nPCs: "" # number of PCs to be considered for the table output
+  bubble_plot: "" # if bubble plot should be drawn
   n_feat: 1000 # number of microbes to be selected
   palette: "" # name of one of my palette in general_function
 ---
@@ -431,6 +432,41 @@ params:
 			  										)
 			}
 		}
+	}
+```
+
+```{r bubble_plot, echo = FALSE}
+	# bubbleplot
+	if(params$bubble_plot!=""){
+		cont_ass_list=lapply(1:length(PCA_ass_cor[[2]]), function(x){
+				res=PCA_ass_cor[[2]][[x]][1:6, c("spearman_r", "spearman_p")]
+				res=data.frame(res, p_values=res[,2], PCs=paste("PC", 1:6, sep=""), feat=rep(names(PCA_ass_cor[[2]])[x], 6), lab=signif(res[,"spearman_r"], 2))
+				return(res)
+			}
+		)
+		cont_ass_tab=do.call(rbind, cont_ass_list)
+		cont_ass_tab[cont_ass_tab[,"p_values"]>0.05,"p_values"]=NA
+		if(!is.na(heat_labels)){
+			bubble_lab=sapply(cont_ass_tab[,"feat"], function(x){
+					p=which(c(cat_features, cont_features)==x)
+					return(heat_labels[p])
+				}
+			)
+			cont_ass_tab[,"feat"]=bubble_lab
+			cont_ass_tab[,"feat"]=factor(cont_ass_tab[,"feat"], levels=rev(heat_labels))
+		}
+
+		bubble_plot=ggplot(cont_ass_tab, aes(x=PCs, y=feat, 
+           									colour=p_values, size=spearman_r)) +
+								  geom_point() +
+								  geom_text(aes(label=lab), colour="black", size=3) +
+								  scale_size_continuous(range=c(5, 15), name="Spearman R") + 
+								  theme_light() +
+									scale_color_gradient2(low = "red",
+																			  high = "blue", name="p values") +
+								  labs(x = NULL, y = NULL) 
+	} else {
+		bubble_plot=NA
 	}
 ```
 
