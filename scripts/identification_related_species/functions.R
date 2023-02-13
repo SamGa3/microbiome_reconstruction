@@ -136,3 +136,297 @@ indep_test=function(taxa_values, metadata, property, to_be_removed=NA, correctio
 	return(final_tab)				
 
 }
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+# Wilcoxon or Kruskal-Wallis test
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+wilc_krusk_test=function(taxa_values, metadata, property, to_be_removed=NA){
+	
+	# Sample removal
+		if(!is.na(to_be_removed)){
+			pos=sapply(metadata[,property], function(y){
+					!any(y==to_be_removed)
+				}
+			)
+			taxa_values=taxa_values[pos,]
+			metadata=metadata[pos,]
+		}		
+		
+	# Choose statistic method
+		samples_used=table(metadata[,property])
+		if(length(samples_used)>2){
+			stat_method="krusk"
+		} else {
+			stat_method="wilcox"
+		}
+	
+	# Remove columns with all zeros
+		pos=apply(taxa_values, 2, function(x){
+				!all(x==0)
+			}
+		)
+		taxa_values=taxa_values[,pos]
+
+	# Test
+	if(stat_method=="wilcox"){
+		# Wilcoxon test for all the variables
+		p_val=sapply(1:ncol(taxa_values), function(x){
+				col_lab=as.character(colnames(taxa_values)[x])
+				test_table=data.frame(taxa_values[,col_lab], metadata[,property])
+				colnames(test_table)=c("val", property)
+				p_val=wilcox.test(formula(paste("val ~ ", property, sep='')), data=test_table)$p.value
+				return(p_val)
+			}
+		)
+		q_val=p.adjust(p_val, method="fdr")
+	} else if(stat_method=="krusk"){
+		# Kruskal test for all the variables
+		p_val=sapply(1:ncol(taxa_values), function(x){
+				col_lab=as.character(colnames(taxa_values)[x])
+				test_table=data.frame(taxa_values[,col_lab], metadata[,property])
+				colnames(test_table)=c("val", property)
+				p_val=kruskal.test(formula(paste("val ~ ", property, sep='')), data=test_table)$p.value
+				return(p_val)
+			}
+		)
+		q_val=p.adjust(p_val, method="fdr")
+	}
+
+	# Create table
+		final_tab=cbind(p_val, q_val)
+		colnames(final_tab)=c(paste(stat_method, "_p", sep=''), paste(stat_method, "_q", sep=''))
+		rownames(final_tab)=colnames(taxa_values)
+	
+	# Return
+	return(final_tab)	
+
+}
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+# correlation test
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+corr_test=function(taxa_values, metadata, property, to_be_removed=NULL, met="spearman"){
+	
+	# Sample removal
+		if(!is.null(to_be_removed)){
+			pos=sapply(metadata[,property], function(y){
+					!any(y==to_be_removed)
+				}
+			)
+			taxa_values=taxa_values[pos,]
+			metadata=metadata[pos,]
+		}		
+	
+	# Remove columns with all zeros
+		pos=apply(taxa_values, 2, function(x){
+				!all(x==0)
+			}
+		)
+		taxa_values=taxa_values[,pos]
+
+	# Test
+		r_p_val=sapply(1:length(taxa_values), function(x){
+				col_lab=as.character(colnames(taxa_values)[x])
+				pos=which(is.na(metadata[,property]))
+				if(length(pos)==0){
+					r=cor.test(taxa_values[,col_lab], metadata[,property], method=met)$estimate
+					p=cor.test(taxa_values[,col_lab], metadata[,property], method=met)$p.value
+				} else {
+					r=cor.test(taxa_values[-pos,col_lab], metadata[-pos,property], method=met)$estimate
+					p=cor.test(taxa_values[-pos,col_lab], metadata[-pos,property], method=met)$p.value
+				}
+				return(c(r=r, p=p))
+			}
+		)
+		r_p_val=t(r_p_val)
+		q_val=p.adjust(r_p_val[,"p"], method="fdr")
+
+	# Create table
+		final_tab=cbind(r_p_val, q_val)
+		colnames(final_tab)=c(paste(met, "_r", sep=''), paste(met, "_p", sep=''), paste(met, "_q", sep=''))
+		rownames(final_tab)=colnames(taxa_values)
+		
+	# Return
+	return(final_tab)				
+
+}
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+# Mean and median
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+measures_of_central_tendency=function(taxa_values, metadata, property=NULL, to_be_removed=NA, met="median"){
+	
+	# Sample removal
+		if(!is.na(to_be_removed)){
+			pos=sapply(metadata[,property], function(y){
+					!any(y==to_be_removed)
+				}
+			)
+			taxa_values=taxa_values[pos,]
+			metadata=metadata[pos,]
+		}		
+	
+	# Remove columns with all zeros
+		pos=apply(taxa_values, 2, function(x){
+				!all(x==0)
+			}
+		)
+		taxa_values=taxa_values[,pos]
+
+	# info
+		if(!is.null(property)){
+			groups=sort(as.character(unique(metadata[,property])))
+		}
+				
+	# Mean
+		if(met=="mean" & !is.null(property)){
+			tot=apply(taxa_values, 2, mean)
+			mean_tabs=lapply(groups, function(x){
+					pos=which(metadata[,property]==x)
+					val=apply(taxa_values[pos,], 2, mean)
+				}
+			)
+			names(mean_tabs)=groups
+
+			tot_nonzeros=apply(taxa_values, 2, function(x){
+					mean(x[x!=0])
+				}
+			)
+			mean_nonzeros_tabs=lapply(groups, function(x){
+					pos=which(metadata[,property]==x)
+					val=apply(taxa_values[pos,], 2, function(x){
+							mean(x[x!=0])
+						}
+					)
+				}
+			)
+			names(mean_nonzeros_tabs)=paste("nonzeros_", groups,sep='')
+			
+			df=data.frame(tot, mean_tabs, tot_nonzeros, mean_nonzeros_tabs, check.names=FALSE) #check.names to avoid the adding of X to numeric labels
+			colnames(df)=paste("mean_", colnames(df), sep='')
+		} else if(met=="mean" & is.null(property)){
+			tot=apply(taxa_values, 2, mean)
+			
+			tot_nonzeros=apply(taxa_values, 2, function(x){
+					mean(x[x!=0])
+				}
+			)
+			
+			df=data.frame(tot, tot_nonzeros, check.names=FALSE) #check.names to avoid the adding of X to numeric labels
+			colnames(df)=paste("mean_", colnames(df), sep='')
+		}
+
+	# Median
+		if(met=="median" & !is.null(property)){
+			tot=apply(taxa_values, 2, median)
+			median_tabs=lapply(groups, function(x){
+					pos=which(metadata[,property]==x)
+					val=apply(taxa_values[pos,], 2, median)
+				}
+			)
+			names(median_tabs)=groups
+
+			tot_nonzeros=apply(taxa_values, 2, function(x){
+					median(x[x!=0])
+				}
+			)
+			median_nonzeros_tabs=lapply(groups, function(x){
+					pos=which(metadata[,property]==x)
+					val=apply(taxa_values[pos,], 2, function(x){
+							median(x[x!=0])
+						}
+					)
+				}
+			)
+			names(median_nonzeros_tabs)=paste("nonzeros_", groups,sep='')
+			
+			df=data.frame(tot, median_tabs, tot_nonzeros, median_nonzeros_tabs, check.names=FALSE)
+			colnames(df)=paste("median_", colnames(df), sep='')
+		} else if(met=="median" & is.null(property)){
+			tot=apply(taxa_values, 2, median)
+			
+			tot_nonzeros=apply(taxa_values, 2, function(x){
+					median(x[x!=0])
+				}
+			)
+				
+			df=data.frame(tot, tot_nonzeros, check.names=FALSE)
+			colnames(df)=paste("median_", colnames(df), sep='')
+		}
+
+	# Presence
+		if(met=="presence" & !is.null(property)){
+			tot=apply(taxa_values, 2, function(x){
+					(length(x[x!=0])/length(x))*100
+				}
+			)
+			presence_tabs=lapply(groups, function(x){
+					pos=which(metadata[,property]==x)
+					val=taxa_values[pos,]
+					pres=apply(val, 2, function(y){
+							(length(y[y!=0])/length(y))*100
+						}
+					)
+					return(pres)
+				}
+			)
+			names(presence_tabs)=groups
+
+			df=data.frame(tot, presence_tabs, check.names=FALSE)
+			colnames(df)=paste("presence_", colnames(df), sep='')
+		} else if(met=="presence" & is.null(property)){
+			tot=apply(taxa_values, 2, function(x){
+					(length(x[x!=0])/length(x))*100
+				}
+			)
+			
+			df=data.frame(tot, check.names=FALSE)
+			colnames(df)=paste("presence_", colnames(df), sep='')
+		}
+
+	# Generalized log fold change
+	# (see Zeller, "Meta-analysis of fecal metagenomes reveals global microbial signatures that are specific for colorectal cancer", 
+	# section "Univariate meta-analysis for the identification of CRC-associated gut microbial species")
+		if(met=="genlogFC"){
+			if(length(groups)!=2){
+				return(NULL)
+			}
+			if(any(taxa_values>1)){
+				print("Values must be between 0 and 1 (=relative abundances!)")
+				return(NULL)
+			}
+			min_score=min(taxa_values[taxa_values!=0])
+			no_zeros=taxa_values+min_score
+			log_taxa_values=log(no_zeros, base=10)
+			colnames(log_taxa_values)=colnames(taxa_values)
+
+			gen_log_FC_values=apply(log_taxa_values, 2, function(x){
+					log_values=lapply(groups, function(z){
+							pos=metadata[,property]==z
+							log_score_values=x[pos]
+							perc_log_score_values=quantile(log_score_values, probs=seq(0.1, 0.9, 0.1), na.rm=TRUE)
+							return(perc_log_score_values)
+						}
+					)
+					log_FC_values=mean(log_values[[1]]-log_values[[2]])
+					return(log_FC_values)
+				}
+			)
+
+			df=data.frame(gen_log_FC_values, check.names=FALSE)
+			colnames(df)=paste("genlogFC_", groups[[1]], "_", groups[[2]], sep='')
+		}
+		
+	# Return
+	return(df)				
+
+}
