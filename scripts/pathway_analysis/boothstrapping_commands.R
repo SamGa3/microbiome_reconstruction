@@ -64,7 +64,7 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
     column_selected = "file_id",
     taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
     match_taxa = "rownames",
-    subset_size = 55,
+    subset_size = 17,
     random_tries = 50,
     output = "../../results/pathway_analysis/bootstrapped_samples/COAD_selectedTumor_CMS1"
   )
@@ -94,7 +94,7 @@ gc(full=TRUE)
 
 #---------------------------------------------------------------------------------------------------------------------------
 
-## gdc_n_mutations_all
+## mutation_burden
 
 # high
 rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd", 
@@ -106,9 +106,9 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
     column_selected = "file_id",
     taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
     match_taxa = "rownames",
-    subset_size = 55,
+    subset_size = 17,
     random_tries = 50,
-    output = "../../results/pathway_analysis/bootstrapped_samples/COAD_selectedTumor_high"
+    output = "../../results/pathway_analysis/bootstrapped_samples/COAD_selectedTumor_mutation_burden_high"
   )
 )
 
@@ -125,9 +125,9 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
     column_selected = "file_id",
     taxa_tab = "../../data/RNAseq/bacteria/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
     match_taxa = "rownames",
-    subset_size = 55,
+    subset_size = 95,
     random_tries = 50,
-    output = "../../results/pathway_analysis/bootstrapped_samples/COAD_selectedTumor_low"
+    output = "../../results/pathway_analysis/bootstrapped_samples/COAD_selectedTumor_mutation_burden_low"
   )
 )
 
