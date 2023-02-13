@@ -529,7 +529,7 @@ cat data/RNAseq/humann_output/example/ERR2756905_out/fastq_out.fastq data/RNAseq
 The tool step was run on the IEO cluster using local computer of 8 cores, 25 GB of ram.
 Since the reference databases are big (several GBs) and the setting up of HUMAnN tool is behind the scope of this paper, we provide the command we used and the required HUMAnN output tables. Please refer to the [HUMAnN tutorial](https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-3.0) for setting up and running the tool. This is the command used to run it on the cluster:
 ```bash
-humann --input data/RNAseq/humann_output/example/merged_fastq_out.fastq --output data/RNAseq/humann_output/example/example
+humann --input data/RNAseq/humann_output/example/merged_fastq_out.fastq --output data/RNAseq/humann_output/example
 ```
 The second step of HUMAnN 3.0 tool involves the split of stratified and unstratified pathways (not stratified by microbes) and the normalisation of the data from RPKs to CPM:
 ```bash
