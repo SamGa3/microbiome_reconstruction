@@ -29,6 +29,7 @@ params:
 	library(evaluate)
 	library(stringr)
 	library(scales)
+	library(reshape2)
 ```
 
 ```{r functions, include = FALSE}
