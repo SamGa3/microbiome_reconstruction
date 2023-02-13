@@ -47,7 +47,7 @@ rmarkdown::render("scripts/identification_related_species/taxa_compositions_wilc
   taxa_selection = "../../results/contamination/subset_taxa/Presence_more0.1samples_GBM.txt",
   taxa_selection_approach="intersect",
   database_taxa = "../../bacteria/gold_standard_colon_bacteria_species.txt",
-  table_path = "../../results/identification_related_speciestables/GBM_prevalence0.1_selectedTumor"
+  table_path = "../../results/identification_related_species/tables/GBM_prevalence0.1_selectedTumor"
 ), output_file = "../../results/identification_related_speciesGBM_prevalence0.1_selectedTumor_bacteria_species_compositions.html")
 
 rm(list=ls())
