@@ -89,7 +89,7 @@ gc(full=TRUE)
 rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
   params=list(
     metadata = c("../../metadata/GBM/GBM_clinical_metadata.txt",
-                  "../../results/property_association/bacteria_species/raw/merged_unamb_score_GBM/GBM/tables/GBM_selectedTumor_pca_tab.txt"),
+                  "../../results/property_association/bacteria_species/raw/merged_unamb_score/GBM/tables/GBM_selectedTumor_pca_tab.txt"),
     join = c("columns"),
     taxa = "../../bacteria/RNAseq/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
     surv_data = "../../metadata/GBM/GBM_cBioPortal_overall_survival_firehose.txt",
@@ -110,7 +110,7 @@ gc(full=TRUE)
 rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
   params=list(
     metadata = c("../../metadata/GBM/GBM_clinical_metadata.txt",
-                  "../../results/property_association/bacteria_species/raw/merged_unamb_score_GBM/GBM/tables/GBM_selectedTumor_pca_tab.txt"),
+                  "../../results/property_association/bacteria_species/raw/merged_unamb_score/GBM/tables/GBM_selectedTumor_pca_tab.txt"),
     join = c("columns"),
     taxa = "../../bacteria/RNAseq/raw/merged_unamb_score_norm/GBM/GBM_selectedTumor_bacteria_species_merged_unamb_score_norm.txt",
     surv_data = "../../metadata/GBM/GBM_cBioPortal_disease_free_survival_firehose.txt",
