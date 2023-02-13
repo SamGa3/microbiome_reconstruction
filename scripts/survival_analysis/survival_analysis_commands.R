@@ -156,7 +156,7 @@ rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd",
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", 
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
   params=list(
     metadata = c("../../metadata/LUAD/LUAD_clinical_metadata.txt",
                   "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUAD/tables/LUAD_ComBat_corr_plate_id_selectedTumor_pca_tab.txt"),
@@ -205,7 +205,7 @@ rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd",
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", 
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
   params=list(
     metadata = c("../../metadata/LUSC/LUSC_clinical_metadata.txt",
                   "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/LUSC/tables/LUSC_ComBat_corr_plate_id_OnlyPrimaryNoDupl_pca_tab.txt"),
@@ -254,7 +254,7 @@ rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd",
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", 
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", 
   params=list(
     metadata = c("../../metadata/HNSC/HNSC_clinical_metadata.txt",
                   "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/HNSC/tables/HNSC_ComBat_corr_plate_id_noFFPEOnlyPrimary_pca_tab.txt"),
