@@ -14,7 +14,7 @@ rm(list=ls())
 gc(full=TRUE)
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/COAD/COAD_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/COAD/pca_matrix/COAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -32,7 +32,7 @@ rmarkdown::render("cox_analysis.Rmd", params=list(
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/COAD/COAD_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/COAD/pca_matrix/COAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -82,7 +82,7 @@ rm(list=ls())
 gc(full=TRUE)
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/GBM/GBM_metadata.txt",
                 "../../results/diversity/raw/merged_unamb_score_norm/GBM/pca_matrix/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -100,7 +100,7 @@ rmarkdown::render("cox_analysis.Rmd", params=list(
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/GBM/GBM_metadata.txt",
                 "../../results/diversity/raw/merged_unamb_score_norm/GBM/pca_matrix/GBM_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -125,7 +125,7 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/LUAD/LUAD_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/LUAD/pca_matrix/LUAD_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -168,7 +168,7 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/LUSC/LUSC_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/LUSC/pca_matrix/LUSC_ComBat_less_plate_id_OnlyPrimaryNoDupl_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -211,7 +211,7 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/HNSC/HNSC_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/HNSC/pca_matrix/HNSC_ComBat_less_plate_id_noFFPEOnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -254,7 +254,7 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/OV/OV_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/OV/pca_matrix/OV_ComBat_less_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -272,7 +272,7 @@ rmarkdown::render("cox_analysis.Rmd", params=list(
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/OV/OV_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/OV/pca_matrix/OV_ComBat_less_plate_id_OnlyPrimaryNomirVana_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -297,7 +297,7 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/SKCM/SKCM_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/SKCM/pca_matrix/SKCM_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -315,7 +315,7 @@ rmarkdown::render("cox_analysis.Rmd", params=list(
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/SKCM/SKCM_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/SKCM/pca_matrix/SKCM_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -340,7 +340,7 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/READ/READ_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/READ/pca_matrix/READ_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -358,7 +358,7 @@ rmarkdown::render("cox_analysis.Rmd", params=list(
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/READ/READ_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/READ/pca_matrix/READ_ComBat_less_plate_id_OnlyPrimary_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -383,7 +383,7 @@ gc(full=TRUE)
 #---------------------------------------------------------------------------------------------------------------------------
 
 # PC1 2 3 4 5 6
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/BRCA/BRCA_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/BRCA/pca_matrix/BRCA_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
@@ -401,7 +401,7 @@ rmarkdown::render("cox_analysis.Rmd", params=list(
 rm(list=ls())
 gc(full=TRUE)
 
-rmarkdown::render("cox_analysis.Rmd", params=list(
+rmarkdown::render("scripts/survival_analysis/cox_analysis.Rmd", params=list(
   metadata = c("../../metadata/BRCA/BRCA_metadata.txt",
                 "../../results/diversity/ComBat_batch_corrected_less_plate_id/merged_unamb_score_norm/BRCA/pca_matrix/BRCA_ComBat_less_plate_id_noFFPEOnlyPrimaryNoRiboZeroG_bacteria_species_merged_unamb_scores_norm_pca_tab.txt"),
   join = c("columns"),
