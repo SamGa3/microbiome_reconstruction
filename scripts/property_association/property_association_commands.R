@@ -1082,11 +1082,14 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
         join = "columns",
         taxa = c("../../data/RNAseq/bacteria/ComBat_plate_id/merged_unamb_score_norm/BRCA_ComBat_corr_plate_id_selectedTumor_bacteria_species_merged_unamb_score_norm.txt"),
         cat_properties = c("gender", "stage", "history_of_other_malignancy", "MSI_status"),
-        values_not_considered = list("unknown", c("unknown", "NOS"), c("unknown","inconsistency")),
+        values_not_considered = list("unknown", c("unknown", "NOS"), c("unknown","inconsistency"), "unknown"),
         cont_properties = c("percent_normal_cells", "age_at_diagnosis", "mutation_burden", "stemness", "aneuploidy_score")
     ), 
     output_file = "../../results/property_association/bacteria_species/ComBat_batch_corrected_plate_id/merged_unamb_score_norm/BRCA/BRCA_selectedTumor_property_association.html"
 )
+
+rm(list=ls())
+gc(full=TRUE)
 
 # cibersort relative
 rmarkdown::render("scripts/property_association/diversity.Rmd", 
