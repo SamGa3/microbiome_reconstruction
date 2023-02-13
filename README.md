@@ -61,9 +61,9 @@ chmod u+wrx scripts/make_structure.sh
 After pulling the docker container as explained above, you must activate it in interactive way:
 ```bash
 # Linux/Ubuntu users
-sudo docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiome_reconstruction 7a13d2e31810 /bin/bash
+sudo docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiome_reconstruction 2e311a4183f9 /bin/bash
 # Windows users
-docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiome_reconstruction 7a13d2e31810 /bin/bash
+docker run -it -e DISPLAY -v /your/path/to/microbiome_reconstruction/:/microbiome_reconstruction 2e311a4183f9 /bin/bash
 ```
 Where 7a13d2e31810 is the image id of the repository, to check your own image id you can run:
 ```bash
