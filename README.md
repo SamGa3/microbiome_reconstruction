@@ -595,9 +595,9 @@ rmarkdown::render("scripts/pathway_analysis/pathway_analysis.Rmd",
     params=list(
         pathways1 = c(left="../../data/RNAseq/humann_output/left/COAD_selectedTumor_left_pathabundance_unstratified_cpm.tsv"),
         pathways2 = c(right="../../data/RNAseq/humann_output/right/COAD_selectedTumor_right_pathabundance_unstratified_cpm.tsv"),
-        random_pathways1 = "../../data/RNAseq/humann_output/random_subset_left/",
+        random_pathways1 = "../../data/RNAseq/humann_output/left_random/",
         base_name1 = "COAD_selectedTumor_left_30random",
-        random_pathways2 = "../../data/RNAseq/humann_output/random_subset_right/",
+        random_pathways2 = "../../data/RNAseq/humann_output/right_random/",
         base_name2 = "COAD_selectedTumor_right_30random",
         output = "../../results/pathway_analysis/COAD_side_table.tsv"
     ), 
