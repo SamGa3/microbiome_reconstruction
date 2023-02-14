@@ -1,0 +1,99 @@
+---
+title: "TPM maker"
+output: flexdashboard::flex_dashboard
+vertical_layout: scroll
+date: '`r Sys.Date()`'
+params:
+  manifest: # path to manifest
+  dir: # path to directory where fpkm tables are stored
+  converter_tab: "data/RNAseq/TPM/tcga/gene_annotation_v22_gene_length.txt" # path to the converter tab
+  output: # output table paths
+---
+
+```{r setup, include = FALSE, dev = "CairoPNG"}
+	knitr::opts_chunk$set(dev="CairoPNG")
+```
+
+```{r libraries, include = FALSE}
+	library(dplyr)
+```
+
+```{r functions, include = FALSE}
+
+```	
+
+```{r data, include = FALSE}
+	# FPKM
+		manifest=read.csv(params$manifest, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+		cancer_types=unique(manifest$project)
+		fpkm=lapply(cancer_types, function(x){
+				p=which(manifest$project==x)
+				tab=manifest[p,]
+				res_list=lapply(1:nrow(tab), function(y){
+						if(file.exists(paste(params$dir, tab[y,"id"], "/", gsub(".gz", "", tab[y,"filename"]), sep=""))){
+							res=read.csv(paste(params$dir, tab[y,"id"], "/", gsub(".gz", "", tab[y,"filename"]), sep=""), sep="\t", header=FALSE, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)
+							return(res)
+						} else {
+							return(NA)
+						}
+					}
+				)
+				names(res_list)=manifest[p,"id"]
+				res_list=res_list[!is.na(res_list)]
+				if(length(res_list)>0){
+					res_tab=do.call(cbind, res_list)
+					colnames(res_tab)=names(res_list)
+					return(res_tab)
+				} else {
+					return(NA)
+				}
+			}
+		)
+		names(fpkm)=cancer_types
+```
+
+```{r tpm_maker, include = FALSE}
+	# TPM
+		tpm=lapply(fpkm, function(x){
+				if(all(!is.na(x))){
+						res=apply(x, 2, function(y){
+							(y/sum(y))*1000000
+						}
+					)
+					return(res)	
+				} else {
+					return(NA)
+				}				
+			}
+		)
+```
+
+```{r convert_genes_from_tab, include = FALSE}
+	# Gene name conversion
+		converter=read.csv(params$converter_tab, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)	
+		res_gene=sapply(rownames(tpm[[1]]), function(x){
+				p=which(converter[,"gene_id"]==x)
+				if(length(p)==0){
+					return(NA)
+				} else if(length(p)>1){ # if there are genes with more outputs, select the first one
+					return(converter[p[1],"gene_name"])
+				} else {
+					return(converter[p,"gene_name"])
+				}
+			}
+		)	
+		TPM=lapply(tpm, function(y){
+				res=data.frame(ensembl_id=res_gene, y)
+				res=res %>% group_by(ensembl_id) %>% summarise_all(funs(sum))
+				res=as.data.frame(res)
+				return(res)
+			}
+		)
+```
+
+```{r write_out, include = FALSE}
+	# Write the table
+		for(i in 1:length(TPM)){
+			write.table(TPM[[i]], file=paste(params$output, names(TPM)[i], "_tpm.txt", sep=''), quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+		}	
+```
