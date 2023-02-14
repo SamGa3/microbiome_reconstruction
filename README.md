@@ -685,3 +685,26 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
     output_file = "../../results/property_association/bacteria_genus/raw/merged_unamb_score_norm/COAD/COAD_selectedTumor_property_association.html"
 )
 ```
+
+### 14. CIBERSORTx application
+
+[CIBERSORTx](https://cibersortx.stanford.edu/) requires gene expression to estimate immune infiltration. We upload TPM tables to impute cell fraction, used the provided LM22 signature, enabled batch correction B-mode, disabled quantile normalization (as suggested by the authors) and run 1000 permutations.
+
+#### TCGA FPKM values download
+To download FPKM values we used the [GDC Data Transfer Tool](https://gdc.cancer.gov/access-data/gdc-data-transfer-tool) using the provided manifest, which download the FPKM values of all the cancer types.
+```bash
+../bin/gdc-client download -m data/RNAseq/TPM/tcga/fpkm_manifest.tsv -d data/RNAseq/TPM/tcga/
+gzip -d data/RNAseq/TPM/tcga/*/*.gz
+```
+To create the TPM tables per TCGA cancer type to be uploaded to CIBERSORtx, in R:
+```R
+rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
+  params=list(
+    manifest = "../../data/RNAseq/TPM/tcga/fpkm_manifest.tsv",
+    dir = "../../data/RNAseq/TPM/tcga/",
+    converter_tab = "../../data/RNAseq/TPM/tcga/gene_annotation_v22_gene_length.txt",
+    output = c("../../data/RNAseq/TPM/")
+  ), 
+  output_file = "../../data/RNAseq/TPM/tcga/tpm.html"
+)
+```
