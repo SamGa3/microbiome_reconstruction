@@ -1,12 +1,12 @@
 # Microbiome Reconstruction Workflow
 
-## Reconstruction of the condition- and location-specific colon cancer microbiome from human RNA sequencing data
+## Location and condition based reconstruction of colon cancer microbiome from human RNA sequencing data
 
 ### Abstract
-Association between microbes and cancer has been reported repeatedly; however, it is not clear if molecular tumour properties are connected to specific microbial colonization patterns. This is due mainly to the current technical and analytical strategy limitations to characterise tumour-associated bacteria.
+The association between microbes and cancer has been reported repeatedly; however, it is not clear if molecular tumour properties are connected to specific microbial colonisation patterns. This is due mainly to the current technical and analytical strategy limitations to characterise tumour-associated bacteria.
 Here, we propose an approach to detect bacterial signals in human RNA sequencing data and associate them with the clinical and molecular properties of the tumours. The method was tested on public datasets from The Cancer Genome Atlas and its accuracy was assessed on a new cohort of colorectal cancer patients.
-Our analysis shows that intratumoral microbiome composition is correlated with survival, anatomic location, microsatellite instability, consensus molecular subtype and immune cell infiltration in colon tumours. In particular, we find Faecalibacterium prausnitzii, Coprococcus comes, Bacteroides spp., Fusobacterium spp. and Clostridium spp. to be strongly associated with tumour properties.
-In conclusion, we implemented an approach to analyse concurrently clinical and molecular properties of the tumour and the composition of the associated microbiome. Our results may improve patient stratification and pave the path for mechanistic studies on microbiota-tumour crosstalk.
+Our analysis shows that intratumoural microbiome composition is correlated with survival, anatomic location, microsatellite instability, consensus molecular subtype and immune cell infiltration in colon tumours. In particular, we find Faecalibacterium prausnitzii, Coprococcus comes, Bacteroides spp., Fusobacterium spp. and Clostridium spp. to be strongly associated with tumour properties.
+We implemented an approach to concurrently analyze clinical and molecular properties of the tumour as well as the composition of the associated microbiome. Our results may improve patient stratification and pave the path for mechanistic studies on microbiota-tumour crosstalk.
 
 ## Requirements
 
