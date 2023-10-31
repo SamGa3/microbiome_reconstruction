@@ -43,8 +43,8 @@ params:
 				properties=params$properties
 			} else {
 				new_feat=sapply(1:length(params$cont_properties), function(x){
-						if(params$binning_approach[[x]][["approach"]]=="feature_binning_decision"){
-							thr=feature_binning_decision(metadata=full_metadata,
+						if(params$binning_approach[[x]][["approach"]]=="property_binning_decision"){
+							thr=property_binning_decision(metadata=full_metadata,
 							columns_to_be_tested=params$cont_properties[[x]], 
 							perc_thr=params$binning_approach[[x]][["perc_thr"]], 
 							perc_NA=params$binning_approach[[x]][["perc_NA"]])
