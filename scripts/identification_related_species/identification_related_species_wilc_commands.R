@@ -153,9 +153,9 @@ rmarkdown::render("scripts/identification_related_species/taxa_compositions_wilc
     heatmap = TRUE,
     taxa_selection = "../../results/filters/Presence_more0.1samples_OV.txt",
     taxa_selection_approach="intersect",
-    table_path = "../../results/identification_related_speciesables/OV_prevalence0.1_selectedTumor"
+    table_path = "../../results/identification_related_species/tables/OV_prevalence0.1_selectedTumor"
   ), 
-  output_file = "../../results/identification_related_speciese/OV_prevalence0.1_selectedTumor_bacteria_species_compositions.html"
+  output_file = "../../results/identification_related_species/OV_prevalence0.1_selectedTumor_bacteria_species_compositions.html"
 )
 
 rm(list=ls())
