@@ -45,10 +45,45 @@ params:
 				new_feat=sapply(1:length(params$cont_properties), function(x){
 						if(params$binning_approach[[x]][["approach"]]=="property_binning_decision"){
 							thr=property_binning_decision(metadata=full_metadata,
-							columns_to_be_tested=params$cont_properties[[x]], 
-							perc_thr=params$binning_approach[[x]][["perc_thr"]], 
-							perc_NA=params$binning_approach[[x]][["perc_NA"]])
+																							columns_to_be_tested=params$cont_properties[[x]], 
+																							perc_thr=params$binning_approach[[x]][["perc_thr"]], 
+																							perc_NA=params$binning_approach[[x]][["perc_NA"]])
 							if(length(thr[[1]])==1){
+								new_val=sapply(full_metadata[,params$cont_properties[[x]]], function(y){
+										if(is.na(y)){
+											return("unknown")
+										} else if(y>=thr[[1]]){
+											return("high")
+										} else if(y<thr[[1]]){
+											return("low")
+										}
+									}
+								)
+								return(new_val)
+							} else {
+								size_mode=0.1
+								while(size_mode>0.05 & length(thr[[x]])>1){
+									modes_values=Modes(full_metadata[,params$cont_properties[[x]]], min.size=size_mode)$modes
+									if(length(modes_values)==1){
+										size_mode=size_mode-0.005
+									} else {
+										den=density(full_metadata[,params$cont_properties[[x]]], na.rm=TRUE)
+										pos1=which(den$x==modes_values[[1]])
+										pos2=which(den$x==modes_values[[2]])
+										if(length(pos1)==0){
+											pos1=which(abs(den$x-modes_values[[1]])==min(abs(den$x-modes_values[[1]])))
+										}
+										if(length(pos2)==0){
+											pos2=which(abs(den$x-modes_values[[2]])==min(abs(den$x-modes_values[[2]])))
+										}
+										min_val=min(den$y[pos1:pos2])
+										pos3=which(den$y==min_val)
+										if(length(pos3)>1){
+											pos3=pos3[round(length(pos3)/2, 1)]
+										}
+										thr=den$x[pos3]
+									}
+								}
 								new_val=sapply(full_metadata[,params$cont_properties[[x]]], function(y){
 										if(is.na(y)){
 											return("unknown")
@@ -70,7 +105,7 @@ params:
 				)
 				colnames(new_feat)=new_cont_names
 				full_metadata=data.frame(full_metadata, new_feat)
-				features=c(params$properties, new_cont_names)
+				properties=c(params$properties, new_cont_names)
 			}
 		# Group to be selected for each feature
 			selection=params$selection
