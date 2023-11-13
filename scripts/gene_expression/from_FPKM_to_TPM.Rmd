@@ -7,7 +7,8 @@ params:
   manifest: # path to manifest
   dir: # path to directory where fpkm tables are stored
   converter_tab: "data/RNAseq/TPM/tcga/gene_annotation_v22_gene_length.txt" # path to the converter tab
-  output: # output table paths
+  output_fpkm: # output fpkm table path
+  output_tpm: # output tpm table path
 ---
 
 ```{r setup, include = FALSE, dev = "CairoPNG"}
@@ -16,6 +17,7 @@ params:
 
 ```{r libraries, include = FALSE}
 	library(dplyr)
+	library(data.table)
 ```
 
 ```{r functions, include = FALSE}
@@ -25,8 +27,8 @@ params:
 ```{r data, include = FALSE}
 	# FPKM
 		manifest=read.csv(params$manifest, sep="\t", header=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
-		cancer_types=unique(manifest$project)
-		fpkm=lapply(cancer_types, function(x){
+		cancer_types=unique(manifest$project_id)
+		fpkm_tmp=lapply(cancer_types, function(x){
 				p=which(manifest$project==x)
 				tab=manifest[p,]
 				res_list=lapply(1:nrow(tab), function(y){
@@ -43,10 +45,17 @@ params:
 				if(length(res_list)>0){
 					res_tab=do.call(cbind, res_list)
 					colnames(res_tab)=names(res_list)
-					return(res_tab)
+					write.table(res_tab, file=paste(params$output_fpkm, x, "_fpkm.txt", sep=''), quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+					return(NA)
 				} else {
 					return(NA)
 				}
+			}
+		)
+		fpkm=lapply(cancer_types, function(x){
+				res_tmp=fread(paste(params$output_fpkm, "/", x, "_fpkm.txt", sep=''), sep="\t")
+				res=as.matrix(res_tmp, rownames=1)
+				return(res)
 			}
 		)
 		names(fpkm)=cancer_types
@@ -94,6 +103,6 @@ params:
 ```{r write_out, include = FALSE}
 	# Write the table
 		for(i in 1:length(TPM)){
-			write.table(TPM[[i]], file=paste(params$output, names(TPM)[i], "_tpm.txt", sep=''), quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+			write.table(TPM[[i]], file=paste(params$output_tpm, names(TPM)[i], "_tpm.txt", sep=''), quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
 		}	
 ```
