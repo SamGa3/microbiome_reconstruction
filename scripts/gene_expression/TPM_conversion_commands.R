@@ -18,6 +18,9 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
 
+rm(list=ls())
+gc(full=TRUE)
+
 ## GBM 
 
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
@@ -30,6 +33,9 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
+
+rm(list=ls())
+gc(full=TRUE)
 
 ## LUAD 
 
@@ -57,6 +63,9 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
 
+rm(list=ls())
+gc(full=TRUE)
+
 ## HNSC 
 
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
@@ -83,6 +92,9 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
 
+rm(list=ls())
+gc(full=TRUE)
+
 ## READ 
 
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
@@ -96,6 +108,9 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
 
+rm(list=ls())
+gc(full=TRUE)
+
 ## SKCM 
 
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
@@ -108,6 +123,9 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
+
+rm(list=ls())
+gc(full=TRUE)
 
 ## BRCA 
 
