@@ -575,7 +575,7 @@ rmarkdown::render("scripts/pathway_analysis/sample_bootstrapping.Rmd",
   )
 )
 ```
-The scripts to obtain both the left and right subsets of samples are in:
+The scripts to obtain all the subsets of samples are in:
 ```bash
 ../R-3.6.1/bin/Rscript scripts/pathway_analysis/boothstrapping_commands.R
 ```
