@@ -700,11 +700,16 @@ To create the TPM tables per TCGA cancer type to be uploaded to CIBERSORtx, in R
 ```R
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
-    manifest = "../../data/RNAseq/TPM/tcga/fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/TPM/tcga/",
-    converter_tab = "../../data/RNAseq/TPM/tcga/gene_annotation_v22_gene_length.txt",
-    output = c("../../data/RNAseq/TPM/")
+    manifest = "../../data/RNAseq/FPKM/tcga/COAD_fpkm_manifest.tsv",
+    dir = "../../data/RNAseq/FPKM/tcga/",
+    converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
+    output_fpkm = c("../../data/RNAseq/FPKM/"),
+    output_tpm = c("../../data/RNAseq/TPM/")
   ), 
-  output_file = "../../data/RNAseq/TPM/tcga/tpm.html"
+  output_file = "../../data/RNAseq/TPM/tpm.html"
 )
+```
+The scripts to obtain all the TPM tables of the cancer types are in:
+```bash
+../R-3.6.1/bin/Rscript scripts/gene_expression/TPM_conversion_commands.R
 ```
