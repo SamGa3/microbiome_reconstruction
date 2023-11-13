@@ -29,8 +29,6 @@ mkdir -p data/pathseq_tools
 mkdir -p data/RNAseq/pathseq_output/ERR2756905_out
 mkdir -p data/RNAseq/pathseq_output/ERR2756906_out
 mkdir -p data/RNAseq/pathseq_output/ERR2756907_out
-mkdir -p data/RNAseq/humann_output/random_subset_left
-mkdir -p data/RNAseq/humann_output/random_subset_right
 mkdir -p data/RNAseq/humann_output/example/ERR2756905_out
 mkdir -p data/RNAseq/humann_output/example/ERR2756906_out
 mkdir -p data/RNAseq/humann_output/example/ERR2756907_out
