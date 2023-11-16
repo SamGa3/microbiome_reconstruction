@@ -279,6 +279,7 @@ join_metadata=function(metadata_paths, join_by, matching1, matching2, metadata_i
 	for(i in 1:ncol(full_metadata)){
 		cont_column[[i]]=can_be_numeric(full_metadata[,i])
 	}
+	cont_column=unlist(cont_column)
 	for(i in which(cont_column)){
 		full_metadata[,i]=as.numeric(as.character(full_metadata[,i]))
 	}
