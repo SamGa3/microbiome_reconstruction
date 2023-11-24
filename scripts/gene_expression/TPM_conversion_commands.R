@@ -10,10 +10,10 @@
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/COAD_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/COAD/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -26,10 +26,10 @@ gc(full=TRUE)
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/GBM_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/GBM/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -42,10 +42,10 @@ gc(full=TRUE)
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/LUAD_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/LUAD/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -55,10 +55,10 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/LUSC_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/LUSC/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -71,10 +71,10 @@ gc(full=TRUE)
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/HNSC_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/HNSC/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -84,10 +84,10 @@ rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd",
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/OV_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/OV/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -100,10 +100,10 @@ gc(full=TRUE)
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/READ_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/READ/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -116,10 +116,10 @@ gc(full=TRUE)
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/SKCM_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/SKCM/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
@@ -132,10 +132,10 @@ gc(full=TRUE)
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/BRCA_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/BRCA/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
