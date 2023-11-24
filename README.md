@@ -706,10 +706,10 @@ To create the TPM tables per TCGA cancer type to be uploaded to CIBERSORtx, in R
 rmarkdown::render("scripts/gene_expression/from_FPKM_to_TPM.Rmd", 
   params=list(
     manifest = "../../data/RNAseq/FPKM/tcga/COAD_fpkm_manifest.tsv",
-    dir = "../../data/RNAseq/FPKM/tcga/",
+    dir = "../../data/RNAseq/FPKM/tcga/COAD/",
     converter_tab = "../../data/RNAseq/FPKM/tcga/gene_annotation_v22_gene_length.txt",
-    output_fpkm = c("../../data/RNAseq/FPKM/"),
-    output_tpm = c("../../data/RNAseq/TPM/")
+    output_fpkm = c("../../data/RNAseq/FPKM/tcga/"),
+    output_tpm = c("../../data/RNAseq/TPM/tcga/")
   ), 
   output_file = "../../data/RNAseq/TPM/tpm.html"
 )
