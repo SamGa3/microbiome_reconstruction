@@ -693,8 +693,13 @@ rmarkdown::render("scripts/property_association/diversity.Rmd",
 #### TCGA FPKM values download
 To download FPKM values we used the [GDC Data Transfer Tool](https://gdc.cancer.gov/access-data/gdc-data-transfer-tool) using the provided manifest, which download the FPKM values of all the cancer types.
 ```bash
-../bin/gdc-client download -m data/RNAseq/TPM/tcga/fpkm_manifest.tsv -d data/RNAseq/TPM/tcga/
-gzip -d data/RNAseq/TPM/tcga/*/*.gz
+mkdir data/RNAseq/FPKM/tcga/COAD/
+../bin/gdc-client download -m data/RNAseq/FPKM/tcga/COAD_fpkm_manifest.tsv -d data/RNAseq/FPKM/tcga/COAD/
+gzip -d data/RNAseq/FPKM/tcga/COAD/*/*.gz
+```
+The scripts to obtain all the FPKM tables of the cancer types are in:
+```bash
+./scripts/gene_expression/gene_expression_data_download.sh
 ```
 To create the TPM tables per TCGA cancer type to be uploaded to CIBERSORtx, in R:
 ```R
