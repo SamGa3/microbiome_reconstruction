@@ -39,7 +39,7 @@ Following this tutorial, you will test the microbial reads extraction from bam f
 
 The scripts use Rmarkdown and produce an html file that wraps together the figures. When needed for further analyses, tables are also produced.
 The structure of this workflow has a scripts folder that contains all the required scripts, categorised by type of analysis. The results of these scripts are stored in a folder with a similar structure to the results folder. Each analysis requires its own functions, written in the functions.R file in each script subfolder, while a general set of functions needed by multiple scripts is listed in general_functions.R script.
-All the metadata files and the tables produced by the workflow use a "file_id" column as key to link the information of each sample (for TCGA samples it is the file_id provided by the gdc database). To easily recover the patient's barcode, an extra table linking the file_id to the TCGA barcode has been added.
+All the metadata files and the tables produced by the workflow use a "file_id" column as key to link the information of each sample (for TCGA samples it is the file_id provided by the gdc database). To easily recover the patient's barcode, an extra table linking the file_id to the TCGA barcode has been added. IEO metadata are available under request.
 
 ### 1. Setup
 
